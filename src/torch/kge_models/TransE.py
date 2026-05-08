@@ -58,15 +58,33 @@ class TransE(BasicModel):
 			candidates = candidates.expand(b_size, self.rel_tot, self.dim)
 			return proj_h, r_embs, proj_t, candidates
 
-	def forward(self, data):
-		batch_h = data['batch_h']
-		batch_t = data['batch_t']
-		batch_r = data['batch_r']
+	def forward(self, data, batch_times=None):
+		batch_h = data["batch_h"]
+		batch_t = data["batch_t"]
+		batch_r = data["batch_r"]
+
+		if batch_times is not None:
+			torch.cuda.synchronize()
+			start_embedding_lookup = time.time()
+
 		h = self.ent_embeddings(batch_h)
 		t = self.ent_embeddings(batch_t)
 		r = self.rel_embeddings(batch_r)
+
+		if batch_times is not None:
+			torch.cuda.synchronize()
+			end_embedding_lookup = time.time()
+			batch_times["embedding_lookup"].append(end_embedding_lookup - start_embedding_lookup)
+			start_score_calc = time.time()
+
 		if self.margin_flag:
 			score = self.calc(h, r, t).flatten() - self.margin
 		else:
 			score = self.calc(h, r, t).flatten()
+
+		if batch_times is not None:
+			torch.cuda.synchronize()
+			end_score_calc = time.time()
+			batch_times["score_calculation"].append(end_score_calc - start_score_calc)
+
 		return score

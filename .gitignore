@@ -1,8 +1,39 @@
-### Example user template template
-### Example user template
+# ============================================
+# muKG 知识图谱项目忽略规则
+# ============================================
 
-# IntelliJ project files
-.idea
-*.iml
-out
-gen
+# 1. 深度学习与知识图谱数据集（体积最大，绝对禁止扫描）
+data/
+dataset/
+datasets/
+*.csv
+*.tsv
+*.txt
+*.pt
+*.pth
+*.bin
+
+# 2. 项目日志与模型输出
+mukg_logs/
+mukg_output/
+logs/
+*.log
+
+# 3. Python 及编译缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.out
+
+# 4. 环境与 IDE 配置
+.env
+venv/
+env/
+.vscode/
+
+# 5. 构建文档输出
+build/
+
+# 6. 系统文件
+.DS_Store
+Thumbs.db

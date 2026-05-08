@@ -8,7 +8,7 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
 import scipy.sparse as sp
-from scipy.sparse.linalg.eigen.arpack import eigsh
+from scipy.sparse.linalg import eigsh
 from src.py.util.util import to_var, to_tensor_cpu, to_tensor, early_stop, generate_out_folder
 '''
 Refactoring based on https://github.com/1049451037/GCN-Align
@@ -546,6 +546,3 @@ class GCN_Utils:
         adj = self.get_weighted_adj(self.kgs.entities_num, triples)
         train = np.array(self.kgs.train_links)
         return adj, ae_input, train
-
-
-

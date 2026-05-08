@@ -21,7 +21,7 @@ tf.disable_v2_behavior()    #禁用TensorFlow 2.x行为
 import scipy.sparse as sp
 import scipy.special
 
-from scipy.sparse.linalg.eigen.arpack import eigsh
+from scipy.sparse.linalg import eigsh
 
 
 # ***************************adj & sparse**************************

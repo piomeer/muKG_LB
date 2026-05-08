@@ -20,7 +20,7 @@ import ray
 # import ray.train as train
 from ray import train
 import ray.train.torch
-from ray.train.trainer import Trainer
+# from ray.train.trainer import Trainer
 from typing import Dict
 
 from src.torch.kge_models.basic_model import parallel_model
@@ -130,35 +130,114 @@ class kge_trainer:
             res = 0
             length = 0
             start = time.time()
-            for data in self.data_loader:
-                self.optimizer.zero_grad()
-                self.batch_size = int(data[0].shape[0] / (self.args.neg_triple_num + 1))
-                # print(len(data[0]))
-                # batch_pos = np.array(batch_pos)
-                # batch_neg = np.array(batch_neg)
-                # data[3] = to_tensor(data[3], device)
-                data = {
-                    'batch_h': data[0].to(self.device),
-                    'batch_r': data[1].to(self.device),
-                    'batch_t': data[2].to(self.device)
+
+            if not hasattr(self, 'batch_times'):
+                self.batch_times = {
+                    'data_loading_gpu': [],
+                    'embedding_lookup': [],
+                    'score_calculation': [],
+                    'loss_backprop_optim': []
                 }
-                score = self.model(data)
+                self.batch_counter = 0
+
+            for batch_idx, data_raw in enumerate(self.data_loader):
+                if self.batch_counter < 100:
+                    torch.cuda.synchronize()
+                    start_data_loading = time.time()
+
+                self.optimizer.zero_grad()
+                self.batch_size = int(data_raw[0].shape[0] / (self.args.neg_triple_num + 1))
+
+                data = {
+                    'batch_h': data_raw[0].to(self.device),
+                    'batch_r': data_raw[1].to(self.device),
+                    'batch_t': data_raw[2].to(self.device)
+                }
+
+                if self.batch_counter < 100:
+                    torch.cuda.synchronize()
+                    end_data_loading = time.time()
+                    self.batch_times['data_loading_gpu'].append(end_data_loading - start_data_loading)
+
+                if self.batch_counter < 100:
+                    score = self.model(data, self.batch_times)
+                else:
+                    score = self.model(data)
+
                 if self.model.__class__.__name__ == 'ConvE' or self.model.__class__.__name__ == 'TuckER':
                     score.backward()
                     self.optimizer.step()
                     length = length + 1
                     res += score.item()
-                    continue
-                length += self.batch_size
-                po_score = self.get_pos_score(score)
-                ne_score = self.get_neg_score(score)
-                # print(po_score)
-                loss = get_loss_func_torch(po_score, ne_score, self.args)
-                loss.backward()
-                self.optimizer.step()
-                res += loss.item()
-                # time.sleep(0.003)
-                # self.batch_size = len(batch_pos)
+                else:
+                    length += self.batch_size
+                    po_score = self.get_pos_score(score)
+                    ne_score = self.get_neg_score(score)
+                    loss = get_loss_func_torch(po_score, ne_score, self.args)
+                    loss.backward()
+                    self.optimizer.step()
+                    res += loss.item()
+
+                if self.batch_counter < 100:
+                    torch.cuda.synchronize()
+                    end_loss_backprop_optim = time.time()
+                    # Phase 4 = Score calc + Loss + Backprop + Optimizer step
+                    # This is the time from after data loading to after optimizer step,
+                    # MINUS the embedding_lookup time (which is already timed separately in TransE.forward)
+                    total_after_data_loading = end_loss_backprop_optim - end_data_loading
+                    emb_lookup = self.batch_times['embedding_lookup'][-1]
+                    score_calc = self.batch_times['score_calculation'][-1]
+                    # loss_backprop_optim = total_after_data_loading - embedding_lookup - score_calc
+                    # But score_calc is already part of the forward pass which is inside total_after_data_loading
+                    # So: total_after_data_loading = embedding_lookup + score_calc + loss_backprop_optim
+                    loss_backprop_optim = total_after_data_loading - emb_lookup - score_calc
+                    self.batch_times['loss_backprop_optim'].append(loss_backprop_optim)
+                    self.batch_counter += 1
+
+                    if self.batch_counter == 100:
+                        # Compute averages
+                        avg_data_loading = np.mean(self.batch_times['data_loading_gpu'])
+                        avg_embedding_lookup = np.mean(self.batch_times['embedding_lookup'])
+                        avg_score_calc = np.mean(self.batch_times['score_calculation'])
+                        avg_loss_backprop_optim = np.mean(self.batch_times['loss_backprop_optim'])
+
+                        # Phase 1+3 = data_loading_gpu
+                        # Phase 2 = embedding_lookup
+                        # Phase 4 = score_calculation + loss_backprop_optim
+                        phase_1_3 = avg_data_loading
+                        phase_2 = avg_embedding_lookup
+                        phase_4 = avg_score_calc + avg_loss_backprop_optim
+                        total_time = phase_1_3 + phase_2 + phase_4
+
+                        print("\n" + "="*70)
+                        print("  Batch Timing Results (avg over first 100 batches)")
+                        print("="*70)
+                        print(f"  Phase 1+3 (Data Loading + GPU Transfer): {phase_1_3*1000:.4f} ms")
+                        print(f"  Phase 2 (Embedding Lookup):              {phase_2*1000:.4f} ms")
+                        print(f"  Phase 4 (Score + Loss + Backprop + Optim): {phase_4*1000:.4f} ms")
+                        print(f"    ├─ Score Calculation:                  {avg_score_calc*1000:.4f} ms")
+                        print(f"    └─ Loss + Backprop + Optimizer Step:   {avg_loss_backprop_optim*1000:.4f} ms")
+                        print(f"  Total per batch:                         {total_time*1000:.4f} ms")
+                        print("="*70)
+
+                        print(f"\n  ** Percentage Breakdown **")
+                        print(f"  Phase 1+3: {phase_1_3/total_time*100:.2f}%")
+                        print(f"  Phase 2:   {phase_2/total_time*100:.2f}%")
+                        print(f"  Phase 4:   {phase_4/total_time*100:.2f}%")
+                        print("="*70)
+
+                        # Markdown table
+                        print("\n  ** Markdown Table **")
+                        print("  | Phase | Avg Time (ms) | Percentage |")
+                        print("  |-------|---------------|------------|")
+                        print(f"  | Phase 1+3 (Data Loading + GPU Transfer) | {phase_1_3*1000:.4f} | {phase_1_3/total_time*100:.2f}% |")
+                        print(f"  | Phase 2 (Embedding Lookup) | {phase_2*1000:.4f} | {phase_2/total_time*100:.2f}% |")
+                        print(f"  | Phase 4 (Score + Loss + Backprop + Optim) | {phase_4*1000:.4f} | {phase_4/total_time*100:.2f}% |")
+                        print(f"  | **Total** | **{total_time*1000:.4f}** | **100.00%** |")
+                        print("="*70 + "\n")
+                        import sys
+                        sys.exit(0)
+
             print('epoch {}, avg. triple loss: {:.4f}, cost time: {:.4f}s'.format(i, res / length, time.time() - start))
             if i >= self.args.start_valid and i % self.args.eval_freq == 0:
                 t1 = time.time()
@@ -323,17 +402,20 @@ class parallel_trainer(parallel_model):
         device_allocate = self.args.device_number / self.args.num_worker
         device_allocate = min(device_allocate, 1)
         if self.args.is_gpu:
-            trainer1 = Trainer(backend="torch", num_workers=self.args.num_worker, use_gpu=self.args.is_gpu,
-                               resources_per_worker={"GPU": device_allocate})
+            from ray.train.torch import TorchTrainer
+            trainer1 = TorchTrainer(
+                train_func=trainer,
+                train_loop_config={"args": self.args, "kgs": self.kgs, "model": self.model},
+                scaling_config={"num_workers": self.args.num_worker, "use_gpu": self.args.is_gpu, "resources_per_worker": {"GPU": device_allocate}}
+            )
         else:
-            trainer1 = Trainer(backend="torch", num_workers=self.args.num_worker, use_gpu=self.args.is_gpu,
-                               resources_per_worker={"CPU": device_allocate})
-        trainer1.start()
-        trainer1.run(
-            train_func=trainer,
-            config={"args": self.args, "kgs": self.kgs, "model": self.model},
-        )
-        trainer1.shutdown()
+            from ray.train.torch import TorchTrainer
+            trainer1 = TorchTrainer(
+                train_func=trainer,
+                train_loop_config={"args": self.args, "kgs": self.kgs, "model": self.model},
+                scaling_config={"num_workers": self.args.num_worker, "use_gpu": self.args.is_gpu, "resources_per_worker": {"CPU": device_allocate}}
+            )
+        trainer1.fit()
 
     def test(self):
         pass

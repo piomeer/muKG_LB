@@ -17,7 +17,7 @@ from src.py.util.util import task_divide, merge_dic, generate_out_folder, early_
 import scipy.sparse as sp
 import scipy.special
 
-from scipy.sparse.linalg.eigen.arpack import eigsh
+from scipy.sparse.linalg import eigsh
 
 
 # ***************************adj & sparse**************************
@@ -1001,7 +1001,3 @@ class AliNet(nn.Module):
     # def save(self):
     #     ent_embeds = self.init_embedding
     #     rd.save_embeddings(self.out_folder, self.kgs, ent_embeds, None, None, mapping_mat=None)
-
-
-
-
