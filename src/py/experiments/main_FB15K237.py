@@ -16,7 +16,7 @@ if __name__ == '__main__':
     t = time.time()
     curPath = os.path.abspath(os.path.dirname(__file__))
     model_name = 'transe'
-    args = load_args(curPath + "/args_kge/" + model_name + r"_FB15K237_args.json")
+    args = load_args(curPath + "/args_kge/" + model_name + r"_fb15k237_args.json")
 
     print(args.embedding_module)
     print(args)

@@ -141,10 +141,6 @@ class kge_trainer:
                 self.batch_counter = 0
 
             for batch_idx, data_raw in enumerate(self.data_loader):
-                if self.batch_counter < 100:
-                    torch.cuda.synchronize()
-                    start_data_loading = time.time()
-
                 self.optimizer.zero_grad()
                 self.batch_size = int(data_raw[0].shape[0] / (self.args.neg_triple_num + 1))
 
@@ -154,15 +150,7 @@ class kge_trainer:
                     'batch_t': data_raw[2].to(self.device)
                 }
 
-                if self.batch_counter < 100:
-                    torch.cuda.synchronize()
-                    end_data_loading = time.time()
-                    self.batch_times['data_loading_gpu'].append(end_data_loading - start_data_loading)
-
-                if self.batch_counter < 100:
-                    score = self.model(data, self.batch_times)
-                else:
-                    score = self.model(data)
+                score = self.model(data)
 
                 if self.model.__class__.__name__ == 'ConvE' or self.model.__class__.__name__ == 'TuckER':
                     score.backward()
@@ -178,67 +166,8 @@ class kge_trainer:
                     self.optimizer.step()
                     res += loss.item()
 
-                if self.batch_counter < 100:
-                    torch.cuda.synchronize()
-                    end_loss_backprop_optim = time.time()
-                    # Phase 4 = Score calc + Loss + Backprop + Optimizer step
-                    # This is the time from after data loading to after optimizer step,
-                    # MINUS the embedding_lookup time (which is already timed separately in TransE.forward)
-                    total_after_data_loading = end_loss_backprop_optim - end_data_loading
-                    emb_lookup = self.batch_times['embedding_lookup'][-1]
-                    score_calc = self.batch_times['score_calculation'][-1]
-                    # loss_backprop_optim = total_after_data_loading - embedding_lookup - score_calc
-                    # But score_calc is already part of the forward pass which is inside total_after_data_loading
-                    # So: total_after_data_loading = embedding_lookup + score_calc + loss_backprop_optim
-                    loss_backprop_optim = total_after_data_loading - emb_lookup - score_calc
-                    self.batch_times['loss_backprop_optim'].append(loss_backprop_optim)
-                    self.batch_counter += 1
-
-                    if self.batch_counter == 100:
-                        # Compute averages
-                        avg_data_loading = np.mean(self.batch_times['data_loading_gpu'])
-                        avg_embedding_lookup = np.mean(self.batch_times['embedding_lookup'])
-                        avg_score_calc = np.mean(self.batch_times['score_calculation'])
-                        avg_loss_backprop_optim = np.mean(self.batch_times['loss_backprop_optim'])
-
-                        # Phase 1+3 = data_loading_gpu
-                        # Phase 2 = embedding_lookup
-                        # Phase 4 = score_calculation + loss_backprop_optim
-                        phase_1_3 = avg_data_loading
-                        phase_2 = avg_embedding_lookup
-                        phase_4 = avg_score_calc + avg_loss_backprop_optim
-                        total_time = phase_1_3 + phase_2 + phase_4
-
-                        print("\n" + "="*70)
-                        print("  Batch Timing Results (avg over first 100 batches)")
-                        print("="*70)
-                        print(f"  Phase 1+3 (Data Loading + GPU Transfer): {phase_1_3*1000:.4f} ms")
-                        print(f"  Phase 2 (Embedding Lookup):              {phase_2*1000:.4f} ms")
-                        print(f"  Phase 4 (Score + Loss + Backprop + Optim): {phase_4*1000:.4f} ms")
-                        print(f"    ├─ Score Calculation:                  {avg_score_calc*1000:.4f} ms")
-                        print(f"    └─ Loss + Backprop + Optimizer Step:   {avg_loss_backprop_optim*1000:.4f} ms")
-                        print(f"  Total per batch:                         {total_time*1000:.4f} ms")
-                        print("="*70)
-
-                        print(f"\n  ** Percentage Breakdown **")
-                        print(f"  Phase 1+3: {phase_1_3/total_time*100:.2f}%")
-                        print(f"  Phase 2:   {phase_2/total_time*100:.2f}%")
-                        print(f"  Phase 4:   {phase_4/total_time*100:.2f}%")
-                        print("="*70)
-
-                        # Markdown table
-                        print("\n  ** Markdown Table **")
-                        print("  | Phase | Avg Time (ms) | Percentage |")
-                        print("  |-------|---------------|------------|")
-                        print(f"  | Phase 1+3 (Data Loading + GPU Transfer) | {phase_1_3*1000:.4f} | {phase_1_3/total_time*100:.2f}% |")
-                        print(f"  | Phase 2 (Embedding Lookup) | {phase_2*1000:.4f} | {phase_2/total_time*100:.2f}% |")
-                        print(f"  | Phase 4 (Score + Loss + Backprop + Optim) | {phase_4*1000:.4f} | {phase_4/total_time*100:.2f}% |")
-                        print(f"  | **Total** | **{total_time*1000:.4f}** | **100.00%** |")
-                        print("="*70 + "\n")
-                        import sys
-                        sys.exit(0)
-
             print('epoch {}, avg. triple loss: {:.4f}, cost time: {:.4f}s'.format(i, res / length, time.time() - start))
+
             if i >= self.args.start_valid and i % self.args.eval_freq == 0:
                 t1 = time.time()
                 flag = self.valid.print_results()
