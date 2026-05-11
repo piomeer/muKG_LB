@@ -1,0 +1,31 @@
+Metadata-Version: 2.4
+Name: muKG
+Version: 1.0
+Summary: An open-source Python library for representation learning over knowledge graphs.
+Home-page: https://github.com/nju-websoft/muKG.git
+Author: Zequn Sun
+Author-email: zqsun.nju@gmail.com
+Maintainer: Zequn Sun
+Maintainer-email: zqsun.nju@gmail.com
+Keywords: Knowledge Graph,Embeddings
+License-File: LICENSE
+Requires-Dist: tqdm
+Requires-Dist: joblib
+Requires-Dist: pandas
+Requires-Dist: matching==0.1.1
+Requires-Dist: scipy
+Requires-Dist: scikit-learn
+Requires-Dist: numpy
+Requires-Dist: gensim
+Requires-Dist: python-Levenshtein
+Requires-Dist: scipy
+Requires-Dist: redis
+Dynamic: author
+Dynamic: author-email
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license-file
+Dynamic: maintainer
+Dynamic: maintainer-email
+Dynamic: requires-dist
+Dynamic: summary

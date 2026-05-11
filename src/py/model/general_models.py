@@ -70,84 +70,81 @@ class ModelFamily_torch(object):
         self.kgs = kgs
 
     def infer_model(self, model_name):
-        from src.torch.kge_models.Analogy import Analogy
-        from src.torch.kge_models.ComplEx import ComplEx
-        from src.torch.kge_models.DistMult import DistMult
-        from src.torch.kge_models.HolE import HolE
-        from src.torch.kge_models.RESCAL import RESCAL
-        from src.torch.kge_models.TransD import TransD
-        from src.torch.kge_models.TransE import TransE
-        from src.torch.kge_models.TransH import TransH
-        from src.torch.kge_models.TransR import TransR
-        from src.torch.kge_models.RotatE import RotatE
-        #from src.torch.kge_models.SimplE import SimplE
-        from src.torch.kge_models.TuckER import TuckER
-        from src.torch.kge_models.ConvE import ConvE
-        from src.torch.ea_models.trainer.attre_trainer import attre_trainer
-        from src.torch.ea_models.trainer.bootea_trainer import bootea_trainer
-        from src.torch.ea_models.trainer.gcn_align_trainer import gcn_align_trainer
-        from src.torch.ea_models.trainer.imuse_trainer import imuse_trainer
-        from src.torch.ea_models.trainer.iptranse_trainer import iptranse_trainer
-        from src.torch.ea_models.trainer.jape_trainer import jape_trainer
-        from src.torch.ea_models.trainer.mtranse_trainer import mtranse_trainer
-        from src.torch.ea_models.trainer.rdgcn_trainer import rdgcn_trainer
-        from src.torch.ea_models.trainer.sea_trainer import sea_trainer
-        from src.torch.ea_models.trainer.alinet_trainer import alinet_trainer
-        from src.torch.et_models.TransE_ET import TransE_ET
-        from src.torch.et_models.RESCAL_ET import RESCAL_ET
-        from src.torch.et_models.HolE_ET import HolE_ET
         if model_name == 'TransE':
+            from src.torch.kge_models.TransE import TransE
             return TransE(self.kgs, self.args)
-        if model_name == 'TransE_ET':
+        elif model_name == 'TransE_ET':
+            from src.torch.et_models.TransE_ET import TransE_ET
             return TransE_ET(self.kgs, self.args)
         elif model_name == 'RESCAL_ET':
+            from src.torch.et_models.RESCAL_ET import RESCAL_ET
             return RESCAL_ET(self.args, self.kgs) 
         elif model_name == 'HolE_ET':
+            from src.torch.et_models.HolE_ET import HolE_ET
             return HolE_ET(self.args, self.kgs) 
         elif model_name == 'TransD':
+            from src.torch.kge_models.TransD import TransD
             return TransD(self.args, self.kgs)
         elif model_name == 'TransH':
+            from src.torch.kge_models.TransH import TransH
             return TransH(self.kgs, self.args)
         elif model_name == 'TransR':
+            from src.torch.kge_models.TransR import TransR
             return TransR(self.kgs, self.args)
         elif model_name == 'HolE':
+            from src.torch.kge_models.HolE import HolE
             return HolE(self.kgs, self.args)
         elif model_name == 'Analogy':
+            from src.torch.kge_models.Analogy import Analogy
             return Analogy(self.kgs, self.args)
         elif model_name == 'RESCAL':
+            from src.torch.kge_models.RESCAL import RESCAL
             return RESCAL(self.kgs, self.args)
         elif model_name == 'ComplEx':
+            from src.torch.kge_models.ComplEx import ComplEx
             return ComplEx(self.kgs, self.args)
         elif model_name == 'DistMult':
+            from src.torch.kge_models.DistMult import DistMult
             return DistMult(self.kgs, self.args)
         elif model_name == 'RotatE':
+            from src.torch.kge_models.RotatE import RotatE
             return RotatE(self.args, self.kgs)
-        #elif model_name == 'SimplE':
-        #    return SimplE(self.args, self.kgs)
         elif model_name == 'TuckER':
+            from src.torch.kge_models.TuckER import TuckER
             return TuckER(self.args, self.kgs)
         elif model_name == 'ConvE':
+            from src.torch.kge_models.ConvE import ConvE
             return ConvE(self.args, self.kgs)
         # load ea models
-        if model_name == 'AttrE':
+        elif model_name == 'AttrE':
+            from src.torch.ea_models.trainer.attre_trainer import attre_trainer
             return attre_trainer()
         elif model_name == 'BootEA':
+            from src.torch.ea_models.trainer.bootea_trainer import bootea_trainer
             return bootea_trainer()
         elif model_name == 'GCN_Align':
+            from src.torch.ea_models.trainer.gcn_align_trainer import gcn_align_trainer
             return gcn_align_trainer()
         elif model_name == 'IMUSE':
+            from src.torch.ea_models.trainer.imuse_trainer import imuse_trainer
             return imuse_trainer()
         elif model_name == 'JAPE':
+            from src.torch.ea_models.trainer.jape_trainer import jape_trainer
             return jape_trainer()
         elif model_name == 'MTransE':
+            from src.torch.ea_models.trainer.mtranse_trainer import mtranse_trainer
             return mtranse_trainer()
         elif model_name == 'IPtransE':
+            from src.torch.ea_models.trainer.iptranse_trainer import iptranse_trainer
             return iptranse_trainer()
         elif model_name == 'RDGCN':
+            from src.torch.ea_models.trainer.rdgcn_trainer import rdgcn_trainer
             return rdgcn_trainer()
         elif model_name == 'SEA':
+            from src.torch.ea_models.trainer.sea_trainer import sea_trainer
             return sea_trainer()
         elif model_name == 'Alinet':
+            from src.torch.ea_models.trainer.alinet_trainer import alinet_trainer
             return alinet_trainer()
         # self.SimplE = SimplE(kgs, args)
 
