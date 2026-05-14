@@ -1,0 +1,44 @@
+# 核心指令与项目宪法 (Core Directives & Project Constitution)
+
+## 0. 环境感知与初始化 (CRITICAL: Environment Routing)
+- **启动检查**: 每次开启新对话或执行代码前，必须首先读取当前工作区根目录下的 `env_identity.json` 文件。
+- **环境路由**: 后续所有关于算力分配、代码架构（单卡/多卡）和包管理的建议，必须严格根据读取到的 `env` 值进行动态调整。
+
+## 1. 角色与项目背景
+- **核心任务**: 协助完成 MuKG (多源知识图谱嵌入) 算法的研发、复现，以及 RAG 架构的构建。
+- **交互原则**: 保持专业、严谨。在修改核心计算逻辑或图谱结构前，必须先阐述思路并等待确认。
+
+## 2. 动态硬件与环境约束 (Dynamic Hardware Constraints)
+根据 `env_identity.json` 的结果，严格执行以下对应策略：
+
+- **IF `env` == "local_wsl" (本地开发与调试)**:
+  - **硬件限制**: 主力 GPU RTX 4060 laptop (8GB VRAM)。
+  - **行为红线**: 严禁盲目调大 `batch_size` 或 `embedding_dim`。训练脚本仅用于 Debug。必须主动考虑显存管理，必要时加入 `torch.cuda.empty_cache()` 和 OOM 异常捕获。
+  - **依赖锁定**: 优先尊重该服务器上已激活的 Conda 虚拟环境或 Docker 容器中的 PyTorch/CUDA 版本，不要强行降级回 11.3 除非明确遇到自定义算子编译报错。
+
+- **IF `env` == "server_node4" (单卡全量训练)**:
+  - **硬件限制**: 主力 GPU RTX 3070 (8GB VRAM)。
+  - **行为红线**: 允许并鼓励在 FB15k-237 上进行全量数据的高负载训练。但在探索极限超参数时，仍需包含显存溢出保护逻辑。
+  - **依赖策略**: 严格维持 PyTorch 1.10.2 与 CUDA 11.3，严禁建议升级。
+
+- **IF `env` == "server_node6" (多卡分布式训练)**:
+  - **硬件限制**: 多 GPU 节点。
+  - **行为红线**: 严禁编写仅支持单卡的训练代码。所有的训练脚本必须基于 `torch.nn.parallel.DistributedDataParallel` (DDP) 进行构建。
+  - **日志规范**: 在多卡环境下，必须确保只有 `rank == 0` 的进程负责写入日志、保存模型参数和更新 `PROGRESS.md`，严禁多进程并发写入导致文件损坏。
+
+## 3. 记忆与工作流规范 (Memory System Enforcement)
+- **强制回顾**: 每次开启新的 Task 时，必须读取工作区根目录下的 `PROGRESS.md` 文件，了解跨环境的实验进度、成功参数和历史瓶颈。
+- **动态记忆写入 (MCP Memory)**:
+  - 无论当前处于哪个服务器节点，当成功跑通逻辑、修复 Bug 或发现提升 MRR/Hit Rate 的超参数时，**必须**调用 MCP 的 `server-memory` 工具将经验写入本地知识图谱。
+  - **记录格式**: “Entity: `Model_Config`, Relation: `WORKS_BEST_ON`, Target: `Node6_DDP_Setting`”。
+- **进度持久化 (总结)**: 任务结束时更新 `PROGRESS.md`。明确列出：1. 刚刚完成的成就；2. 验证有效的设定；3. 下一步待解决的阻碍。4. 必须打上时间环境标签，例如：`[SUCCESS] [Node 6] [20260514]完成 DDP 改造，Hit@10 达到 X%`。
+
+## 4. 数据与代码规范
+- 处理图谱数据（尤其是 FB15k-237）时，必须添加实体对齐（Entity Alignment）和三元组防越界校验。
+- 时区设定：所有生成的实验日志文件或时间戳记录，默认使用 JST (日本标准时间)。
+- 代码风格：所有的 KGE 模型实现必须遵循面向对象设计，继承自统一的 Base Model 接口。
+
+
+## 5. 强制收尾动作
+- 在每一个 Task 标记为 "Completed" 之前，Cline 必须检查 `PROGRESS.md` 是否反映了最新的改动。
+- 如果实验失败，必须在 `## 4. 失败实验记录` 中增加一行，记录环境、原因和避坑建议。
