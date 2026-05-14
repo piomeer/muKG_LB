@@ -14,8 +14,9 @@ class TransE(BasicModel):
 		self.dim = self.args.dim
 		# self.epsilon = epsilon
 		self.norm_flag = self.args.ent_l2_norm
-		self.p_norm = 1
+		self.p_norm = 2
 		self.margin_flag = False
+
 		if self.args.loss == 'logistic_adv':
 			self.margin_flag = True
 		self.ent_embeddings = nn.Embedding(self.ent_tot, self.dim)
