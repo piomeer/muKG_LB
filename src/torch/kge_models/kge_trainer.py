@@ -122,33 +122,24 @@ class kge_trainer:
         self.save()
 
     def run(self):
+        from src.torch.kge_models.pytorch_dataloader import get_global_phase_times, reset_global_phase_times
+        
         print(next(self.model.parameters()).device)
         for i in range(self.args.max_epoch):
             res = 0
             length = 0
 
-            # Epoch 级别初始化
+            # === Epoch 级别初始化：清空全局累加器 ===
+            reset_global_phase_times()
+
+            # GPU 阶段累加器 (秒)
+            acc_phase_2 = 0.0  # Embedding Lookup
+            acc_phase_4 = 0.0  # Geometry & Learning
+
             epoch_start_time = time.time()
-            data_iter = iter(self.data_loader)  # 显式创建迭代器
+            data_iter = iter(self.data_loader)
 
-            acc_wait_time = 0.0      # 纯粹等待 CPU 多进程备菜的时间
-            acc_phase_1_3 = 0.0      # 仅仅是 .cuda() 数据传输时间
-            acc_phase_2 = 0.0        # Embedding 查找时间
-            acc_phase_4 = 0.0        # 计算与反向传播时间
-
-            # 精准狙击的主循环（替换原有的 for 循环）
-            while True:
-                try:
-                    # 阶段 0：狙击最致命的迭代器阻塞（测的就是主进程挂起等数据的时间）
-                    torch.cuda.synchronize()  # 确保上一轮 GPU 彻底完工
-                    t_wait_start = time.time()
-                    batch = next(data_iter)
-                    acc_wait_time += (time.time() - t_wait_start)
-                except StopIteration:
-                    break  # Epoch 结束
-
-                # 阶段 1+3：仅仅测量数据搬运到 GPU 的时间
-                t_transfer = time.time()
+            for batch in data_iter:
                 self.optimizer.zero_grad()
                 self.batch_size = int(batch[0].shape[0] / (self.args.neg_triple_num + 1))
                 data = {
@@ -156,57 +147,65 @@ class kge_trainer:
                     'batch_r': batch[1].to(self.device),
                     'batch_t': batch[2].to(self.device)
                 }
-                torch.cuda.synchronize()
-                acc_phase_1_3 += (time.time() - t_transfer)
 
-                # 阶段 2：Embedding Lookup
-                t_lookup = time.time()
+                # === Phase 2: Embedding Lookup (インデックスからベクトルへ) ===
+                torch.cuda.synchronize()
+                t_p2 = time.time()
                 score = self.model(data)
                 torch.cuda.synchronize()
-                acc_phase_2 += (time.time() - t_lookup)
+                acc_phase_2 += (time.time() - t_p2)
 
-                # 阶段 4：计算、Loss 与反向传播
-                t_compute = time.time()
+                # === Phase 4: Geometry & Learning (空間変形と学習) ===
+                torch.cuda.synchronize()
+                t_p4 = time.time()
                 if self.model.__class__.__name__ == 'ConvE' or self.model.__class__.__name__ == 'TuckER':
-                    score.backward()
-                    self.optimizer.step()
-                    length = length + 1
+                    loss = score
+                    loss.backward()
                     res += score.item()
+                    length += 1
                 else:
                     length += self.batch_size
                     po_score = self.get_pos_score(score)
                     ne_score = self.get_neg_score(score)
                     loss = get_loss_func_torch(po_score, ne_score, self.args)
                     loss.backward()
-                    self.optimizer.step()
                     res += loss.item()
+                self.optimizer.step()
                 torch.cuda.synchronize()
-                acc_phase_4 += (time.time() - t_compute)
+                acc_phase_4 += (time.time() - t_p4)
 
-            # Epoch 结束统计与打印
+            # === 收集 CPU 阶段时间 ===
+            phase_1_time, phase_3_time = get_global_phase_times()
+
+            # === Epoch 结束统计与打印: 终极 4 阶段消耗权威报告 ===
             epoch_end_time = time.time()
             total_epoch_time = epoch_end_time - epoch_start_time
 
-            # 计算剩余的真空时间（如 zero_grad, log 打印等纯 Python 开销）
-            acc_other_python_overhead = total_epoch_time - (acc_wait_time + acc_phase_1_3 + acc_phase_2 + acc_phase_4)
+            # 其他框架调度时间 = 总时间 - (P1 + P2 + P3 + P4)
+            other_time = total_epoch_time - (phase_1_time + acc_phase_2 + phase_3_time + acc_phase_4)
 
-            print(f"--- Epoch Time Breakdown ---")
-            print(f"Total Epoch Time: {total_epoch_time:.4f} s")
-            print(f"[瓶颈狙击] Wait Data Time (CPU Sampling/IPC): {acc_wait_time:.4f} s ({acc_wait_time/total_epoch_time*100:.1f}%)")
-            print(f"Phase 1+3 (Transfer to GPU): {acc_phase_1_3:.4f} s ({acc_phase_1_3/total_epoch_time*100:.1f}%)")
-            print(f"Phase 2 (Embedding Lookup): {acc_phase_2:.4f} s ({acc_phase_2/total_epoch_time*100:.1f}%)")
-            print(f"Phase 4 (GPU Compute): {acc_phase_4:.4f} s ({acc_phase_4/total_epoch_time*100:.1f}%)")
-            print(f"Other Python Overhead (zero_grad, tqdm, etc.): {acc_other_python_overhead:.4f} s ({acc_other_python_overhead/total_epoch_time*100:.1f}%)")
-            print(f"----------------------------")
+            print()
+            print("=== 终极 4 阶段耗时权威报告 (Epoch {}) ===".format(i))
+            print("运行环境: 单进程串行 (batch_threads_num=0)")
+            print()
+            print("[CPU 阶段]")
+            print("第1段階 (ID Mapping):       {:.4f} 秒".format(phase_1_time))
+            print("第3段階 (Negative Sampling):  {:.4f} 秒".format(phase_3_time))
+            print()
+            print("[GPU 阶段]")
+            print("第2段階 (Embedding Lookup):   {:.4f} 秒".format(acc_phase_2))
+            print("第4段階 (Geometry & Learning): {:.4f} 秒".format(acc_phase_4))
+            print()
+            print("其他框架调度时间:             {:.4f} 秒".format(other_time))
+            print("Epoch 总挂钟时间:             {:.4f} 秒".format(total_epoch_time))
+            print("=========================================")
+            print('epoch {}, avg. triple loss: {:.4f}'.format(i, res / length))
 
             if i >= self.args.start_valid and i % self.args.eval_freq == 0:
                 t1 = time.time()
                 flag = self.valid.print_results()
-                print('valid cost time: {:.4f}s'.format(time.time() - epoch_end_time))
+                print('valid cost time: {:.4f}s'.format(time.time() - t1))
                 # TODO: Add early stop for KGE here.
-                '''self.flag1, self.flag2, self.early_stop = early_stop(self.flag1, self.flag2, flag)
-                if self.early_stop or i == self.args.max_epoch:
-                    break'''
         self.test()
         self.save()
 

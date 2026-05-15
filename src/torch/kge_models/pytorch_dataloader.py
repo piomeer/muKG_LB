@@ -5,12 +5,27 @@ from __future__ import division
 from __future__ import print_function
 
 import random
+import time
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 
 from src.py.load.kg import parse_triples
 from src.py.util.util import to_tensor_cpu
+
+# === 全局累加器：4 阶段 Micro-benchmarking ===
+global_phase_1_time = 0.0  # ID Mapping (索引への変換): to_tensor_cpu
+global_phase_3_time = 0.0  # Negative Sampling (競合の作成): generate_neg_triples_fast
+
+def get_global_phase_times():
+    """返回 CPU 阶段 (Phase 1, Phase 3) 的累计耗时，供 Trainer 调用"""
+    return global_phase_1_time, global_phase_3_time
+
+def reset_global_phase_times():
+    """重置全局累加器（每次 Epoch 开始前调用）"""
+    global global_phase_1_time, global_phase_3_time
+    global_phase_1_time = 0.0
+    global_phase_3_time = 0.0
 
 
 class PyTorchTrainDataset(Dataset):
@@ -31,24 +46,30 @@ class PyTorchTrainDataset(Dataset):
         return self.head[idx], self.rel[idx], self.tail[idx]
 
     def collate_fn(self, data):
+        global global_phase_1_time, global_phase_3_time
+
         batch_h = [item[0] for item in data]
         batch_r = [item[1] for item in data]
         batch_t = [item[2] for item in data]
+
+        # === Phase 3: Negative Sampling (競合の作成) ===
+        t_p3_start = time.time()
         batch_neg = self.generate_neg_triples_fast(data, set(self.kgs.relation_triples_list), self.kgs.entities_list, self.neg_num)
+        global_phase_3_time += (time.time() - t_p3_start)
+
         batch_data = list()
+
+        # === Phase 1: ID Mapping (インデックスへの変換) ===
+        t_p1_start = time.time()
         batch_h = to_tensor_cpu(batch_h + [x[0] for x in batch_neg])
         batch_r = to_tensor_cpu(batch_r + [x[1] for x in batch_neg])
         batch_t = to_tensor_cpu(batch_t + [x[2] for x in batch_neg])
+        global_phase_1_time += (time.time() - t_p1_start)
+
         batch_data.append(batch_h)
         batch_data.append(batch_r)
         batch_data.append(batch_t)
         batch_data = torch.stack(batch_data)
-        """
-        batch_data['batch_h'] = batch_h.squeeze()
-        batch_data['batch_t'] = batch_t.squeeze()
-        batch_data['batch_r'] = batch_r.squeeze()
-        batch_data['batch_y'] = batch_y.squeeze()
-        """
         return batch_data
 
     def generate_neg_triples_fast(self, pos_batch, all_triples_set, entities_list, neg_triples_num, neighbor=None,

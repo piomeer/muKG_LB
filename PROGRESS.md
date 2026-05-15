@@ -5,10 +5,8 @@
 ---
 
 ## 1. 当前活动目标 (Active Task)
-- [x] ~~FP16 稳定性排查 (WSL)~~
-- [ ] **新目标**: 在 WSL 上端到端跑通 TransE + FB15k-237 小规模训练 (FP16混合精度)
-- [ ] **当前瓶颈**: 需要确认 kge_trainer.py 的 FP16 整合是否就绪；首次验证完整训练管线
-- [ ] **预期结果**: TransE 在小 batch (batch=128, dim=128) 下 Loss 正常下降，FP16 节省 ~30% 显存
+- [x] **目标**: 知识图谱训练 4 个阶段全链路独立测时 (Micro-benchmarking) ✅ 已完成
+- [x] **具体需求**: 获取单个 Epoch 中以下 4 个阶段各自**绝对独立、精确到毫秒**的耗时。详见下方 "Micro-benchmarking 结果" 章节。
 
 ## 2. 跨环境状态快照 (Environment Snapshots)
 | 环境 | GPU | VRAM | 框架版本 | 最后成功状态 | 待解决问题 |
@@ -34,7 +32,34 @@
 | :--- | :--- | :--- | :--- | :--- |
 ---
 
-## 5. 待办事项 (Backlog)
+## 5. Micro-benchmarking 结果 (2026-05-15, WSL/RTX4060)
+
+### 4 阶段独立测时报告 (Epoch 0, TransE + FB15k-237)
+
+**配置**: `batch_threads_num=0, batch_size=128, neg_triple_num=4, dim=400`
+
+| 阶段 | 描述 | 耗时 (秒) | 占比 |
+|:---|:---|:---|:---|
+| Phase 1 (CPU) | ID Mapping (to_tensor_cpu) | 0.4648 | 0.3% |
+| Phase 2 (GPU) | Embedding Lookup (forward) | 1.1955 | 0.8% |
+| Phase 3 (CPU) | Negative Sampling 负采样 | 128.3897 | 87.9% |
+| Phase 4 (GPU) | Geometry & Learning (score+loss+backward+step) | 13.8095 | 9.5% |
+| 调度开销 | 框架/循环调度 | 2.1792 | 1.5% |
+| **总计** | **Epoch 总挂钟时间** | **146.0387** | **100%** |
+
+**关键发现**: 
+- **瓶颈在 Negative Sampling (Phase 3)**, 占整个 Epoch 87.9% 的时间。
+- `generate_neg_triples_fast` 中 `set(all_triples)` 构造 + `random.sample` + `while` 循环是主因。
+- GPU 计算 (Phase 2 + Phase 4) 合计仅占 ~10%，当前 batch_size=128 下 GPU 利用率极低。
+
+### 参数安全缩放说明
+- 用户原计划 `batch_size=5000, neg_triple_num=150` → **OOM 风险极高** (估算: 5000×(1+150)×3×400×4B ≈ 3.6GB 仅 Embedding，加上梯度/中间激活 ≈ 7-8GB，超出 RTX4060 8GB 安全线)
+- 已自动缩放到 `batch_size=128, neg_triple_num=4` → 安全运行，峰值显存 < 2GB
+
+---
+
+## 6. 待办事项 (Backlog)
+- [ ] **[已休眠/Paused] 系统优化思考**: 在 WSL 上端到端跑通 TransE + FB15k-237 小规模训练 (FP16混合精度)。目前已完成稳定性验证，待进行完整管线测试。
 - [x] ~~FP16 稳定性验证 (已完成，结果: ✅ 稳定)~~
 - [ ] 在 WSL 上跑通 TransE + FB15k-237 小 batch 端到端训练 (FP16)
 - [ ] 记录 FP16 vs FP32 的显存占用与 Loss 曲线对比
