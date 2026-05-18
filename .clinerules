@@ -67,3 +67,8 @@
 ## 6. 强制收尾动作
 - 在每一个 Task 标记为 "Completed" 之前，Cline 必须检查 `PROGRESS.md` 是否反映了最新的改动。
 - 如果实验失败，必须在 `## 4. 失败实验记录` 中增加一行，记录环境、原因和避坑建议。
+
+- **[L3 Sync Protocol] 进度同步红线**：
+  - `PROGRESS.md` 是项目当前的全局认知看板。
+  - 在完成任何一次性能 Profiling（测时）、发现重大 Bug 的根因、或完成一个子模块的代码重构后，**必须自动且主动地**使用 `write_to_file` 或 `replace_in_file` 工具更新 `PROGRESS.md`。
+  - 严禁只在对话框中输出关键数据而导致 L3 记忆脱节。
