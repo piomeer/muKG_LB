@@ -39,4 +39,5 @@ build/
 Thumbs.db
 
 # 7. 其他敏感信息（如环境配置）
-env_identity.json
+env_identity.jsonnode_modules/
+node_modules/
