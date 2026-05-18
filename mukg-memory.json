@@ -1,131 +1,18 @@
-{
-  "entities": [
-    {
-      "name": "MuKG_Project",
-      "entityType": "Project",
-      "observations": [
-        "多源知识图谱嵌入算法研发与RAG架构构建项目",
-        "支持KGE、EA、ET三类任务",
-        "框架支持PyTorch和TensorFlow双后端"
-      ]
-    },
-    {
-      "name": "FB15k-237",
-      "entityType": "Dataset",
-      "observations": [
-        "标准知识图谱链接预测基准数据集",
-        "FB15k的逆关系去除版本",
-        "包含约14541个实体和310116个三元组"
-      ]
-    },
-    {
-      "name": "TransE",
-      "entityType": "Model",
-      "observations": [
-        "经典的平移距离-based KGE模型",
-        "将关系建模为头实体到尾实体的平移向量",
-        "实现位于 src/torch/kge_models/TransE.py"
-      ]
-    },
-    {
-      "name": "Env_WSL_4060",
-      "entityType": "Environment",
-      "observations": [
-        "本地开发与调试环境",
-        "GPU: RTX 4060 Laptop, VRAM: 8GB",
-        "仅用于小batch Debug验证",
-        "严禁盲目调大batch_size或embedding_dim"
-      ]
-    },
-    {
-      "name": "Env_Node4",
-      "entityType": "Environment",
-      "observations": [
-        "单卡全量训练服务器",
-        "GPU: RTX 3070, VRAM: 8GB",
-        "PyTorch 1.10.2 + CUDA 11.3",
-        "全量数据已跑通，Batch=128"
-      ]
-    },
-    {
-      "name": "Env_Node6",
-      "entityType": "Environment",
-      "observations": [
-        "多卡分布式训练服务器",
-        "支持torch.nn.parallel.DistributedDataParallel (DDP)",
-        "待配置，PyTorch 2.0升级导致算子不兼容已回滚"
-      ]
-    },
-    {
-      "name": "FP16_Stability_Test",
-      "entityType": "Experiment",
-      "observations": [
-        "当前WSL环境下的主动任务",
-        "目标：排查FP16混合精度训练的数值稳定性",
-        "测试脚本: test_fp16_stability.py",
-        "Tests passed. Safe to use torch.cuda.amp. False positive underflow resolved.",
-        "FP16 Loss差异仅0.04% vs FP32, NaN/Inf比例0.00%",
-        "测试结论: RTX 4060 Laptop上 dim=128, batch=128, 100轮迭代 完全稳定",
-        "2026-05-14: 在WSL上验证通过，允许使用混合精度训练",
-        "[2026-05-16] [ACTIVE] FP16 验证通过，已作为标配"
-      ]
-    }
-  ],
-  "relations": [
-    {
-      "from": "MuKG_Project",
-      "to": "FB15k-237",
-      "relationType": "USES_DATASET"
-    },
-    {
-      "from": "MuKG_Project",
-      "to": "TransE",
-      "relationType": "IMPLEMENTS"
-    },
-    {
-      "from": "MuKG_Project",
-      "to": "Env_WSL_4060",
-      "relationType": "DEPLOYS_ON"
-    },
-    {
-      "from": "MuKG_Project",
-      "to": "Env_Node4",
-      "relationType": "DEPLOYS_ON"
-    },
-    {
-      "from": "MuKG_Project",
-      "to": "Env_Node6",
-      "relationType": "DEPLOYS_ON"
-    },
-    {
-      "from": "Env_WSL_4060",
-      "to": "FP16_Stability_Test",
-      "relationType": "RUNNING"
-    },
-    {
-      "from": "TransE",
-      "to": "FB15k-237",
-      "relationType": "TRAINED_ON"
-    },
-    {
-      "from": "Env_WSL_4060",
-      "to": "8GB VRAM Limit, Debug Only",
-      "relationType": "HAS_CONSTRAINT"
-    },
-    {
-      "from": "Env_Node4",
-      "to": "3070 8GB, PyTorch 1.10.2 CUDA 11.3",
-      "relationType": "HAS_CONSTRAINT"
-    },
-    {
-      "from": "Env_Node6",
-      "to": "DDP Required, PyTorch 2.0 incompatible",
-      "relationType": "HAS_CONSTRAINT"
-    },
-    {
-      "from": "Env_WSL_4060",
-      "to": "FP16_Stability_Test",
-      "relationType": "CONFIRMED"
-    }
-  ]
-}
+{"type":"entity","name":"MuKG_Project","entityType":"Project","observations":["多源知识图谱嵌入算法研发与RAG架构构建项目","支持KGE、EA、ET三类任务","框架支持PyTorch和TensorFlow双后端"]}
+{"type":"entity","name":"FB15k-237","entityType":"Dataset","observations":["标准知识图谱链接预测基准数据集","FB15k的逆关系去除版本","包含约14541个实体和310116个三元组"]}
+{"type":"entity","name":"TransE","entityType":"Model","observations":["经典的平移距离-based KGE模型","将关系建模为头实体到尾实体的平移向量","实现位于 src/torch/kge_models/TransE.py"]}
+{"type":"entity","name":"Env_WSL_4060","entityType":"Environment","observations":["本地开发与调试环境","GPU: RTX 4060 Laptop, VRAM: 8GB","仅用于小batch Debug验证","严禁盲目调大batch_size或embedding_dim"]}
+{"type":"entity","name":"Env_Node4","entityType":"Environment","observations":["单卡全量训练服务器","GPU: RTX 3070, VRAM: 8GB","PyTorch 1.10.2 + CUDA 11.3","全量数据已跑通，Batch=128"]}
+{"type":"entity","name":"Env_Node6","entityType":"Environment","observations":["多卡分布式训练服务器","支持torch.nn.parallel.DistributedDataParallel (DDP)","待配置，PyTorch 2.0升级导致算子不兼容已回滚"]}
+{"type":"entity","name":"FP16_Stability_Test","entityType":"Experiment","observations":["当前WSL环境下的主动任务","目标：排查FP16混合精度训练的数值稳定性","测试脚本: test_fp16_stability.py","Tests passed. Safe to use torch.cuda.amp. False positive underflow resolved.","FP16 Loss差异仅0.04% vs FP32, NaN/Inf比例0.00%","测试结论: RTX 4060 Laptop上 dim=128, batch=128, 100轮迭代 完全稳定","2026-05-14: 在WSL上验证通过，允许使用混合精度训练","[2026-05-16] [ACTIVE] FP16 验证通过，已作为标配"]}
+{"type":"relation","from":"MuKG_Project","to":"FB15k-237","relationType":"USES_DATASET"}
+{"type":"relation","from":"MuKG_Project","to":"TransE","relationType":"IMPLEMENTS"}
+{"type":"relation","from":"MuKG_Project","to":"Env_WSL_4060","relationType":"DEPLOYS_ON"}
+{"type":"relation","from":"MuKG_Project","to":"Env_Node4","relationType":"DEPLOYS_ON"}
+{"type":"relation","from":"MuKG_Project","to":"Env_Node6","relationType":"DEPLOYS_ON"}
+{"type":"relation","from":"Env_WSL_4060","to":"FP16_Stability_Test","relationType":"RUNNING"}
+{"type":"relation","from":"TransE","to":"FB15k-237","relationType":"TRAINED_ON"}
+{"type":"relation","from":"Env_WSL_4060","to":"8GB VRAM Limit, Debug Only","relationType":"HAS_CONSTRAINT"}
+{"type":"relation","from":"Env_Node4","to":"3070 8GB, PyTorch 1.10.2 CUDA 11.3","relationType":"HAS_CONSTRAINT"}
+{"type":"relation","from":"Env_Node6","to":"DDP Required, PyTorch 2.0 incompatible","relationType":"HAS_CONSTRAINT"}
+{"type":"relation","from":"Env_WSL_4060","to":"FP16_Stability_Test","relationType":"CONFIRMED"}
