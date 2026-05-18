@@ -95,11 +95,33 @@ def to_tensor_cpu(batch):
 
 **Phase 3 耗时**: 128.3897s / Epoch (占 87.9%) — **当前绝对瓶颈**。
 
-### 6.3 优化方向建议
+### 6.3 真正的 ID Mapping 预处理耗时测量 [2026-05-18]
+
+**关键问題**: Phase 1 的命名 "ID Mapping" 是误导。真正的字符串→整数映射发生在训练前的预处理阶段，即 `read_kge_dataset()` 中的 `int(params[0])` 调用。
+
+**实测结果** (FB15k-237, TransE, profile_data_loading.py):
+
+| 步骤 | 耗时 (秒) | 说明 |
+|:---|:---|:---|
+| `read_kge_dataset(train2id.txt)` | 0.7417 | 读取 272,115 条训练三元组，`int()` 转换 + set 去重 |
+| `read_kge_dataset(valid2id.txt)` | 0.0328 | 读取验证集 |
+| `read_kge_dataset(test2id.txt)` | 0.0384 | 读取测试集 |
+| `KG.__init__` (构建 dict/set) | **4.6606** | 🔴 **真正的初始化瓶颈** — 构建 rt_dict、hr_dict、h_dict、r_dict、t_dict |
+| `KG.set_valid_relations` | 0.0136 | |
+| `KG.set_test_relations` | 0.0218 | |
+| **总计** | **5.5088** | 一次性的系统初始化耗时 |
+
+**核心结论**:
+- **`int()` 转换（ID Mapping）只需 0.74 秒**，对于 272K 三元组来说几乎可以忽略。
+- 真正的初始化瓶颈在 **`KG.__init__` 中的字典构建**（4.66 秒），它用纯 Python for 循环构建了 5 个反向索引字典（rt_dict, hr_dict, h_dict, r_dict, t_dict），总共 ~476,000 个键值对。
+- **这与训练期的 Phase 1 完全无关**。Phase 1 的 0.46 秒 / Epoch 是 `np.array()` 转换，不是 ID Mapping。
+
+### 6.4 优化方向建议
 - **Phase 3 向量化**: 用 NumPy/Torch 的随机采样替代 Python `random.sample`，批量生成负例。
 - **`set()` 缓存**: 将 `all_triples_set` 在 `__init__` 中缓存为成员变量。
 - **Phase 1 预转换**: 如果数据已经是整数 ID，可直接用 `torch.tensor()` 替代 `np.array()` 避免中间 NumPy 拷贝。
 - **多进程 DataLoader**: 当前 `num_workers=0`，启用多进程可并行化 Phase 1 + Phase 3。
+- **KG 字典构建加速**: 考虑用 `defaultdict(set)` 替代手动 `dic.get(key, set())` 模式，或预分配内存。
 
 ---
 

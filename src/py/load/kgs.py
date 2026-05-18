@@ -1,3 +1,4 @@
+import time
 from src.py.load.kg import KG
 from src.py.load.read import generate_sharing_id, generate_mapping_id, uris_relation_triple_2ids, \
     uris_attribute_triple_2ids, uris_pair_2ids, generate_sup_relation_triples, generate_sup_attribute_triples, \
@@ -119,12 +120,32 @@ def read_kgs_from_folder(task, training_data_folder, division, mode, ordered, re
         kg2 = KG(kg2_relation_triples, kg2_attribute_triples)
         kgs = KGs(kg1, kg2, train_links, test_links, valid_links=valid_links, mode=mode, ordered=ordered)
     elif task == 'lp':
+        t0 = time.time()
+
         kg1_relation_triples, _, _ = read_kge_dataset(training_data_folder + 'train2id.txt')
+        t1 = time.time()
+        print(f"  ├─ read_kge_dataset(train2id.txt): {t1-t0:.4f}s (file I/O + int() conversion + set build)")
+
         kg1_valid_triples, _, _ = read_kge_dataset(training_data_folder + 'valid2id.txt')
+        t2 = time.time()
+        print(f"  ├─ read_kge_dataset(valid2id.txt):  {t2-t1:.4f}s")
+
         kg1_test_triples, _, _ = read_kge_dataset(training_data_folder + 'test2id.txt')
+        t3 = time.time()
+        print(f"  ├─ read_kge_dataset(test2id.txt):   {t3-t2:.4f}s")
+
         kgs = KG(kg1_relation_triples, [])
+        t4 = time.time()
+        print(f"  ├─ KG.__init__ (sets/lists/dicts):  {t4-t3:.4f}s")
+
         kgs.set_valid_relations(kg1_valid_triples)
+        t5 = time.time()
+        print(f"  ├─ KG.set_valid_relations:          {t5-t4:.4f}s")
+
         kgs.set_test_relations(kg1_test_triples)
+        t6 = time.time()
+        print(f"  └─ KG.set_test_relations:           {t6-t5:.4f}s")
+        print(f"\n[系统初始化] 真实数据加载+ID映射+KG构建总耗时: {t6-t0:.4f} 秒\n")
     else:
         kg1_relation_triples, _, _ = read_kge_dataset(training_data_folder + 'train2id.txt')
         kg1_valid_triples, _, _ = read_kge_dataset(training_data_folder + 'valid2id.txt')
