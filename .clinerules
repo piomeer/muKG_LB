@@ -1,23 +1,33 @@
 # 核心指令与项目宪法 (Core Directives & Project Constitution)
 
-## 🌟 [CRITICAL] 强制记忆流转协议 (Forced Memory Sync Protocol) 
-**注意：这是最高优先级的系统指令。任何任务在彻底结束前，必须严格执行以下三步流转，否则视为任务失败！**
+## 🚨 [HARD GATE] 最高闭环指令 — 物理级记忆流转门禁
+**注意：这是最高优先级的系统指令。违反本指令 = 严重违反架构红线！**
 
-在你决定向用户汇报“任务已完成”之前，**必须**在对话框中严格按照以下 Markdown 格式输出你的记忆流转报告，并据此调用工具更新对应的文件：
+在你调用原生的 `attempt_completion` 结束工具前，**必须且只能**按以下顺序执行：
 
-### 第一步：记忆反思 (Memory Reflection)
-- **L1 宪法校验**：本次操作是否触发了宪法盲区？是否需要向用户提议新增规则？
-- **L2 图谱演化**：本次任务是否产生了新的核心实体？是否更改了现有实体的关联关系？（如果是，准备调用 `memory` 工具）
-- **L3 进度沉淀**：本次任务的坑点、耗时、核心优化点是什么？
+### 第一步：生成 Payload
+在项目根目录生成 `.memory_payload.json`，必须包含以下字段：
+- `l1_reflection`: 宪法盲区反思（本次操作是否触发了宪法盲区？是否需要向用户提议新增规则？）
+- `l2_graph_updates`: 数组形式，包含 `{"type": "entity", "name": "...", "entityType": "...", "observations": [...]}`（实体）或 `{"type": "relation", "from": "...", "to": "...", "relationType": "..."}`（关系）。
+- `l3_progress_notes`: 本次任务的坑点、耗时、核心优化点。
+- `next_steps`: 下一步计划（数组或文本）。
+- `commit_message`: 简短的 Git 提交描述。
 
-### 第二步：物理写入 (Physical Commit)
-*(你必须在此刻使用对应的工具完成物理写入，不要只在嘴上说！)*
-- [ ] 已调用工具修改 `mukg-memory.json` (如需)
-- [ ] 已调用工具将最新的总结、分析和下一步计划写入 `PROGRESS.md`
-- [ ] 已调用工具执行 `git add .` 和 `git commit` (按照环境推送到对应分支)
+### 第二步：执行门禁脚本
+`python3 utils/memory_bouncer.py`
 
-### 第三步：任务移交 (Task Handover)
-*(向用户汇报上述两步已确认执行完毕，并简述记录在 PROGRESS.md 中的下一步考虑。)*
+该脚本将自动执行：
+1. **强制校验**：Payload 字段缺失 → Exit 1，拒绝流转
+2. **L2 记忆合并**：JSONL 追加到 `mukg-memory.json`
+3. **L3 进度沉淀**：追加到 `PROGRESS.md`
+4. **Python 语法门禁**：`py_compile` 扫描暂存区所有 `.py` 文件 → SyntaxError 拒绝流转
+5. **自动 Git 同步**：环境感知分支（wsl→main, node4/node6→production）
+6. **清理 Payload**：删除 `.memory_payload.json`
+
+### 第三步：提交退出
+**仅在脚本 Exit Code 0 时**，才可调用 `attempt_completion` 向用户汇报。
+
+**红线条款**：如果你直接宣称任务完成而没有执行此脚本并得到 Exit Code 0，你将严重违反架构红线。
 
 ## 0. 环境感知与初始化 (CRITICAL: Environment Routing)
 - **启动检查**: 每次开启新对话或执行代码前，必须首先读取当前工作区根目录下的 `env_identity.json` 文件。
