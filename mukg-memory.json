@@ -16,3 +16,4 @@
 {"type":"relation","from":"Env_Node4","to":"3070 8GB, PyTorch 1.10.2 CUDA 11.3","relationType":"HAS_CONSTRAINT"}
 {"type":"relation","from":"Env_Node6","to":"DDP Required, PyTorch 2.0 incompatible","relationType":"HAS_CONSTRAINT"}
 {"type":"relation","from":"Env_WSL_4060","to":"FP16_Stability_Test","relationType":"CONFIRMED"}
+{"_meta":{"timestamp":"2026-05-26 16:40:40","source":"memory_bouncer","commit_message":"Auto-commit: [Node 4] Create memory_bouncer.py and rewrite .clinerules with hard gate"},"type":"entity","name":"MemoryBouncer","entityType":"System_Component","observations":["物理级记忆流转门禁系统","强制 Cline 在执行收尾前必须生成 .memory_payload.json 并执行本脚本","替代了原有的软约束对话式记忆流转协议"]}

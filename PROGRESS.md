@@ -132,3 +132,22 @@ def to_tensor_cpu(batch):
 - [ ] 记录 FP16 vs FP32 的显存占用与 Loss 曲线对比
 - [ ] 将 FP16 训练结果写入 MCP Memory 图谱
 - [ ] 后续在 Node 4 上进行全量 FP16 验证
+
+---
+
+## 8. 自动记忆流转记录 [(2026-05-26)]
+
+**环境**: `server_node4`
+
+### 本次任务总结
+实现物理级记忆流转门禁系统 (memory_bouncer.py)。耗时约15分钟。核心优化点：将原宪法中的软约束对话式记忆流转替换为硬代码拦截脚本，强制校验-合并-语法检查-Git同步四步闭环。
+
+### 下一步计划
+- 验证 Dry Run 结果
+- 确认宪法重写正确
+- 在后续任务中落地硬红线
+
+### Git 提交
+```
+Auto-commit: [Node 4] Create memory_bouncer.py and rewrite .clinerules with hard gate
+```
