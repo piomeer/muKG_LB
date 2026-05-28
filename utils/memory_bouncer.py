@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 """
 ======================================================================
-MuKG Memory Bouncer — 物理级记忆流转门禁系统
+MuKG Memory Bouncer — 物理级记忆流转门禁系统 (v4)
 ======================================================================
-
 【核心职责】
 在执行任务收尾前，Cline 必须先生成 .memory_payload.json，再由本脚本执行：
-  1. 强制校验 payload 完整性
+  1. 强制校验 payload 完整性（新 L3 切面状态机 Schema）
   2. L2 记忆合并（JSONL 追加到 mukg-memory.json）
-  3. L3 进度沉淀（追加到 PROGRESS.md）
-  4. 自动 Git 同步（环境感知分支策略）
-  5. Python 语法门禁（py_compile 快速扫描）
-  6. 清理 payload 文件
+  3. L3 进度沉淀（纯切面模式：精准替换 PROGRESS.md 的 4 个固定板块）
+  4. 清理 payload 文件
+
+【L3 切面状态机设计模式】
+  - PROGRESS.md 永远只包含 4 个固定板块：## 1., ## 2., ## 3., ## 4.
+  - 每次执行时，用 Payload 中的新内容精准替换/追加到对应板块下方。
+  - 不再有永久锚点 / 历史归档 / 追加记录模式。
+
+【v4 重大变更】
+  - Payload Schema 改为 L3 切面模式：active_task, new_constraints, progress_and_blockers, next_steps
+  - L3 merge 改为正则精确定位 4 板块 + 替换内容
+  - new_constraints 支持追加到 ## 2. 现有约束列表下方（L1 宪法 → L3 动态映射）
+  - 移除永久锚点 / 历史归档逻辑
+  - 移除 Git 自动提交/推送逻辑
 
 【退出码约定】
   - Exit 0: 成功，允许流转
@@ -22,11 +31,8 @@ MuKG Memory Bouncer — 物理级记忆流转门禁系统
 import json
 import sys
 import os
-import subprocess
-import py_compile
-import tempfile
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 
@@ -40,16 +46,12 @@ PROGRESS_FILE = PROJECT_ROOT / "PROGRESS.md"
 ENV_IDENTITY_FILE = PROJECT_ROOT / "env_identity.json"
 
 REQUIRED_FIELDS = [
-    "l1_reflection",
-    "l2_graph_updates",
-    "l3_progress_notes",
+    "active_task",
+    "new_constraints",
+    "progress_and_blockers",
     "next_steps",
-    "commit_message",
+    "l2_graph_updates",
 ]
-
-from datetime import timedelta
-
-JST = timezone.utc  # We'll format manually for JST
 
 
 def get_jst_timestamp() -> str:
@@ -77,12 +79,14 @@ def validate_payload(payload: dict) -> None:
         print(f"[BOUNCER]    必需字段: {REQUIRED_FIELDS}", file=sys.stderr)
         sys.exit(1)
 
-    # 校验 l2_graph_updates 类型
+    if not isinstance(payload["new_constraints"], list):
+        print("[BOUNCER] ❌ new_constraints 必须是数组类型", file=sys.stderr)
+        sys.exit(1)
+
     if not isinstance(payload["l2_graph_updates"], list):
         print("[BOUNCER] ❌ l2_graph_updates 必须是数组类型", file=sys.stderr)
         sys.exit(1)
 
-    # 校验每个更新条目
     for i, entry in enumerate(payload["l2_graph_updates"]):
         if "type" not in entry:
             print(f"[BOUNCER] ❌ l2_graph_updates[{i}] 缺少 type 字段", file=sys.stderr)
@@ -110,7 +114,7 @@ def validate_payload(payload: dict) -> None:
                     )
                     sys.exit(1)
 
-    print(f"[BOUNCER] ✅ Payload 校验通过 ({len(payload['l2_graph_updates'])} 条更新)")
+    print(f"[BOUNCER] ✅ Payload 校验通过 ({len(payload['l2_graph_updates'])} 条 L2 更新)")
 
 
 # ====================================================================
@@ -119,9 +123,7 @@ def validate_payload(payload: dict) -> None:
 def merge_l2_memory(payload: dict) -> None:
     """
     将 l2_graph_updates 以 JSONL 格式追加到 mukg-memory.json。
-
-    现有文件格式为 JSON Lines（每行一个独立 JSON 对象，无外层括号）。
-    新增条目时确保每行是紧凑的 JSON（无内部换行）。
+    每行是紧凑 JSON（无内部换行），带 _meta 元信息。
     """
     updates = payload["l2_graph_updates"]
     if not updates:
@@ -129,16 +131,15 @@ def merge_l2_memory(payload: dict) -> None:
         return
 
     timestamp = get_jst_timestamp()
+    commit_msg = payload.get("commit_message", "")
     lines_appended = 0
 
     with open(MEMORY_FILE, "a", encoding="utf-8") as f:
         for entry in updates:
-            # 构建 metadata
             record = {
                 "_meta": {
                     "timestamp": timestamp,
                     "source": "memory_bouncer",
-                    "commit_message": payload.get("commit_message", ""),
                 }
             }
 
@@ -153,7 +154,6 @@ def merge_l2_memory(payload: dict) -> None:
                 record["to"] = entry["to"]
                 record["relationType"] = entry["relationType"]
 
-            # 强制无内部换行的紧凑 JSON
             json_line = json.dumps(record, ensure_ascii=False, separators=(",", ":"))
             f.write(json_line + "\n")
             lines_appended += 1
@@ -162,206 +162,137 @@ def merge_l2_memory(payload: dict) -> None:
 
 
 # ====================================================================
-# Step 3: L3 进度沉淀（Append to PROGRESS.md）
+# Step 3: L3 进度沉淀 — 纯切面模式
 # ====================================================================
+def _build_constraints_block(payload: dict) -> str:
+    """
+    从现有 ## 2. 内容和 new_constraints 构建新的约束板块。
+    如果 new_constraints 为空，保持原内容不变。
+    不为空时，将新约束作为列表项追加到原内容下方。
+    """
+    new_constraints = payload.get("new_constraints", [])
+    if not new_constraints:
+        return None  # 表示不修改 ## 2.
+
+    constraints_lines = []
+    for c in new_constraints:
+        constraints_lines.append(f"- **{c}**")
+    return "\n".join(constraints_lines)
+
+
+def _replace_section(content: str, heading: str, new_body: str) -> str:
+    """
+    用 new_body 替换指定标题下方的全部内容（直到下一个同级标题或文件末尾）。
+    保留标题行本身，只替换标题下方的内容。
+
+    参数：
+      content: PROGRESS.md 全文
+      heading: 如 "## 1."、"## 2." 等
+      new_body: 要替换的新内容（不含标题）
+    """
+    # 转义标题中的特殊正则字符
+    escaped_heading = re.escape(heading)
+
+    # 匹配模式：标题行 + 其后内容直到下一个 ## 或文件末尾
+    # 分组1：标题行 + 换行
+    # 分组2：标题下方内容（被替换的部分）
+    pattern = rf"({escaped_heading}[^\n]*\n)(.*?)(?=\n## |\Z)"
+
+    def replacement(match):
+        # match.group(1) = 标题行 + 换行
+        # match.group(2) = 原标题下方的旧内容
+        return match.group(1) + new_body.rstrip() + "\n"
+
+    replaced_count = 0
+    new_content, count = re.subn(pattern, replacement, content, count=1, flags=re.DOTALL)
+    if count == 0:
+        # 如果没找到匹配（标题不存在），在文件末尾追加
+        print(f"[BOUNCER] ⚠️  未找到标题 '{heading}'，将在文件末尾追加")
+        new_content = content.rstrip() + f"\n\n{heading}\n" + new_body.rstrip() + "\n"
+    else:
+        replaced_count = count
+
+    return new_content
+
+
 def merge_l3_progress(payload: dict) -> None:
     """
-    将 l3_progress_notes 和 next_steps 格式化后追加到 PROGRESS.md 的适当位置。
-    追加到 `## 7. 待办事项 (Backlog)` 之后（文件末尾）。
+    纯切面模式写入 PROGRESS.md。
+
+    逻辑：
+      1. 读取 PROGRESS.md 全文
+      2. 用 active_task 替换 ## 1. 下方的内容
+      3. 若 new_constraints 非空，追加到 ## 2. 内容下方（L1 → L3 映射）
+      4. 用 progress_and_blockers 替换 ## 3. 下方的内容
+      5. 用 next_steps 替换 ## 4. 下方的内容
+      6. 写回文件
     """
-    notes = payload.get("l3_progress_notes", "").strip()
-    next_steps = payload.get("next_steps", "")
-    commit_msg = payload.get("commit_message", "")
-    date_str = get_jst_date()
-    env_tag = detect_environment()
+    active_task = payload.get("active_task", "[待分配]").strip()
+    progress_and_blockers = payload.get("progress_and_blockers", "[待分配]").strip()
+    next_steps = payload.get("next_steps", "[待分配]").strip()
+    new_constraints = payload.get("new_constraints", [])
 
-    if isinstance(next_steps, list):
-        next_steps = "\n".join(f"- {s}" for s in next_steps)
+    if not PROGRESS_FILE.exists():
+        print(f"[BOUNCER] ❌ 未找到 {PROGRESS_FILE.name}！", file=sys.stderr)
+        sys.exit(1)
 
-    # 构建追加区块
-    section = f"""
----
+    with open(PROGRESS_FILE, "r", encoding="utf-8") as f:
+        content = f.read()
 
-## 8. 自动记忆流转记录 [({date_str})]
+    # --- 替换 ## 1. 当前活动目标 ---
+    content = _replace_section(content, "## 1.", active_task)
 
-**环境**: `{env_tag}`
+    # --- 处理 ## 2. 活跃约束提醒（追加模式） ---
+    if new_constraints:
+        # 提取 ## 2. 下方现有的内容
+        pattern_2 = r"(## 2\.[^\n]*\n)(.*?)(?=\n## |\Z)"
+        m = re.search(pattern_2, content, re.DOTALL)
+        if m:
+            existing_body = m.group(2).strip()
+            # 构建要追加的新约束行
+            extra_lines = []
+            for c in new_constraints:
+                extra_lines.append(f"- **{c}**  *(自动映射自 L1 宪法)*")
+            extra_block = "\n".join(extra_lines)
+            # 在现有内容后追加
+            new_body_2 = existing_body + "\n" + extra_block
+            content = _replace_section(content, "## 2.", new_body_2)
+            print(f"[BOUNCER] 📋 追加 {len(new_constraints)} 条新约束到 ## 2.")
+    # 如果 new_constraints 为空，保持 ## 2. 不变
 
-### 本次任务总结
-{notes}
+    # --- 替换 ## 3. 当前进度与卡点 ---
+    content = _replace_section(content, "## 3.", progress_and_blockers)
 
-### 下一步计划
-{next_steps}
+    # --- 替换 ## 4. 下一步计划 ---
+    content = _replace_section(content, "## 4.", next_steps)
 
-### Git 提交
-```
-{commit_msg}
-```
-"""
+    # --- 写回文件 ---
+    with open(PROGRESS_FILE, "w", encoding="utf-8") as f:
+        f.write(content)
 
-    with open(PROGRESS_FILE, "a", encoding="utf-8") as f:
-        f.write(section)
-
-    print(f"[BOUNCER] ✅ L3 进度沉淀完成: 追加到 {PROGRESS_FILE.name}")
+    print(f"[BOUNCER] ✅ L3 进度沉淀完成: {PROGRESS_FILE.name}")
+    print(f"[BOUNCER]     ## 1. → active_task")
+    if new_constraints:
+        print(f"[BOUNCER]     ## 2. → 追加 {len(new_constraints)} 条新约束")
+    print(f"[BOUNCER]     ## 3. → progress_and_blockers")
+    print(f"[BOUNCER]     ## 4. → next_steps")
 
 
 # ====================================================================
-# Step 4: 环境感知分支策略
+# Step 4: 环境检测
 # ====================================================================
 def detect_environment() -> str:
     """读取 env_identity.json 判断当前环境"""
     try:
         with open(ENV_IDENTITY_FILE, "r", encoding="utf-8") as f:
             env_data = json.load(f)
-        env = env_data.get("env", "unknown")
-        return env
+        return env_data.get("env", "unknown")
     except (FileNotFoundError, json.JSONDecodeError):
         return "unknown"
 
 
-def determine_branch() -> str:
-    """
-    根据环境决定目标分支：
-      - wsl   → main
-      - node4 → production
-      - node6 → production
-      - 其他   → main（安全默认）
-    """
-    env = detect_environment()
-    if env == "local_wsl":
-        return "main"
-    elif env in ("server_node4", "server_node6"):
-        return "production"
-    else:
-        print(f"[BOUNCER] ⚠️  未知环境 '{env}'，默认推送到 main 分支")
-        return "main"
-
-
 # ====================================================================
-# Step 5: Python 语法门禁（py_compile 扫描）
-# ====================================================================
-def check_python_syntax() -> None:
-    """
-    扫描 Git 暂存区中的所有 .py 文件，使用 py_compile 进行基本语法检查。
-    如果发现 SyntaxError，直接报错并拒绝流转。
-    """
-    try:
-        result = subprocess.run(
-            ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
-            capture_output=True,
-            text=True,
-            cwd=PROJECT_ROOT,
-        )
-        staged_files = result.stdout.strip().split("\n")
-    except subprocess.SubprocessError as e:
-        print(f"[BOUNCER] ⚠️  无法获取暂存区文件列表: {e}", file=sys.stderr)
-        print("[BOUNCER]    跳过语法检查（不阻止流转）")
-        return
-
-    py_files = [f for f in staged_files if f.endswith(".py") and os.path.isfile(f)]
-
-    if not py_files:
-        print("[BOUNCER] ⏭️  暂存区无 .py 文件，跳过语法检查")
-        return
-
-    errors = []
-    for py_file in py_files:
-        try:
-            py_compile.compile(py_file, doraise=True)
-            print(f"[BOUNCER]   ✅ 语法通过: {py_file}")
-        except py_compile.PyCompileError as e:
-            errors.append((py_file, str(e)))
-            print(f"[BOUNCER]   ❌ 语法错误: {py_file} — {e}", file=sys.stderr)
-
-    if errors:
-        print("\n[BOUNCER] 🔴 语法门禁拦截！以下文件存在语法错误：", file=sys.stderr)
-        for fname, err in errors:
-            print(f"  - {fname}: {err}", file=sys.stderr)
-        print("\n[BOUNCER] 请修复上述语法错误后重试。流转已拒绝。", file=sys.stderr)
-        sys.exit(1)
-
-    print(f"[BOUNCER] ✅ Python 语法门禁通过: {len(py_files)} 个文件")
-
-
-# ====================================================================
-# Step 6: 自动 Git 同步
-# ====================================================================
-def auto_git_sync(commit_message: str) -> None:
-    """
-    执行 git add . → git commit → git push origin <branch>。
-    分支根据环境自动判断。
-    """
-    branch = determine_branch()
-    env = detect_environment()
-
-    try:
-        # 1. git add
-        print(f"[BOUNCER] 🔄 执行 git add .")
-        subprocess.run(
-            ["git", "add", "."],
-            capture_output=True,
-            text=True,
-            check=True,
-            cwd=PROJECT_ROOT,
-        )
-
-        # 2. git commit
-        print(f"[BOUNCER] 🔄 执行 git commit -m \"{commit_message}\"")
-        result = subprocess.run(
-            ["git", "commit", "-m", commit_message],
-            capture_output=True,
-            text=True,
-            cwd=PROJECT_ROOT,
-        )
-        if result.returncode == 0:
-            print(f"[BOUNCER]   ✅ Commit 成功")
-        elif "nothing to commit" in result.stdout or "nothing to commit" in result.stderr:
-            print("[BOUNCER]   ⏭️  无变更需要提交")
-        else:
-            print(f"[BOUNCER]   ⚠️  Commit 可能异常: {result.stderr.strip()}")
-
-        # 3. git push
-        print(f"[BOUNCER] 🔄 执行 git push origin {branch}")
-        push_result = subprocess.run(
-            ["git", "push", "origin", branch],
-            capture_output=True,
-            text=True,
-            cwd=PROJECT_ROOT,
-        )
-        if push_result.returncode == 0:
-            print(f"[BOUNCER]   ✅ Push 成功 → origin/{branch}")
-        else:
-            # 尝试设置 upstream 并重试
-            stderr = push_result.stderr.strip()
-            if "has no upstream" in stderr or "upstream" in stderr:
-                print(f"[BOUNCER]   ⚠️  无上游分支，尝试 git push -u origin {branch}")
-                retry = subprocess.run(
-                    ["git", "push", "-u", "origin", branch],
-                    capture_output=True,
-                    text=True,
-                    cwd=PROJECT_ROOT,
-                )
-                if retry.returncode == 0:
-                    print(f"[BOUNCER]   ✅ Push 成功（上游分支已设置）→ origin/{branch}")
-                else:
-                    print(
-                        f"[BOUNCER]   ❌ Push 失败: {retry.stderr.strip()}",
-                        file=sys.stderr,
-                    )
-                    print("[BOUNCER]     请手动检查 Git 配置。流转继续进行。")
-            else:
-                print(f"[BOUNCER]   ⚠️  Push 异常: {stderr}")
-                print("[BOUNCER]     流转继续进行（非致命异常）")
-
-        # 记录 Git 信息
-        print(f"[BOUNCER] ✅ Git 同步完成 (环境: {env} → 分支: {branch})")
-
-    except subprocess.CalledProcessError as e:
-        print(f"[BOUNCER] ❌ Git 操作失败: {e.stderr}", file=sys.stderr)
-        print("[BOUNCER]    流转继续进行（Git 失败不阻止流程）")
-
-
-# ====================================================================
-# Step 7: 清理 Payload
+# Step 5: 清理 Payload
 # ====================================================================
 def cleanup_payload() -> None:
     """删除 .memory_payload.json 文件"""
@@ -377,23 +308,17 @@ def cleanup_payload() -> None:
 # ====================================================================
 def main():
     print("=" * 60)
-    print("  MuKG Memory Bouncer — 记忆流转门禁系统")
+    print("  MuKG Memory Bouncer — 记忆流转门禁系统 v4")
+    print(f"  [L3切面状态机模式]")
     print(f"  工作目录: {PROJECT_ROOT}")
     print("=" * 60)
 
-    # 检查 payload 文件是否存在
+    # 检查 payload 文件
     if not PAYLOAD_FILE.exists():
-        print(
-            f"[BOUNCER] ❌ 未找到 {PAYLOAD_FILE.name}！",
-            file=sys.stderr,
-        )
-        print(
-            "[BOUNCER]    请先生成 .memory_payload.json 再执行此脚本。",
-            file=sys.stderr,
-        )
+        print(f"[BOUNCER] ❌ 未找到 {PAYLOAD_FILE.name}！", file=sys.stderr)
+        print("[BOUNCER]    请先生成 .memory_payload.json 再执行此脚本。", file=sys.stderr)
         sys.exit(1)
 
-    # 读取 payload
     try:
         with open(PAYLOAD_FILE, "r", encoding="utf-8") as f:
             payload = json.load(f)
@@ -403,26 +328,19 @@ def main():
         sys.exit(1)
 
     # Step 1: 强制校验
-    print("\n── Step 1/5: 强制校验 ──")
+    print("\n── Step 1/4: 强制校验 ──")
     validate_payload(payload)
 
     # Step 2: L2 记忆合并
-    print("\n── Step 2/5: L2 记忆合并 ──")
+    print("\n── Step 2/4: L2 记忆合并 ──")
     merge_l2_memory(payload)
 
-    # Step 3: L3 进度沉淀
-    print("\n── Step 3/5: L3 进度沉淀 ──")
+    # Step 3: L3 进度沉淀（纯切面模式）
+    print("\n── Step 3/4: L3 进度沉淀（切面替换）──")
     merge_l3_progress(payload)
 
-    # Step 4: Python 语法门禁
-    print("\n── Step 4/5: Python 语法门禁 ──")
-    check_python_syntax()
-
-    # Step 5: 自动 Git 同步 + 清理
-    print("\n── Step 5/5: 自动 Git 同步 ──")
-    auto_git_sync(payload.get("commit_message", "Auto-commit: memory_bouncer"))
-
-    # 清理
+    # Step 4: 清理 Payload
+    print("\n── Step 4/4: 清理 ──")
     cleanup_payload()
 
     print("\n" + "=" * 60)
