@@ -28,6 +28,55 @@ def reset_global_phase_times():
     global_phase_3_time = 0.0
 
 
+# === Task 1: Per-Batch Profiling Globals (Stage A/B/C) ===
+global_collate_time_ms = 0.0
+global_neg_sampling_time_ms = 0.0
+global_tensor_build_time_ms = 0.0
+
+# === Task 2: Retry Tracking ===
+global_retry_counts = []  # list of retry_count per positive triple in batch
+
+# === Task 3: Hub Entity Analysis ===
+# Precomputed: entity -> degree mapping
+GLOBAL_ENTITY_DEGREE = {}  # will be populated via init_entity_degree()
+HUB_DEGREE_THRESHOLD = 0   # dynamic: top 10% entity degree
+
+def init_entity_degree(kgs, hub_percentile=10):
+    """Precompute entity degree and hub threshold."""
+    global GLOBAL_ENTITY_DEGREE, HUB_DEGREE_THRESHOLD
+    from collections import Counter
+    counter = Counter()
+    for h, r, t in kgs.relation_triples_list:
+        counter[h] += 1
+        counter[t] += 1
+    GLOBAL_ENTITY_DEGREE = dict(counter)
+    # Hub threshold = top hub_percentile% degree value
+    if len(counter) > 0:
+        sorted_degrees = sorted(counter.values(), reverse=True)
+        idx = max(1, len(sorted_degrees) * hub_percentile // 100)
+        HUB_DEGREE_THRESHOLD = sorted_degrees[idx - 1]
+    else:
+        HUB_DEGREE_THRESHOLD = 0
+
+def reset_per_batch_profiling():
+    """Reset per-batch profiling accumulators (called before each batch)."""
+    global global_collate_time_ms, global_neg_sampling_time_ms, global_tensor_build_time_ms
+    global global_retry_counts
+    global_collate_time_ms = 0.0
+    global_neg_sampling_time_ms = 0.0
+    global_tensor_build_time_ms = 0.0
+    global_retry_counts = []
+
+def get_per_batch_profiling():
+    """Return per-batch profiling dict for trainer to consume."""
+    return {
+        'collate_time_ms': global_collate_time_ms,
+        'neg_sampling_time_ms': global_neg_sampling_time_ms,
+        'tensor_build_time_ms': global_tensor_build_time_ms,
+        'retry_counts': list(global_retry_counts),
+    }
+
+
 class PyTorchTrainDataset(Dataset):
 
     def __init__(self, triples, neg_num, kgs):
@@ -47,29 +96,55 @@ class PyTorchTrainDataset(Dataset):
 
     def collate_fn(self, data):
         global global_phase_1_time, global_phase_3_time
+        global global_collate_time_ms, global_neg_sampling_time_ms, global_tensor_build_time_ms
+        global global_retry_counts
+
+        # === Stage A: Collate timing ===
+        collate_start = time.time()
 
         batch_h = [item[0] for item in data]
         batch_r = [item[1] for item in data]
         batch_t = [item[2] for item in data]
 
-        # === Phase 3: Negative Sampling (競合の作成) ===
-        t_p3_start = time.time()
-        batch_neg = self.generate_neg_triples_fast(data, set(self.kgs.relation_triples_list), self.kgs.entities_list, self.neg_num)
-        global_phase_3_time += (time.time() - t_p3_start)
+        # === Stage B: Negative Sampling ===
+        neg_sampling_start = time.time()
+        batch_neg, retry_info = self.generate_neg_triples_fast(
+            data, set(self.kgs.relation_triples_list),
+            self.kgs.entities_list, self.neg_num
+        )
+        neg_sampling_end = time.time()
+        neg_sampling_ms = (neg_sampling_end - neg_sampling_start) * 1000.0
+        global_neg_sampling_time_ms += neg_sampling_ms
+        # Accumulate retry info
+        global_retry_counts.extend(retry_info)
+
+        # === Phase 3 (original) ===
+        global_phase_3_time += (neg_sampling_end - neg_sampling_start)
 
         batch_data = list()
 
-        # === Phase 1: ID Mapping (インデックスへの変換) ===
-        t_p1_start = time.time()
+        # === Stage C: Tensor Construction ===
+        tensor_build_start = time.time()
         batch_h = to_tensor_cpu(batch_h + [x[0] for x in batch_neg])
         batch_r = to_tensor_cpu(batch_r + [x[1] for x in batch_neg])
         batch_t = to_tensor_cpu(batch_t + [x[2] for x in batch_neg])
-        global_phase_1_time += (time.time() - t_p1_start)
+        tensor_build_end = time.time()
+        tensor_build_ms = (tensor_build_end - tensor_build_start) * 1000.0
+        global_tensor_build_time_ms += tensor_build_ms
+
+        # === Phase 1 (original) ===
+        global_phase_1_time += (tensor_build_end - tensor_build_start)
 
         batch_data.append(batch_h)
         batch_data.append(batch_r)
         batch_data.append(batch_t)
         batch_data = torch.stack(batch_data)
+
+        # === Stage A: End collate timing ===
+        collate_end = time.time()
+        collate_ms = (collate_end - collate_start) * 1000.0
+        global_collate_time_ms += collate_ms
+
         return batch_data
 
     def generate_neg_triples_fast(self, pos_batch, all_triples_set, entities_list, neg_triples_num, neighbor=None,
@@ -77,12 +152,15 @@ class PyTorchTrainDataset(Dataset):
         if neighbor is None:
             neighbor = dict()
         neg_batch = list()
+        retry_counts = []  # track retry per positive triple
         for head, relation, tail in pos_batch:
             neg_triples = list()
             nums_to_sample = neg_triples_num
             head_candidates = neighbor.get(head, entities_list)
             tail_candidates = neighbor.get(tail, entities_list)
+            retry_this = 0
             for i in range(max_try):
+                retry_this += 1
                 corrupt_head_prob = np.random.binomial(1, 0.5)
                 if corrupt_head_prob:
                     neg_heads = random.sample(head_candidates, nums_to_sample)
@@ -100,10 +178,11 @@ class PyTorchTrainDataset(Dataset):
                     break
                 else:
                     nums_to_sample = neg_triples_num - len(neg_triples)
+            retry_counts.append(retry_this)
             assert len(neg_triples) == neg_triples_num
             neg_batch.extend(neg_triples)
         assert len(neg_batch) == neg_triples_num * len(pos_batch)
-        return neg_batch
+        return neg_batch, retry_counts
 
     def set_sampling_mode(self, sampling_mode):
         self.sampling_mode = sampling_mode

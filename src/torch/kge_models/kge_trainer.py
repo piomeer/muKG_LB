@@ -2,6 +2,8 @@ import math
 import time
 import os
 import tqdm
+import csv
+from collections import Counter
 from torch.profiler import profile, record_function, ProfilerActivity
 from src.torch.kge_models.pytorch_dataloader import PyTorchTrainDataset
 from joblib._multiprocessing_helpers import mp
@@ -22,6 +24,12 @@ from typing import Dict
 
 from src.torch.kge_models.basic_model import parallel_model
 
+from src.torch.kge_models.pytorch_dataloader import (
+    init_entity_degree, GLOBAL_ENTITY_DEGREE, HUB_DEGREE_THRESHOLD,
+    reset_per_batch_profiling, get_per_batch_profiling,
+    get_global_phase_times, reset_global_phase_times,
+)
+
 
 class kge_trainer:
     def __init__(self):
@@ -38,6 +46,11 @@ class kge_trainer:
         self.flag1 = -1
         self.flag2 = -1
         self.early_stop = None
+        
+        # === Profiling accumulators ===
+        self.profiling_rows = []       # list of dicts for profiling_summary.csv
+        self.hub_rows = []             # list of dicts for hub_analysis.csv
+        self.global_step = 0
 
     def init(self, args, kgs, model):
         self.args = args
@@ -50,6 +63,10 @@ class kge_trainer:
         else:
             self.device = torch.device('cpu')
         self.model.to(self.device)
+        
+        # === Precompute entity degree for Hub Analysis ===
+        init_entity_degree(kgs, hub_percentile=10)
+
         self.valid = LinkPredictionEvaluator(model, args, kgs, is_valid=True)
         self.optimizer = get_optimizer_torch(self.args.optimizer, self.model, self.args.learning_rate)
         train_dataset = PyTorchTrainDataset(self.kgs.relation_triples_list, self.args.neg_triple_num, kgs)
@@ -125,7 +142,15 @@ class kge_trainer:
         from src.torch.kge_models.pytorch_dataloader import get_global_phase_times, reset_global_phase_times
         
         print(next(self.model.parameters()).device)
+        
+        # === Output dir ===
+        out_dir = self.args.output if hasattr(self.args, 'output') else 'output/results/'
+        os.makedirs(out_dir, exist_ok=True)
+        
         for i in range(self.args.max_epoch):
+            # Clear GPU cache at start of each epoch to prevent OOM accumulation
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             res = 0
             length = 0
 
@@ -139,25 +164,48 @@ class kge_trainer:
             epoch_start_time = time.time()
             data_iter = iter(self.data_loader)
 
-            for batch in data_iter:
+            for step_idx, batch in enumerate(data_iter):
+                self.global_step += 1
+                
+                # === Reset per-batch profiling accumulators ===
+                reset_per_batch_profiling()
+
                 self.optimizer.zero_grad()
-                self.batch_size = int(batch[0].shape[0] / (self.args.neg_triple_num + 1))
+                batch_size_pos = int(batch[0].shape[0] / (self.args.neg_triple_num + 1))
+                self.batch_size = batch_size_pos
+                
                 data = {
                     'batch_h': batch[0].to(self.device),
                     'batch_r': batch[1].to(self.device),
                     'batch_t': batch[2].to(self.device)
                 }
 
-                # === Phase 2: Embedding Lookup (インデックスからベクトルへ) ===
+                # === Task 3: Hub Entity Analysis (positive triples only) ===
+                # batch[0] shape: [total] where first batch_size_pos are positive heads
+                pos_heads_cpu = batch[0][:batch_size_pos].cpu().numpy() if batch[0].is_cuda else batch[0][:batch_size_pos].numpy()
+                pos_tails_cpu = batch[2][:batch_size_pos].cpu().numpy() if batch[2].is_cuda else batch[2][:batch_size_pos].numpy()
+                
+                degrees = []
+                for e in pos_heads_cpu:
+                    degrees.append(GLOBAL_ENTITY_DEGREE.get(int(e), 0))
+                for e in pos_tails_cpu:
+                    degrees.append(GLOBAL_ENTITY_DEGREE.get(int(e), 0))
+                
+                batch_avg_degree = float(np.mean(degrees)) if degrees else 0.0
+                batch_max_degree = float(np.max(degrees)) if degrees else 0.0
+                hub_count = sum(1 for d in degrees if d >= HUB_DEGREE_THRESHOLD)
+
+                # === Stage D: Forward (Phase 2 original) ===
                 torch.cuda.synchronize()
-                t_p2 = time.time()
+                fwd_start = time.time()
                 score = self.model(data)
                 torch.cuda.synchronize()
-                acc_phase_2 += (time.time() - t_p2)
+                forward_time_ms = (time.time() - fwd_start) * 1000.0
+                acc_phase_2 += forward_time_ms / 1000.0
 
-                # === Phase 4: Geometry & Learning (空間変形と学習) ===
+                # === Loss + Backward (Stage E) ===
                 torch.cuda.synchronize()
-                t_p4 = time.time()
+                bwd_start = time.time()
                 if self.model.__class__.__name__ == 'ConvE' or self.model.__class__.__name__ == 'TuckER':
                     loss = score
                     loss.backward()
@@ -170,9 +218,68 @@ class kge_trainer:
                     loss = get_loss_func_torch(po_score, ne_score, self.args)
                     loss.backward()
                     res += loss.item()
+                torch.cuda.synchronize()
+                backward_time_ms = (time.time() - bwd_start) * 1000.0
+
+                # === Stage F: Optimizer ===
+                torch.cuda.synchronize()
+                opt_start = time.time()
                 self.optimizer.step()
                 torch.cuda.synchronize()
-                acc_phase_4 += (time.time() - t_p4)
+                optimizer_time_ms = (time.time() - opt_start) * 1000.0
+
+                # === Phase 4 (original) ===
+                acc_phase_4 += (backward_time_ms + optimizer_time_ms) / 1000.0
+
+                # === Task 1: Collect per-batch profiling data ===
+                prof_data = get_per_batch_profiling()
+                collate_time_ms = prof_data['collate_time_ms']
+                neg_sampling_time_ms = prof_data['neg_sampling_time_ms']
+                tensor_time_ms = prof_data['tensor_build_time_ms']
+                retry_counts = prof_data['retry_counts']
+                avg_retry = float(np.mean(retry_counts)) if retry_counts else 0.0
+                max_retry = float(np.max(retry_counts)) if retry_counts else 0.0
+
+                # === Task 2: GPU Resource Monitoring ===
+                if torch.cuda.is_available():
+                    gpu_mem_allocated = torch.cuda.max_memory_allocated(self.device) / (1024 * 1024)  # MB
+                    gpu_mem_reserved = torch.cuda.memory_reserved(self.device) / (1024 * 1024)  # MB
+                else:
+                    gpu_mem_allocated = 0
+                    gpu_mem_reserved = 0
+
+                # === Step time ===
+                step_time_ms = collate_time_ms + neg_sampling_time_ms + tensor_time_ms + forward_time_ms + backward_time_ms + optimizer_time_ms
+
+                # === Write to profiling_summary.csv ===
+                self.profiling_rows.append({
+                    'epoch': i,
+                    'step': self.global_step,
+                    'collate_time': round(collate_time_ms, 3),
+                    'neg_sampling_time': round(neg_sampling_time_ms, 3),
+                    'tensor_time': round(tensor_time_ms, 3),
+                    'forward_time': round(forward_time_ms, 3),
+                    'backward_time': round(backward_time_ms, 3),
+                    'optimizer_time': round(optimizer_time_ms, 3),
+                    'step_time': round(step_time_ms, 3),
+                    'gpu_memory_allocated': round(gpu_mem_allocated, 1),
+                    'gpu_memory_reserved': round(gpu_mem_reserved, 1),
+                    'hub_count': hub_count,
+                    'avg_degree': round(batch_avg_degree, 2),
+                    'avg_retry': round(avg_retry, 4),
+                    'max_retry': round(max_retry, 2),
+                })
+
+                # === Write to hub_analysis.csv ===
+                self.hub_rows.append({
+                    'batch_id': self.global_step,
+                    'avg_degree': round(batch_avg_degree, 2),
+                    'max_degree': round(batch_max_degree, 2),
+                    'hub_entity_count': hub_count,
+                    'neg_sampling_time': round(neg_sampling_time_ms, 3),
+                    'avg_retry': round(avg_retry, 4),
+                    'max_retry': round(max_retry, 2),
+                })
 
             # === 收集 CPU 阶段时间 ===
             phase_1_time, phase_3_time = get_global_phase_times()
@@ -201,13 +308,84 @@ class kge_trainer:
             print("=========================================")
             print('epoch {}, avg. triple loss: {:.4f}'.format(i, res / length))
 
+            # === CRITICAL: Free memory before validation to prevent OOM ===
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+
             if i >= self.args.start_valid and i % self.args.eval_freq == 0:
                 t1 = time.time()
                 flag = self.valid.print_results()
                 print('valid cost time: {:.4f}s'.format(time.time() - t1))
+                # Clear GPU cache after validation
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
                 # TODO: Add early stop for KGE here.
+            
+            # === Dump CSVs incrementally every epoch to prevent data loss ===
+            self._write_profiling_csvs(out_dir)
+        
+        # === Write CSVs at end of training (final) ===
+        self._write_profiling_csvs(out_dir)
+        
         self.test()
         self.save()
+    
+    def _write_profiling_csvs(self, out_dir):
+        """Write profiling_summary.csv and hub_analysis.csv."""
+        # profiling_summary.csv
+        if self.profiling_rows:
+            fields = [
+                'epoch', 'step', 'collate_time', 'neg_sampling_time', 'tensor_time',
+                'forward_time', 'backward_time', 'optimizer_time', 'step_time',
+                'gpu_memory_allocated', 'gpu_memory_reserved',
+                'hub_count', 'avg_degree', 'avg_retry', 'max_retry',
+            ]
+            path = os.path.join(out_dir, 'profiling_summary.csv')
+            with open(path, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=fields)
+                writer.writeheader()
+                writer.writerows(self.profiling_rows)
+            print("[Profiling] Saved profiling_summary.csv with {} rows".format(len(self.profiling_rows)))
+        
+        # hub_analysis.csv
+        if self.hub_rows:
+            fields_hub = [
+                'batch_id', 'avg_degree', 'max_degree', 'hub_entity_count',
+                'neg_sampling_time', 'avg_retry', 'max_retry',
+            ]
+            path = os.path.join(out_dir, 'hub_analysis.csv')
+            with open(path, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=fields_hub)
+                writer.writeheader()
+                writer.writerows(self.hub_rows)
+            print("[Profiling] Saved hub_analysis.csv with {} rows".format(len(self.hub_rows)))
+        
+        # === Generate training_time_breakdown.csv ===
+        if self.profiling_rows:
+            total_collate = sum(r['collate_time'] for r in self.profiling_rows)
+            total_neg = sum(r['neg_sampling_time'] for r in self.profiling_rows)
+            total_tensor = sum(r['tensor_time'] for r in self.profiling_rows)
+            total_fwd = sum(r['forward_time'] for r in self.profiling_rows)
+            total_bwd = sum(r['backward_time'] for r in self.profiling_rows)
+            total_opt = sum(r['optimizer_time'] for r in self.profiling_rows)
+            total_all = total_collate + total_neg + total_tensor + total_fwd + total_bwd + total_opt
+            
+            breakdown_fields = ['stage', 'time_ms', 'pct']
+            path = os.path.join(out_dir, 'training_time_breakdown.csv')
+            with open(path, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=breakdown_fields)
+                writer.writeheader()
+                for label, val in [
+                    ('Collate', total_collate),
+                    ('Negative Sampling', total_neg),
+                    ('Tensor Construction', total_tensor),
+                    ('Forward', total_fwd),
+                    ('Backward', total_bwd),
+                    ('Optimizer', total_opt),
+                ]:
+                    pct = (val / total_all * 100) if total_all > 0 else 0.0
+                    writer.writerow({'stage': label, 'time_ms': round(val, 3), 'pct': round(pct, 2)})
+            print("[Profiling] Saved training_time_breakdown.csv")
 
     def test(self):
         predict = LinkPredictionEvaluator(self.model, self.args, self.kgs)

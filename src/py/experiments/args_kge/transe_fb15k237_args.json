@@ -16,7 +16,7 @@
 	  
 	"learning_rate": 0.0005,
     "optimizer": "Adam",
-	"max_epoch": 3,
+	"max_epoch": 20,
 	"batch_size": 5000,
 	"ordered": true,
 	"batch_threads_num": 0,
