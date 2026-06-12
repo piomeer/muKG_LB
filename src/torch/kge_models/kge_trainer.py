@@ -25,7 +25,7 @@ from typing import Dict
 from src.torch.kge_models.basic_model import parallel_model
 
 from src.torch.kge_models.pytorch_dataloader import (
-    init_entity_degree, GLOBAL_ENTITY_DEGREE, HUB_DEGREE_THRESHOLD,
+    init_entity_degree, GLOBAL_ENTITY_DEGREE, HUB_DEGREE_THRESHOLD, HUB_TOP1_PCT_THRESHOLD,
     reset_per_batch_profiling, get_per_batch_profiling,
     get_global_phase_times, reset_global_phase_times,
 )
@@ -50,6 +50,7 @@ class kge_trainer:
         # === Profiling accumulators ===
         self.profiling_rows = []       # list of dicts for profiling_summary.csv
         self.hub_rows = []             # list of dicts for hub_analysis.csv
+        self.neg_sampling_cost_rows = []  # list of dicts for negative_sampling_cost.csv (Phase 2)
         self.global_step = 0
 
     def init(self, args, kgs, model):
@@ -166,9 +167,6 @@ class kge_trainer:
 
             for step_idx, batch in enumerate(data_iter):
                 self.global_step += 1
-                
-                # === Reset per-batch profiling accumulators ===
-                reset_per_batch_profiling()
 
                 self.optimizer.zero_grad()
                 batch_size_pos = int(batch[0].shape[0] / (self.args.neg_triple_num + 1))
@@ -231,7 +229,7 @@ class kge_trainer:
                 # === Phase 4 (original) ===
                 acc_phase_4 += (backward_time_ms + optimizer_time_ms) / 1000.0
 
-                # === Task 1: Collect per-batch profiling data ===
+                # === Task 1: Collect per-batch profiling data (Phase 1 + Phase 2 deep) ===
                 prof_data = get_per_batch_profiling()
                 collate_time_ms = prof_data['collate_time_ms']
                 neg_sampling_time_ms = prof_data['neg_sampling_time_ms']
@@ -239,6 +237,14 @@ class kge_trainer:
                 retry_counts = prof_data['retry_counts']
                 avg_retry = float(np.mean(retry_counts)) if retry_counts else 0.0
                 max_retry = float(np.max(retry_counts)) if retry_counts else 0.0
+                total_retry = int(np.sum(retry_counts)) if retry_counts else 0
+
+                # === Phase 2 Deep: B1-B5 sub-stage times ===
+                b1_ms = prof_data['neg_sampling_b1_ms']
+                b2_ms = prof_data['neg_sampling_b2_ms']
+                b3_ms = prof_data['neg_sampling_b3_ms']
+                b4_ms = prof_data['neg_sampling_b4_ms']
+                b5_ms = prof_data['neg_sampling_b5_ms']
 
                 # === Task 2: GPU Resource Monitoring ===
                 if torch.cuda.is_available():
@@ -251,7 +257,25 @@ class kge_trainer:
                 # === Step time ===
                 step_time_ms = collate_time_ms + neg_sampling_time_ms + tensor_time_ms + forward_time_ms + backward_time_ms + optimizer_time_ms
 
-                # === Write to profiling_summary.csv ===
+                # === Phase 2: Batch-level Graph Structure Analysis (Task 2) ===
+                # Split head/tail degree
+                head_degrees = [GLOBAL_ENTITY_DEGREE.get(int(e), 0) for e in pos_heads_cpu]
+                tail_degrees = [GLOBAL_ENTITY_DEGREE.get(int(e), 0) for e in pos_tails_cpu]
+                avg_head_deg = float(np.mean(head_degrees)) if head_degrees else 0.0
+                avg_tail_deg = float(np.mean(tail_degrees)) if tail_degrees else 0.0
+
+                # Top 1% hub entities
+                hub_top1_count = sum(1 for d in degrees if d >= HUB_TOP1_PCT_THRESHOLD)
+
+                # Unique entities and relations in positive batch
+                pos_head_set = set(int(e) for e in pos_heads_cpu)
+                pos_tail_set = set(int(e) for e in pos_tails_cpu)
+                unique_entities = len(pos_head_set | pos_tail_set)
+                # Relations: batch_r from positive triples (first batch_size_pos entries)
+                pos_rels_cpu = batch[1][:batch_size_pos].cpu().numpy() if batch[1].is_cuda else batch[1][:batch_size_pos].numpy()
+                unique_relations = len(set(int(e) for e in pos_rels_cpu))
+
+                # === Write to profiling_summary.csv (Phase 1) ===
                 self.profiling_rows.append({
                     'epoch': i,
                     'step': self.global_step,
@@ -270,7 +294,7 @@ class kge_trainer:
                     'max_retry': round(max_retry, 2),
                 })
 
-                # === Write to hub_analysis.csv ===
+                # === Write to hub_analysis.csv (Phase 1) ===
                 self.hub_rows.append({
                     'batch_id': self.global_step,
                     'avg_degree': round(batch_avg_degree, 2),
@@ -279,6 +303,31 @@ class kge_trainer:
                     'neg_sampling_time': round(neg_sampling_time_ms, 3),
                     'avg_retry': round(avg_retry, 4),
                     'max_retry': round(max_retry, 2),
+                })
+
+                # === Write to negative_sampling_cost.csv (Phase 2 deep) ===
+                self.neg_sampling_cost_rows.append({
+                    'epoch': i,
+                    'step': self.global_step,
+                    'batch_size': batch_size_pos,
+                    'neg_num': self.args.neg_triple_num,
+                    'sampling_time': round(b1_ms, 3),
+                    'candidate_build_time': round(b2_ms, 3),
+                    'collision_check_time': round(b3_ms, 3),
+                    'retry_time': round(b4_ms, 3),
+                    'output_build_time': round(b5_ms, 3),
+                    'total_neg_sampling_time': round(neg_sampling_time_ms, 3),
+                    'avg_head_degree': round(avg_head_deg, 2),
+                    'avg_tail_degree': round(avg_tail_deg, 2),
+                    'avg_entity_degree': round(batch_avg_degree, 2),
+                    'max_entity_degree': round(batch_max_degree, 2),
+                    'hub_entity_count': hub_count,
+                    'hub_top1_pct_count': hub_top1_count,
+                    'unique_entities': unique_entities,
+                    'unique_relations': unique_relations,
+                    'avg_retry': round(avg_retry, 4),
+                    'max_retry': round(max_retry, 2),
+                    'total_retry': total_retry,
                 })
 
             # === 收集 CPU 阶段时间 ===
@@ -331,7 +380,7 @@ class kge_trainer:
         self.save()
     
     def _write_profiling_csvs(self, out_dir):
-        """Write profiling_summary.csv and hub_analysis.csv."""
+        """Write profiling_summary.csv, hub_analysis.csv, negative_sampling_cost.csv, and negative_sampling_breakdown.csv."""
         # profiling_summary.csv
         if self.profiling_rows:
             fields = [
@@ -386,6 +435,53 @@ class kge_trainer:
                     pct = (val / total_all * 100) if total_all > 0 else 0.0
                     writer.writerow({'stage': label, 'time_ms': round(val, 3), 'pct': round(pct, 2)})
             print("[Profiling] Saved training_time_breakdown.csv")
+        
+        # === Phase 2: negative_sampling_cost.csv ===
+        if self.neg_sampling_cost_rows:
+            fields_cost = [
+                'epoch', 'step', 'batch_size', 'neg_num',
+                'sampling_time', 'candidate_build_time', 'collision_check_time',
+                'retry_time', 'output_build_time', 'total_neg_sampling_time',
+                'avg_head_degree', 'avg_tail_degree', 'avg_entity_degree', 'max_entity_degree',
+                'hub_entity_count', 'hub_top1_pct_count',
+                'unique_entities', 'unique_relations',
+                'avg_retry', 'max_retry', 'total_retry',
+            ]
+            path = os.path.join(out_dir, 'negative_sampling_cost.csv')
+            with open(path, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=fields_cost)
+                writer.writeheader()
+                writer.writerows(self.neg_sampling_cost_rows)
+            print("[Profiling] Saved negative_sampling_cost.csv with {} rows".format(len(self.neg_sampling_cost_rows)))
+        
+        # === Phase 2: negative_sampling_breakdown.csv (Runtime Breakdown - Task 6) ===
+        if self.neg_sampling_cost_rows:
+            total_b1 = sum(r['sampling_time'] for r in self.neg_sampling_cost_rows)
+            total_b2 = sum(r['candidate_build_time'] for r in self.neg_sampling_cost_rows)
+            total_b3 = sum(r['collision_check_time'] for r in self.neg_sampling_cost_rows)
+            total_b4 = sum(r['retry_time'] for r in self.neg_sampling_cost_rows)
+            total_b5 = sum(r['output_build_time'] for r in self.neg_sampling_cost_rows)
+            total_all_ns = sum(r['total_neg_sampling_time'] for r in self.neg_sampling_cost_rows)
+            total_all_b = total_b1 + total_b2 + total_b3 + total_b4 + total_b5
+            
+            ns_breakdown_fields = ['Component', 'Time_ms', 'Ratio_pct']
+            path = os.path.join(out_dir, 'negative_sampling_breakdown.csv')
+            with open(path, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(ns_breakdown_fields)
+                for label, val in [
+                    ('Sampling', total_b1),
+                    ('Candidate Build', total_b2),
+                    ('Collision Check', total_b3),
+                    ('Retry', total_b4),
+                    ('Output Build', total_b5),
+                ]:
+                    pct_of_total = (val / total_all_ns * 100) if total_all_ns > 0 else 0.0
+                    writer.writerow([label, round(val, 3), round(pct_of_total, 2)])
+                # Summary row
+                writer.writerow(['Total (B1-B5)', round(total_all_b, 3), round(total_all_b / total_all_ns * 100, 2) if total_all_ns > 0 else 0.0])
+                writer.writerow(['Total (neg_sampling_time)', round(total_all_ns, 3), 100.0])
+            print("[Profiling] Saved negative_sampling_breakdown.csv")
 
     def test(self):
         predict = LinkPredictionEvaluator(self.model, self.args, self.kgs)
