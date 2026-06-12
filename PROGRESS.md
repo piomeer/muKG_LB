@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-MuKG Negative Sampling Deep Profiling (Phase 2) — 构建 Neg Sampling Cost Model 并回答 5 个研究问题
+MuKG Negative Sampling Phase 3 — Hub Entity Correlation Deep Dive
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。
@@ -11,27 +11,26 @@ MuKG Negative Sampling Deep Profiling (Phase 2) — 构建 Neg Sampling Cost Mod
 - **OOM 保护：验证前执行 torch.cuda.empty_cache()**  *(自动映射自 L1 宪法)*
 - **time.perf_counter() 用于微秒级计时，比 time.time() 精度更高**  *(自动映射自 L1 宪法)*
 - **DataLoader collate_fn 内部需自包含 reset 逻辑，不可依赖外部调用**  *(自动映射自 L1 宪法)*
+- **avg_entity_degree 存储数据类型不匹配（numpy int64 写入 csv 后读取为 0），需统一为 Python int**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-完成 Phase 2 实验。
+Phase 3 完成。
 
-数据收集：5 epochs (455 steps), batch_size=3000, neg=150, TransE+FB15k-237
+Hub Entity 影响路径完全解析：
 
-核心发现：
-- B1: Sampling (42.3%) 是负采样最大瓶颈（random.sample + 伯努利采样）
-- B2: Candidate Build (23.0%) — set comprehension 构建候选三元组
-- B3: Collision Check (14.2%) — set difference 过滤已有三元组
-- B4: Retry (0.2%) 和 B5: Output Build (1.1%) 几乎可忽略
+Hub Count vs B1-B5:
+- vs Sampling (B1):    R = 0.8163 (强正相关) ← 主要影响路径
+- vs Retry (B4):       R = 0.7359 (强正相关)
+- vs Output (B5):      R = 0.6192 (中等正相关)
+- vs Collision (B3):   R = 0.5404 (中等正相关)
+- vs Candidate (B2):   R = 0.4170 (中等正相关)
 
-相关性分析：
-- Hub Entity vs Neg Sampling Time: Pearson R=0.7014（强正相关）
-- Collision Check vs Neg Sampling Time: Pearson R=0.8640（强正相关）
-- avg_retry vs Neg Sampling Time: R=0.0254（无关）
+Top 20 Slowest Batches: 全部为 hub_count=6000，表明 Hub 是决定批次速度的首要因素。
 
-avg_entity_degree 为 NaN（数据类型映射问题），需修复。
+可行预测模型：Total_NS_Time = a * hub_count + b，R² ≈ 0.49
 
 ## 4. 下一步计划 (Next Steps)
-[1] 修复 entity degree 数据映射问题（int vs numpy int64）
-[2] 针对 B1: Sampling 模块优化（使用 GPU 端统一采样）
-[3] 针对 Collision Check 优化（使用 Bloom Filter 或双缓冲 set）
-[4] 扩展实验到更多 epoch（需解决 OOM）
+[1] 修复 avg_entity_degree 数据类型问题
+[2] 实现 GPU 端 Sampling（替换 random.sample）
+[3] 实现 Bloom Filter 加速 Collision Check
+[4] 构建线性回归预测模型
