@@ -32,6 +32,84 @@
 ## 0. 环境感知与初始化 (CRITICAL: Environment Routing)
 - **启动检查**: 每次开启新对话或执行代码前，必须首先读取当前工作区根目录下的 `env_identity.json` 文件。
 - **环境路由**: 后续所有关于算力分配、代码架构（单卡/多卡）和包管理的建议，必须严格根据读取到的 `env` 值进行动态调整。
+- **能力路由 (Capability Routing)**: Environment Routing 不仅决定硬件，还决定以下五个维度：
+  - **execution capability**: 当前环境能否执行训练/Profiling 等计算任务
+  - **network capability**: 当前环境能否访问外部网络（GitHub、DeepSeek 等）
+  - **synchronization strategy**: 数据同步策略（是否需要 rsync 等）
+  - **Git capability**: 当前环境能否直接推送 GitHub
+  - **Memory capability**: 当前环境能否访问 Academic Memory MCP Server
+- **动态决策依据**: 所有后续建议必须依据 `env_identity.json` 的能力字段（如 `network`、`role`、`can_run_cline`、`can_access_github`、`can_access_deepseek`、`can_train`、`sync_required` 等），而不是固定机器名称（如 RTX3070、RTX4060）。严禁将机器硬件型号硬编码到规则逻辑中。
+- **能力优先原则 (Capability-First Priority)**: Environment Routing 的优先级为：
+  1. `env_identity.json`（唯一真相源）
+  2. capability 字段（如 `internet`、`can_train`、`can_modify`、`sync_required`、`can_profile` 等）
+  3. 硬件约束（GPU 型号、VRAM 等，仅作为 capability 的补充参考）
+  所有行为必须优先依据 capability 字段判断，而不是机器名称。避免未来增加新服务器时再次硬编码机器名称。
+
+## 0.5 Cross Environment Execution Protocol
+
+定义整个项目固定工作流：
+
+```
+Development (pc-cluster)
+↓
+Code Modification
+↓
+rsync
+↓
+GPU Server (node4/node6)
+↓
+Training / Profiling
+↓
+Return Logs
+↓
+Continue Optimization
+```
+
+- **同步提醒义务**: 修改代码后，不得默认认为 GPU 节点已经同步。
+- **强制同步提醒**: 如果 `env_identity.json` 中 `sync_required == true`，则必须提醒用户执行同步。
+- **默认同步命令**: 优先使用 `env_identity.json` 中的 `default_sync_command` 字段。如果该字段不存在，则提示用户使用项目默认 rsync 命令。
+- **实验结果真实性**: 不允许假设实验已经运行完成。不允许伪造实验结果。实验日志必须等待用户返回再分析，不得自行推断训练结果。
+
+## 0.6 Artifact Truth Source（实验真值来源）
+
+GPU 实验的唯一可信来源（Truth Source）包括：
+
+- stdout
+- stderr
+- TensorBoard
+- PyTorch Profiler / torch.profiler
+- WandB
+- CSV / JSON 日志文件
+- 实验日志
+- checkpoint
+- profiler 输出
+- benchmark 输出
+- 用户提供的终端输出
+- 用户提供的实验目录内容
+
+任何没有真实 Artifact 支撑的内容，不得：
+
+- 推断实验成功
+- 推断 GPU 利用率
+- 推断显存占用
+- 推断训练速度
+- 推断 Profiling 结果
+- 推断 Benchmark
+- 推断 MRR、Hits@K、Loss 改善
+- 写入 Academic Memory MCP Server
+- 更新 PROGRESS.md
+- 更新 Payload
+- 写入 Git Commit 中作为已验证结论
+
+如果当前环境不能执行 GPU 实验（例如 CPU Development Environment），必须：
+
+1. 修改代码
+2. 生成执行命令
+3. 提醒用户同步到 GPU 环境
+4. 等待真实实验 Artifact
+5. 基于真实日志继续分析
+
+严禁把预测结果当作实验结果。
 
 ## 1. 角色与项目背景
 - **核心任务**: 协助完成 MuKG (多源知识图谱嵌入) 算法的研发、复现，以及 RAG 架构的构建。
@@ -45,6 +123,32 @@
   - **行为红线**: 严禁盲目调大 `batch_size` 或 `embedding_dim`。训练脚本仅用于 Debug。必须主动考虑显存管理，必要时加入 `torch.cuda.empty_cache()` 和 OOM 异常捕获。
   - **依赖锁定**: 优先尊重该服务器上已激活的 Conda 虚拟环境或 Docker 容器中的 PyTorch/CUDA 版本，不要强行降级回 11.3 除非明确遇到自定义算子编译报错。
 
+- **IF `env` == "server_pc_cluster" — CPU Development Environment (Cline 主开发环境)**:
+  - **硬件限制**: 无 GPU，CPU 开发环境。
+  - **典型实例 (Typical environment)**: `server_pc_cluster`
+  - **角色说明**: 项目主要开发环境，负责代码修改、Git 操作、Memory 管理、Python 调试、文档更新。
+  - **满足以下能力时适用 (Applicable when capabilities match)**:
+    - `can_modify == true`
+    - `can_train == false`
+  - **允许的行为**:
+    - 修改代码、重构、调试
+    - Git 操作（commit、diff、log 等）
+    - Memory 操作（读取/写入 L2 知识图谱）
+    - Python 语法检查、单元测试
+    - 文档更新
+  - **禁止的行为**:
+    - 宣称 GPU 实验已完成
+    - 宣称 Profiling 已完成
+    - 宣称 Benchmark 已完成
+    - 宣称 CUDA 实验已完成
+    - 编造任何实验数据
+  - **GPU 任务处理协议**: 当任务需要 GPU 计算时，必须：
+    1. 自动生成需要执行的命令（训练/Profiling/Benchmark）
+    2. 提醒用户执行 rsync 同步代码到 GPU 环境
+    3. 等待 GPU 环境返回真实日志
+    4. 根据真实日志继续分析
+    5. 严禁编造实验结果
+
 - **IF `env` == "server_node4" (单卡全量训练)**:
   - **硬件限制**: 主力 GPU RTX 3070 (8GB VRAM)。
   - **行为红线**: 允许并鼓励在 FB15k-237 上进行全量数据的高负载训练。但在探索极限超参数时，仍需包含显存溢出保护逻辑。
@@ -55,12 +159,42 @@
   - **行为红线**: 严禁编写仅支持单卡的训练代码。所有的训练脚本必须基于 `torch.nn.parallel.DistributedDataParallel` (DDP) 进行构建。
   - **日志规范**: 在多卡环境下，必须确保只有 `rank == 0` 的进程负责写入日志、保存模型参数和更新 `PROGRESS.md`，严禁多进程并发写入导致文件损坏。
 
+### 能力字段路由 (Capability Field Routing)
+根据 `env_identity.json` 的能力字段动态决策：
+
+- **IF `internet == false`（无互联网连接）**:
+  - 允许 Memory 操作（Academic Memory MCP Server 是本地 JSON，不依赖互联网）
+  - 允许 Payload 生成与 PROGRESS.md 更新
+  - 允许 Git Commit（本地操作）
+  - 禁止 Git Push（需要网络连接）
+  - 禁止 npm install / pip install（需要网络下载）
+  - 禁止下载模型权重文件
+  - 禁止调用联网 API（DeepSeek 等）
+  - 不建议任何需要互联网的操作
+
+- **IF `can_train == false`（纯开发环境）**:
+  - 不允许建议运行训练脚本
+  - 仅负责代码开发、重构、调试等非训练任务
+
+- **IF `can_train == true`（GPU 计算环境）**:
+  - 允许生成训练命令
+  - 允许执行 Profiling / Benchmark
+
 ## 3. 记忆与工作流规范 (Memory System Enforcement)
 - **强制回顾**: 每次开启新的 Task 时，必须读取工作区根目录下的 `PROGRESS.md` 文件，了解跨环境的实验进度、成功参数和历史瓶颈。
 - **动态记忆写入 (MCP Memory)**:
-  - 无论当前处于哪个服务器节点，当成功跑通逻辑、修复 Bug 或发现提升 MRR/Hit Rate 的超参数时，**必须**调用 MCP 的 `server-memory` 工具将经验写入本地知识图谱。
+  - 无论当前处于哪个服务器节点，当成功跑通逻辑、修复 Bug 或发现提升 MRR/Hit Rate 的超参数时，**必须**调用 Academic Memory MCP Server 提供的图谱工具（如 read_graph、search_nodes、create_entities、create_relations、add_observations 等）将经验写入本地知识图谱。
   - **记录格式**: “Entity: `Model_Config`, Relation: `WORKS_BEST_ON`, Target: `Node6_DDP_Setting`”。
 - **进度持久化 (总结)**: 任务结束时更新 `PROGRESS.md`。明确列出：1. 刚刚完成的成就；2. 验证有效的设定；3. 下一步待解决的阻碍。4. 必须打上时间环境标签，例如：`[SUCCESS] [Node 6] [2026-05-16]完成 DDP 改造，Hit@10 达到 X%`。
+
+### 离线降级策略 (Memory Fallback for Offline Environments)
+- 如果当前环境无法访问 Academic Memory MCP Server（例如 MCP Server 进程未启动或不可达）：
+  - 注意：Academic Memory MCP Server 是本地 JSON 存储，不依赖互联网。无法访问通常意味着 MCP 进程配置问题，而非网络问题。
+  - **不要直接失败**，不要中断任务流程
+  - 改为：照常生成 `.memory_payload.json`（包含 L1/L2/L3 数据）
+  - 保留 Payload 文件，不执行 Memory Bouncer 脚本
+  - 等待之后回到支持 Memory 的环境（如 pc-cluster）再继续执行 Memory Bouncer
+  - **严禁丢失 Memory Payload** — 确保 `.memory_payload.json` 在文件系统中持久化
 
 ## 4. 数据与代码规范
 - 处理图谱数据（尤其是 FB15k-237）时，必须添加实体对齐（Entity Alignment）和三元组防越界校验。
@@ -110,3 +244,41 @@
   - 如果当前环境为 `node4`、`node6` 等远程服务器/算力节点，必须将代码推送到 `production` 分支。
 - **[自动化提交格式]**：执行 `git add .` 后，使用 `git commit -m "Auto-commit: [任务简述]"` 生成精准的提交信息。
 - **[强制执行]**：此步骤必须在更新完 `PROGRESS.md` 之后、正式结束任务之前执行。如果遇到 Git 冲突或未设置上游分支，必须自动尝试修复（如 `git push -u origin 分支名`）或向用户报错，决不允许跳过此步骤直接结束任务。
+
+### 离线 Push 降级策略 (Offline Push Fallback)
+- 如果 `env_identity.json` 中 `internet == false`：
+  - **不要立即 Push** — 不要尝试无限重试
+  - **保留 Commit** — 执行 `git commit` 正常完成本地提交
+  - **提醒用户**：告知用户当前环境无法连接 GitHub，请在回到支持 GitHub 的环境后手动执行 `git push`
+  - 严禁无限循环重试 Push 操作
+
+## 8. 同步策略 (Synchronization Policy)
+
+- **同步触发条件**: 如果 `env_identity.json` 中 `sync_required == true`，则在修改任何源码后，必须提醒用户执行环境间同步。
+- **默认同步命令**: 优先使用 `env_identity.json` 中的 `default_sync_command` 字段。如果该字段不存在或为空，则提示用户使用项目默认 rsync 命令。
+- **不默认已同步**: 在任何情况下，不得默认源码已经同步到 GPU 节点。必须显式提醒用户执行同步操作。
+
+## 9. 禁止错误推断 (Prohibition of False Inference)
+
+严禁在无真实实验数据支撑的情况下做出以下任何假设：
+
+- 假设 Profiling 已完成
+- 假设 Benchmark 已完成
+- 假设 GPU 利用率已达到预期
+- 假设训练已成功完成
+- 假设 MRR / Hit Rate 有提升
+- 任何其他未经用户确认的数值或状态推断
+
+所有优化建议、超参数调整、模型改进等决策，必须依据用户返回的真实实验结果和日志数据。
+
+### 无 GPU 环境特殊约束 (No-GPU Environment Constraints)
+如果当前环境没有 GPU（例如 `server_pc_cluster`），除上述通用禁止项外，还严禁：
+
+- 假设训练已成功完成
+- 假设显存占用情况
+- 假设 GPU 利用率数据
+- 假设 MRR / Hit Rate 有提升
+- 假设 Profiling 数据或性能指标
+- 编造任何与 GPU 计算相关的数值或结论
+
+必须等待用户提供 node4 / node6 的真实日志后才能继续分析 GPU 相关任务。

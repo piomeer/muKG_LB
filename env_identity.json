@@ -1,1 +1,12 @@
-{"env": "server_node4", "gpu": "3070", "vram": "8GB"}
+{
+  "env": "pc_cluster",
+  "role": "development",
+  "network": "online",
+  "gpu": false,
+  "shared_storage": false,
+  "can_run_cline": true,
+  "can_access_github": true,
+  "can_access_deepseek": true,
+  "can_train": false,
+  "sync_target": "192.168.100.104"
+}
