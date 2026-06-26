@@ -236,6 +236,7 @@ GPU 实验的唯一可信来源（Truth Source）包括：
   - 在完成任何一次性能 Profiling（测时）、发现重大 Bug 的根因、或完成一个子模块的代码重构后，**必须自动且主动地**使用 `write_to_file` 或 `replace_in_file` 工具更新 `PROGRESS.md`。
   - 严禁只在对话框中输出关键数据而导致 L3 记忆脱节。
 
+
 ## 7. [Git Auto-Push Protocol] 多环境自动代码同步红线
 为了保证多节点开发的数据安全与代码同源，必须在每次 Task 标记为 "Completed" 时自动执行 Git 提交与推送。
 
@@ -282,3 +283,145 @@ GPU 实验的唯一可信来源（Truth Source）包括：
 - 编造任何与 GPU 计算相关的数值或结论
 
 必须等待用户提供 node4 / node6 的真实日志后才能继续分析 GPU 相关任务。
+
+## 10. Research Experiment Workflow
+
+### Rule 0：环境判定
+在执行研究任务前，首先读取 `env_identity.json`。
+
+- 如果当前环境支持训练（`can_train == true`），完整工作流可在本地继续。
+- 否则，进入 Human-in-the-loop Research Workflow（即代码修改 → 用户执行实验 → 返回日志 → 分析）。
+
+### Rule 1：代码先行
+当研究任务仅涉及代码修改时，必须先完成所有代码变更，再请求执行实验。
+
+### Rule 2：同步前置
+如果需要同步（`sync_required == true`），在请求任何实验之前，必须先生成：
+
+1. rsync 命令
+2. 目标环境
+3. 预期变更的文件列表
+4. 提醒用户确认同步完成
+
+### Rule 3：禁止模拟实验
+如果需要进行模型训练或 Profiling：
+
+- 严禁伪造实验结果
+- 严禁估算结果
+- 严禁继续到后续研究阶段
+
+完成代码修改后立即停止。
+
+### Rule 4：Experiment Required 输出格式
+在停止前，必须输出清晰格式化的 "Experiment Required" 区块，包含：
+
+- Experiment Type
+- Working Directory
+- Required Environment
+- Required Dataset
+- Sync Required (Yes / No)
+- If Sync Required == Yes: exact rsync command
+- Run Command
+- Expected Output Files
+- Expected CSV Files
+- Expected Figures
+- Expected Log Files
+
+示例：
+
+```
+
+Experiment Required
+
+Experiment Type: [training / profiling / benchmarking / cache simulation / visualization / inference evaluation / ...]
+
+Working Directory: ...
+
+Required Environment: ...
+
+Required Dataset: ...
+
+Sync Required: [Yes / No]
+
+If Sync Required == Yes:
+
+rsync ...
+
+Run Command:
+
+python ...
+
+Expected Output Files:
+
+...
+
+Expected CSV Files:
+
+...
+
+Expected Figures:
+
+...
+
+Expected Log Files:
+
+...
+
+After the experiment completes,
+
+send all generated logs, CSV files, figures and other artifacts back.
+
+```
+
+### Rule 5：基于真实日志恢复分析
+用户返回实验结果后，基于真实日志和 CSV 文件恢复分析，而不是重复之前的代码工作。
+
+利用提供的日志和 CSV 文件：
+
+- 回答当前研究问题
+- 生成图表（如需）
+- 总结结论
+- 判断是否需要下一轮实验
+
+### Rule 6：真实 Artifact 约束
+仅在收到真实实验 Artifact 后，才允许：
+
+- 更新 PROGRESS.md
+- 更新 Academic Memory MCP Server
+- 回答性能相关问题
+- 推荐代码优化
+
+严禁将估算结果作为已验证知识使用。
+
+### Rule 7：单轮单实验
+任何时候最多只能有一个待执行的 GPU 实验。
+
+在前一个实验分析完成之前，不得请求下一个实验。
+
+必须完成当前阶段、回答所有研究问题后，再推荐下一阶段并附上清晰理由。
+
+等待用户确认后才可进入下一阶段。
+
+### Rule 8：三阶段分离
+明确分离以下三种工作：
+
+1. **Code Modification**（代码修改）
+2. **Experiment Execution**（实验执行，由用户完成）
+3. **Experimental Analysis**（实验分析）
+
+严禁将这三个阶段混合在一起。
+
+### Current Phase Completion Criteria
+
+A research phase is considered completed only when ALL of the following are satisfied:
+
+1. All planned experiments have been executed.
+2. All Research Questions have been answered.
+3. All required figures have been generated.
+4. All generated CSV/JSON/log files have been analyzed.
+5. Conclusions and limitations have been summarized.
+6. The user has explicitly confirmed that the current phase is finished.
+
+Before receiving user confirmation, never begin implementing the next research phase.
+
+If additional experiments are recommended, explain why they are needed, then wait for user confirmation.

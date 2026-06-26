@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-增量 Patch .clinerules 第6轮修正：修正 MCP Tool 描述 / CPU Development Environment 泛化 / 新增 §0.6 Artifact Truth Source
+MuKG Phase 4 — Hub Reuse & Cache Feasibility Analysis
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。
@@ -24,9 +24,20 @@
 - **MCP Tool 描述修正：引用 Academic Memory MCP Server 提供的图谱工具（read_graph、search_nodes、create_entities 等），不引用包名或假设存在 academic_memory Tool**  *(自动映射自 L1 宪法)*
 - **CPU Development Environment 泛化：server_pc_cluster 只是典型实例，使用 capability 字段描述（can_modify=true, can_train=false），未来新增无 GPU 节点无需修改规则**  *(自动映射自 L1 宪法)*
 - **§0.6 Artifact Truth Source：GPU 实验的唯一可信来源为 stdout/stderr/TensorBoard/WandB/CSV/JSON/实验日志/checkpoint/用户返回等真实 Artifact**  *(自动映射自 L1 宪法)*
+- **Research Experiment Workflow 是永久规则，每轮研究任务必须自动遵循**  *(自动映射自 L1 宪法)*
+- **Rule 0：环境判定 — can_train 决定本地继续或进入 Human-in-the-loop**  *(自动映射自 L1 宪法)*
+- **Rule 2.5 (实际标号 Rule 2)：同步前置 — sync_required=true 时先生成 rsync 命令再请求实验**  *(自动映射自 L1 宪法)*
+- **Rule 7：单轮单实验 — 最多一个待执行 GPU 实验，前一个未分析完不得请求下一个**  *(自动映射自 L1 宪法)*
+- **Research Experiment Workflow 位于规则文件末尾，在所有 Environment/Hardware/Memory/Git/Sync 规则之后执行**  *(自动映射自 L1 宪法)*
+- **Current Phase Completion Criteria：阶段完成需满足全部 6 个条件（实验执行/问题回答/图表生成/文件分析/结论总结/用户确认），未确认前不得进入下一阶段**  *(自动映射自 L1 宪法)*
+- **Experiment Required 模板统一适用于所有实验类型（training/profiling/benchmarking/cache simulation/visualization/inference evaluation 等）**  *(自动映射自 L1 宪法)*
+- **pure Python stdlib 方案（无 matplotlib/numpy）可以用于简单图表生成**  *(自动映射自 L1 宪法)*
+- **SVG 图表生成器可复用，但 scale/padding/annotation 调试成本较高**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-已完成全部 3 项增量 Patch：(1) §3 修正 MCP Tool 描述 — 引用 Server 提供图谱工具而非 academic_memory Tool (2) §2 泛化 server_pc_cluster 为 CPU Development Environment + capability 描述 (3) §0.5→§1 之间新增 §0.6 Artifact Truth Source。无阻塞。
+Phase 4 分析完成。FB15k-237: 272,115 triples, 14,505 unique entities accessed. Top 1% Hub (145 entities) covers 18.23% accesses. Top 100 Hub covers 15.58%. Top 1000 max theoretical cache hit rate: 37.97%. Long-tail (<=10 occurrences): 3,581/14,505 (24.69%). 坑点: 系统无 pip/matplotlib/numpy，需纯 stdlib SVG 方案。无阻塞。
 
 ## 4. 下一步计划 (Next Steps)
-无后续任务，本次 Patch 完成。等待用户确认。
+- 等待用户确认 Phase 4 完成
+- 如用户确认，继续后续 Phase 或根据研究结论实现 Hub-aware Cache Sampling
+- 无 GPU 实验待执行
