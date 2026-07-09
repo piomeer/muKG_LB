@@ -1,48 +1,149 @@
 """
-Phase 6 - Node 2: Scheduler Policy Polymorphism
-================================================
-Strategy pattern for batch scheduling policies.
+Phase 6 - Node 3, Stage B: Scheduler — Sort Policy + Packing Policy
+====================================================================
+Strategy pattern decomposed into two orthogonal axes:
+    - Sort Policy:   how to order triples before packing
+    - Packing Policy: how to partition ordered triples into batches
 
 Architecture:
-    BaseScheduler (abstract interface)
-        ├── RandomScheduler  (baseline: no cost awareness)
-        └── FFDScheduler     (core CBP strategy: cost-aware FFD packing)
+    Scheduler(sorter, packer)
+        │
+        ├── Sort Policies:
+        │   ├── RandomSorter  — shuffle (baseline)
+        │   └── CostSorter    — descending by expected cost (CBP)
+        │
+        └── Packing Policies:
+            ├── ChunkPacker  — sequential chunks (baseline)
+            └── FFDPacker    — First Fit Decreasing (CBP)
 
-Design principle:
-    "Mechanism-Policy Separation"
-    - Mechanism: BaseScheduler defines the pack_batches() contract.
-    - Policy: RandomScheduler / FFDScheduler are interchangeable policies
-              implementing different packing strategies.
-    
-    This allows easy addition of new schedulers (e.g., ML-based, RL-based)
-    without modifying the framework core.
+This allows 4 combinations: Random+Chunk, Random+FFD, Cost+Chunk, Cost+FFD.
+Our CBP = CostSorter + FFDPacker.
 """
 
 import random
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 
 
-class BaseScheduler(ABC):
-    """
-    Abstract base class for all batch scheduling policies.
+# ═══════════════════════════════════════════════════════════════════════
+# Sort Policies
+# ═══════════════════════════════════════════════════════════════════════
 
-    Interface: pack_batches(triples_list, cost_table, batch_size) → List[List[Tuple]]
+class BaseSorter(ABC):
+    """Abstract sort policy: reorder triples before packing."""
 
-    The scheduler receives the full list of triples for one epoch and returns
-    a list of batches, each being a list of triples. The framework guarantees
-    that all triples are covered exactly once per epoch.
-    """
+    @abstractmethod
+    def sort(self, triples_list: List[Tuple[int, int, int]],
+             cost_table: np.ndarray) -> List[Tuple[int, int, int]]:
+        """Return reordered list of triples."""
+        pass
+
+
+class RandomSorter(BaseSorter):
+    """Random shuffle — baseline, no cost awareness."""
 
     def __init__(self, seed: Optional[int] = None):
         self.seed = seed
-        if seed is not None:
-            random.seed(seed)
-            np.random.seed(seed)
+
+    def sort(self, triples_list, cost_table):
+        shuffled = list(triples_list)
+        random.Random(self.seed).shuffle(shuffled)
+        return shuffled
+
+
+class CostSorter(BaseSorter):
+    """Sort descending by expected cost — core CBP ordering."""
+
+    def sort(self, triples_list, cost_table):
+        def triple_cost(triple):
+            h, r, t = triple
+            hc = float(cost_table[h]) if h < len(cost_table) else 0.0
+            tc = float(cost_table[t]) if t < len(cost_table) else 0.0
+            return max(hc, tc)
+        return sorted(triples_list, key=triple_cost, reverse=True)
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Packing Policies
+# ═══════════════════════════════════════════════════════════════════════
+
+class BasePacker(ABC):
+    """Abstract packing policy: partition ordered triples into batches."""
 
     @abstractmethod
+    def pack(self, ordered_triples: List[Tuple[int, int, int]],
+             batch_size: int) -> List[List[Tuple[int, int, int]]]:
+        """Return list of batches (each batch is a list of triples)."""
+        pass
+
+
+class ChunkPacker(BasePacker):
+    """
+    Sequential chunk packing — baseline.
+    Simply slices ordered_triples into consecutive chunks of batch_size.
+    """
+
+    def pack(self, ordered_triples, batch_size):
+        return [ordered_triples[i:i + batch_size]
+                for i in range(0, len(ordered_triples), batch_size)]
+
+
+class FFDPacker(BasePacker):
+    """
+    First Fit Decreasing packing — core CBP strategy.
+
+    Distributes triples into bins such that each bin has batch_size triples.
+    High-cost triples (sorted first) are spread across bins to minimize
+    batch-level cost variance.
+
+    Note: FFD is a standard bin-packing heuristic. CBP's innovation is
+    the cost-aware sorting that feeds into FFD, not FFD itself.
+    """
+
+    def pack(self, ordered_triples, batch_size):
+        if len(ordered_triples) == 0:
+            return []
+
+        n_batches = (len(ordered_triples) + batch_size - 1) // batch_size
+        batches = [[] for _ in range(n_batches)]
+
+        for triple in ordered_triples:
+            # First Fit: place into the first batch with room
+            placed = False
+            for b_idx in range(n_batches):
+                if len(batches[b_idx]) < batch_size:
+                    batches[b_idx].append(triple)
+                    placed = True
+                    break
+            if not placed:
+                batches.append([triple])
+                n_batches += 1
+
+        return batches
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Unified Scheduler
+# ═══════════════════════════════════════════════════════════════════════
+
+class Scheduler:
+    """
+    Unified scheduler: composes a Sort Policy + Packing Policy.
+
+    CBP core strategy: Scheduler(CostSorter(), FFDPacker()).
+    Native baseline:   Scheduler(RandomSorter(), ChunkPacker()).
+
+    The Scheduler is stateless from the framework's perspective —
+    it takes triples and produces batches, no internal state to manage.
+    """
+
+    def __init__(self, sorter: BaseSorter, packer: BasePacker):
+        self.sorter = sorter
+        self.packer = packer
+        self._name = f"{sorter.__class__.__name__}+{packer.__class__.__name__}"
+
     def pack_batches(self,
                      triples_list: List[Tuple[int, int, int]],
                      cost_table: np.ndarray,
@@ -52,145 +153,40 @@ class BaseScheduler(ABC):
 
         Args:
             triples_list: Full list of (head, rel, tail) for one epoch.
-            cost_table:   Pre-computed cost_table from CostEstimator.
-                          Shape: (num_entities,) — expected_cost per entity.
-            batch_size:   Target number of triples per batch.
+            cost_table:   Pre-computed cost table from CostModel.
+            batch_size:   Target triples per batch.
 
         Returns:
-            List of batches, where each batch is a list of triples.
-            Total coverage: sum(len(b) for b in output) == len(triples_list)
+            List of batches. Coverage: sum(len(b) for b in output) == len(triples_list).
         """
-        pass
+        ordered = self.sorter.sort(triples_list, cost_table)
+        return self.packer.pack(ordered, batch_size)
 
     def get_name(self) -> str:
-        """Human-readable scheduler name (for logging & experiment tracking)."""
-        return self.__class__.__name__
+        return self._name
 
 
-class RandomScheduler(BaseScheduler):
+# ═══════════════════════════════════════════════════════════════════════
+# Factory
+# ═══════════════════════════════════════════════════════════════════════
+
+def create_scheduler(scheduler_type: str, **kwargs) -> Scheduler:
     """
-    Baseline scheduler: random shuffle, no cost awareness.
+    Factory: create a Scheduler by type name.
 
-    This is the "do-nothing" baseline for ablation studies.
-    It replicates the current behavior of PyTorchTrainDataLoader
-    (random shuffle without any cost-aware packing).
-    """
-
-    def pack_batches(self,
-                     triples_list: List[Tuple[int, int, int]],
-                     cost_table: np.ndarray,
-                     batch_size: int) -> List[List[Tuple[int, int, int]]]:
-        shuffled = list(triples_list)
-        random.shuffle(shuffled)
-
-        batches = []
-        for i in range(0, len(shuffled), batch_size):
-            batch = shuffled[i:i + batch_size]
-            batches.append(batch)
-        return batches
-
-
-class FFDScheduler(BaseScheduler):
-    """
-    Core CBP scheduling policy: First Fit Decreasing with cost awareness.
-
-    How it works:
-        1. Compute per-triple cost = max(cost_table[head], cost_table[tail]).
-        2. Sort triples by cost descending (Decreasing).
-        3. For each triple, place it into the first bin (batch) that has
-           room and would not exceed the target batch size (First Fit).
-
-    Theoretical basis:
-        The cost variance across batches in DDP directly translates to
-        AllReduce synchronization waiting time. By minimizing batch-level
-        cost variance, we eliminate the "wooden barrel effect" where
-        one slow batch holds all GPUs hostage.
-
-    Complexity: O(N log N + N × B)
-        N = number of triples, B = number of batches.
-        The FFD heuristic is guaranteed to use at most ⌈11/9 × OPT⌉ bins.
-    """
-
-    def __init__(self, seed: Optional[int] = None, verbose: bool = False):
-        super().__init__(seed)
-        self.verbose = verbose
-
-    def pack_batches(self,
-                     triples_list: List[Tuple[int, int, int]],
-                     cost_table: np.ndarray,
-                     batch_size: int) -> List[List[Tuple[int, int, int]]]:
-        if len(triples_list) == 0:
-            return []
-
-        # Step 1: Compute per-triple cost
-        triples_with_cost = []
-        for h, r, t in triples_list:
-            h_cost = float(cost_table[h]) if h < len(cost_table) else 0.0
-            t_cost = float(cost_table[t]) if t < len(cost_table) else 0.0
-            cost = max(h_cost, t_cost)
-            triples_with_cost.append((cost, h, r, t))
-
-        # Step 2: Sort descending by cost
-        triples_with_cost.sort(key=lambda x: x[0], reverse=True)
-
-        # Step 3: First Fit Decreasing
-        n_batches = (len(triples_with_cost) + batch_size - 1) // batch_size
-        batches = [[] for _ in range(n_batches)]
-        batch_costs = [0.0] * n_batches
-
-        placed = 0
-        for cost, h, r, t in triples_with_cost:
-            # First Fit: find the first batch with room
-            placed_idx = None
-            for b_idx in range(n_batches):
-                if len(batches[b_idx]) < batch_size:
-                    placed_idx = b_idx
-                    break
-
-            if placed_idx is None:
-                # Should not happen if n_batches is correctly computed
-                # Fallback: create new batch
-                batches.append([(h, r, t)])
-                n_batches += 1
-            else:
-                batches[placed_idx].append((h, r, t))
-                batch_costs[placed_idx] += cost
-
-            placed += 1
-
-        if self.verbose:
-            costs = [sum(max(float(cost_table[h]), float(cost_table[t]))
-                        for h, r, t in batch) for batch in batches]
-            print(f"[FFDScheduler] {len(batches)} batches, "
-                  f"cost: mean={np.mean(costs):.1f}±{np.std(costs):.1f}ms, "
-                  f"CV={np.std(costs)/max(np.mean(costs), 1e-6):.3f}")
-
-        return batches
-
-
-# ── Utility: factory function ────────────────────────────────────────────
-def create_scheduler(scheduler_type: str, **kwargs) -> BaseScheduler:
-    """
-    Factory: create a scheduler by type name.
-
-    Args:
-        scheduler_type: One of "random", "ffd", "ffd_scheduler", etc.
-        **kwargs: Passed to the scheduler constructor.
-
-    Returns:
-        BaseScheduler instance.
-
-    Raises:
-        ValueError: If scheduler_type is unknown.
+    Available types:
+        "random"  → RandomSorter + ChunkPacker (native baseline)
+        "ffd"     → CostSorter + FFDPacker      (CBP core)
+        "cost+ffd" → CostSorter + FFDPacker
     """
     mapping = {
-        "random": RandomScheduler,
-        "ffd": FFDScheduler,
-        "ffd_scheduler": FFDScheduler,
-        "cost_aware": FFDScheduler,
+        "random": lambda: Scheduler(RandomSorter(**kwargs), ChunkPacker()),
+        "ffd": lambda: Scheduler(CostSorter(), FFDPacker()),
+        "cost_ffd": lambda: Scheduler(CostSorter(), FFDPacker()),
     }
     cls = mapping.get(scheduler_type.lower().strip())
     if cls is None:
-        raise ValueError(f"Unknown scheduler type: '{scheduler_type}'. "
-                         f"Available: {list(mapping.keys())}")
-    return cls(**kwargs)
+        available = list(mapping.keys())
+        raise ValueError(f"Unknown scheduler: '{scheduler_type}'. "
+                         f"Available: {available}")
+    return cls()

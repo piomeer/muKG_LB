@@ -2,31 +2,26 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase 6 - Node 1 & Node 2: Cost-aware Runtime Framework Skeleton — Offline Cost Estimator + Scheduler Polymorphism
+Phase 6 - Node 3: Runtime Framework Integration — Feature/Cost 解耦 + Sort/Pack 拆分 + BatchProvider Adapter + 探针日志
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。
 - **性能红线**：重构代码时，严禁在 DataLoader 的高频循环中使用纯 Python 的 O(n) 操作（如 for 循环装配列表、重复构建 set）。
-- **Per-batch profiling 数据（profiling_summary.csv, hub_analysis.csv）通过每 epoch 写入方式防丢失**  *(自动映射自 L1 宪法)*
-- **OOM 保护：验证前执行 torch.cuda.empty_cache()**  *(自动映射自 L1 宪法)*
-- **time.perf_counter() 用于微秒级计时，比 time.time() 精度更高**  *(自动映射自 L1 宪法)*
-- **DataLoader collate_fn 内部需自包含 reset 逻辑，不可依赖外部调用**  *(自动映射自 L1 宪法)*
-- **avg_entity_degree 存储数据类型不匹配（numpy int64 写入 csv 后读取为 0），需统一为 Python int**  *(自动映射自 L1 宪法)*
-- **每次建议必须基于 env_identity.json 能力字段动态决策，不硬编码机器名**  *(自动映射自 L1 宪法)*
-- **修改源码后必须提醒同步（sync_required == true 时强制执行）**  *(自动映射自 L1 宪法)*
-- **离线环境不得执行 Push/GitHub/DeepSeek 等联网操作**  *(自动映射自 L1 宪法)*
 - **§0.6 Artifact Truth Source：GPU 实验的唯一可信来源为 stdout/stderr/TensorBoard/WandB/CSV/JSON/实验日志/checkpoint/用户返回等真实 Artifact**  *(自动映射自 L1 宪法)*
-- **CBP 架构：机制-策略分离，CostEstimator 离线预计算 + Scheduler 多态策略**  *(自动映射自 L1 宪法)*
-- **CostEstimator 缓存机制：cost_table.npy + neighbor_dict.pkl 持久化，Zero-Runtime-Overhead**  *(自动映射自 L1 宪法)*
-- **Scheduler 多态：BaseScheduler → RandomScheduler (baseline) / FFDScheduler (CBP 核心)**  *(自动映射自 L1 宪法)*
-- **CostEstimator 缓存机制：cost_table.npy + neighbor_dict.pkl 持久化到 output/results/，首次构建后 Zero-Runtime-Overhead**  *(自动映射自 L1 宪法)*
-- **Scheduler 多态架构：BaseScheduler → RandomScheduler (baseline) / FFDScheduler (CBP core)**  *(自动映射自 L1 宪法)*
+- **CBP 架构：FeatureExtractor → CostModel → Scheduler → BatchProvider 四层解耦**  *(自动映射自 L1 宪法)*
+- **Scheduler 架构：Scheduler(CostSorter, FFDPacker) 组合，支持 4 种策略变体**  *(自动映射自 L1 宪法)*
+- **BatchProvider 零侵入注入：Adapter 模式，DataLoader 感知不到调度层存在**  *(自动映射自 L1 宪法)*
+- **CBP 四层架构：FeatureExtractor → CostModel(纯函数) → Scheduler(Sort+Pack组合) → BatchProvider(Adapter)**  *(自动映射自 L1 宪法)*
+- **Scheduler 策略组合：Scheduler(CostSorter, FFDPacker) 支持 4 种变体，Scheduler(RandomSorter, ChunkPacker) 为 baseline**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-✅ Phase 6 - Node 1 & Node 2: Cost-aware Runtime Framework Skeleton — 完成
-- ✅ Node 1: src/py/load/cost_estimator.py — Offline CostEstimator (neighbor_dict 14505 entities, cost_table 512.84ms mean, 强制缓存)
-- ✅ Node 2: src/py/load/schedulers.py — Scheduler 多态架构 (BaseScheduler → RandomScheduler / FFDScheduler, 工厂函数)
+✅ Phase 6 - Node 3: Runtime Framework Integration — Stage A~D 全部完成
+- ✅ Stage A: FeatureExtractor + CostModel 解耦 (features.py + cost_model.py)
+- ✅ Stage B: Sort/Pack 策略拆分 (schedulers.py: Scheduler(sorter, packer))
+- ✅ Stage C: BatchProvider Adapter (batch_provider.py: 零侵入注入)
+- ✅ Stage D: 验证探针日志 (batch_weight_distribution.csv + scheduler_overhead.csv)
+
+端到端验证: 55k triples, 11 batches, scheduler_overhead=28.9ms, Weight CV=0.0125
 
 ## 4. 下一步计划 (Next Steps)
-1. Node 3: Framework Integration — 将 CostEstimator + Scheduler 注入 PyTorchTrainDataLoader
-2. Node 4: Evaluation — node4 单卡验证 + node6 DDP 多卡 Benchmark
+Node 4: Evaluation — node4 单卡消融实验 + node6 DDP Benchmark
