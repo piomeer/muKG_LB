@@ -2,7 +2,11 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
+<<<<<<< HEAD
 Phase 5 - Step 5: Implementation Planning（技术落地规划）— 完成 DDBP 在 muKG_LB 项目结构中的代码落地规划
+=======
+MuKG Phase 4 — Hub Reuse & Cache Feasibility Analysis
+>>>>>>> 99d4298bf1b50a7d5f93e2c171e01dbd2fca5e09
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。
@@ -24,6 +28,7 @@ Phase 5 - Step 5: Implementation Planning（技术落地规划）— 完成 DDBP
 - **MCP Tool 描述修正：引用 Academic Memory MCP Server 提供的图谱工具（read_graph、search_nodes、create_entities 等），不引用包名或假设存在 academic_memory Tool**  *(自动映射自 L1 宪法)*
 - **CPU Development Environment 泛化：server_pc_cluster 只是典型实例，使用 capability 字段描述（can_modify=true, can_train=false），未来新增无 GPU 节点无需修改规则**  *(自动映射自 L1 宪法)*
 - **§0.6 Artifact Truth Source：GPU 实验的唯一可信来源为 stdout/stderr/TensorBoard/WandB/CSV/JSON/实验日志/checkpoint/用户返回等真实 Artifact**  *(自动映射自 L1 宪法)*
+
 - **负采样成本服从双模结构（Dual-Regime Cost Law）：全候选池（candidate_size>=5000）为常数 295.7ms，窄化池（neighbor dict）下随 candidate_size 和 collision_rate 缩放**  *(自动映射自 L1 宪法)*
 - **B3 Collision Check（~52ms）不随候选池缩小而降速，是窄化池下的隐含瓶颈**  *(自动映射自 L1 宪法)*
 - **DDBP 实施计划确定：新增 ddbp_sampler.py (~250行)，修改 5 文件 (~60行)，总计 ~310 行**  *(自动映射自 L1 宪法)*
