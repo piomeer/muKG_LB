@@ -236,6 +236,7 @@ GPU 实验的唯一可信来源（Truth Source）包括：
   - 在完成任何一次性能 Profiling（测时）、发现重大 Bug 的根因、或完成一个子模块的代码重构后，**必须自动且主动地**使用 `write_to_file` 或 `replace_in_file` 工具更新 `PROGRESS.md`。
   - 严禁只在对话框中输出关键数据而导致 L3 记忆脱节。
 
+
 ## 7. [Git Auto-Push Protocol] 多环境自动代码同步红线
 为了保证多节点开发的数据安全与代码同源，必须在每次 Task 标记为 "Completed" 时自动执行 Git 提交与推送。
 
@@ -244,3 +245,10 @@ GPU 实验的唯一可信来源（Truth Source）包括：
   - 如果当前环境为 `node4`、`node6` 等远程服务器/算力节点，必须将代码推送到 `production` 分支。
 - **[自动化提交格式]**：执行 `git add .` 后，使用 `git commit -m "Auto-commit: [任务简述]"` 生成精准的提交信息。
 - **[强制执行]**：此步骤必须在更新完 `PROGRESS.md` 之后、正式结束任务之前执行。如果遇到 Git 冲突或未设置上游分支，必须自动尝试修复（如 `git push -u origin 分支名`）或向用户报错，决不允许跳过此步骤直接结束任务。
+
+### 离线 Push 降级策略 (Offline Push Fallback)
+- 如果 `env_identity.json` 中 `internet == false`：
+  - **不要立即 Push** — 不要尝试无限重试
+  - **保留 Commit** — 执行 `git commit` 正常完成本地提交
+  - **提醒用户**：告知用户当前环境无法连接 GitHub，请在回到支持 GitHub 的环境后手动执行 `git push`
+  - 严禁无限循环重试 Push 操作

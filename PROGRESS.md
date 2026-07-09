@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-增量 Patch .clinerules 第6轮修正：修正 MCP Tool 描述 / CPU Development Environment 泛化 / 新增 §0.6 Artifact Truth Source
+Phase 5 - Step 5: Implementation Planning（技术落地规划）— 完成 DDBP 在 muKG_LB 项目结构中的代码落地规划
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。
@@ -24,9 +24,25 @@
 - **MCP Tool 描述修正：引用 Academic Memory MCP Server 提供的图谱工具（read_graph、search_nodes、create_entities 等），不引用包名或假设存在 academic_memory Tool**  *(自动映射自 L1 宪法)*
 - **CPU Development Environment 泛化：server_pc_cluster 只是典型实例，使用 capability 字段描述（can_modify=true, can_train=false），未来新增无 GPU 节点无需修改规则**  *(自动映射自 L1 宪法)*
 - **§0.6 Artifact Truth Source：GPU 实验的唯一可信来源为 stdout/stderr/TensorBoard/WandB/CSV/JSON/实验日志/checkpoint/用户返回等真实 Artifact**  *(自动映射自 L1 宪法)*
+- **负采样成本服从双模结构（Dual-Regime Cost Law）：全候选池（candidate_size>=5000）为常数 295.7ms，窄化池（neighbor dict）下随 candidate_size 和 collision_rate 缩放**  *(自动映射自 L1 宪法)*
+- **B3 Collision Check（~52ms）不随候选池缩小而降速，是窄化池下的隐含瓶颈**  *(自动映射自 L1 宪法)*
+- **DDBP 实施计划确定：新增 ddbp_sampler.py (~250行)，修改 5 文件 (~60行)，总计 ~310 行**  *(自动映射自 L1 宪法)*
+- **Phase 5 设计阶段共 5 个 Step 全部完成，正式进入 Phase 6 原型编码**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-已完成全部 3 项增量 Patch：(1) §3 修正 MCP Tool 描述 — 引用 Server 提供图谱工具而非 academic_memory Tool (2) §2 泛化 server_pc_cluster 为 CPU Development Environment + capability 描述 (3) §0.5→§1 之间新增 §0.6 Artifact Truth Source。无阻塞。
+✅ Phase 5 设计阶段全部完成 — 共 5 个 Step
+- ✅ Step 1: Design Space Exploration → 6 条优化路径评估 (`algorithm_candidates.md`)
+- ✅ Step 2: Runtime Cost Model → 500 batch 探测 + 双模成本定律 (`cost_model.md`)
+- ✅ Step 3: Algorithm Design → 三种候选算法详细设计 (`algorithm_design.md`)
+- ✅ Step 4: Algorithm Selection → DDBP 最终选型 (`algorithm_selection.md`)
+- ✅ Step 5: Implementation Planning → DDBP 代码落地规划 (`implementation_plan.md`)
+
+无阻塞。Phase 5 设计阶段已完整结束, 准备进入 Phase 6 原型编码。
 
 ## 4. 下一步计划 (Next Steps)
-无后续任务，本次 Patch 完成。等待用户确认。
+1. 等待 Human Review 确认 `docs/implementation_plan.md` 实施计划
+2. 进入 Phase 6 — DDBP 原型编码:
+   - Step 1: DegreeTracker + BinPackingScheduler 实现 (ddbp_sampler.py)
+   - Step 2: batch.py + pytorch_dataloader.py 修改
+   - Step 3: main_FB15K237.py 装配 + args 配置
+   - Step 4: node4 单卡验证 → node6 多卡 Benchmark
