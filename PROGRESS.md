@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase 5.5: Algorithm Validation（算法假设验证）— 验证 DDBP 的 Weight vs Runtime 相关性假设，修正权重公式
+Phase 5.6: Rename + Refactor Design（术语重构与实施计划刷新）— 废弃 Degree 导向，确立 Cost-aware Batch Packing (CBP) 架构
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。
@@ -22,25 +22,23 @@ Phase 5.5: Algorithm Validation（算法假设验证）— 验证 DDBP 的 Weigh
 - **能力优先原则：capability 字段 > 硬件约束，避免未来硬编码新机器名称**  *(自动映射自 L1 宪法)*
 - **无 GPU 环境严禁假设训练/显存/利用率/MRR/Profiling 数据**  *(自动映射自 L1 宪法)*
 - **§0.6 Artifact Truth Source：GPU 实验的唯一可信来源为 stdout/stderr/TensorBoard/WandB/CSV/JSON/实验日志/checkpoint/用户返回等真实 Artifact**  *(自动映射自 L1 宪法)*
-- **DDBP Weight 公式修正：权重应基于候选池大小而非 degree/candidate_size 比值，核心驱动变量为 candidate_size（R=0.9008）**  *(自动映射自 L1 宪法)*
-- **DDBP 权重公式修正：batch_weight = sum(1/(1 - N_neg/candidate_size(entity)))，而非 d/c_size 比值**  *(自动映射自 L1 宪法)*
-- **验证实验关键发现：avg_candidate_size vs actual_time 的 Pearson R=0.9008 — 候选池大小是成本预测的核心变量**  *(自动映射自 L1 宪法)*
+- **CBP Weight 公式：batch_weight = sum over entities of expected_cost(e) = min(max_try, 1/(1-N_neg/candidate_size(e))) × B3_const**  *(自动映射自 L1 宪法)*
+- **CBP 核心驱动变量：candidate_size vs actual_time 的 Pearson R=0.9008 (Phase 5.5 已验证)**  *(自动映射自 L1 宪法)*
+- **术语重构：DDBP → CBP, DegreeTracker → CostEstimator, BinPackingScheduler → CostAwareScheduler**  *(自动映射自 L1 宪法)*
+- **术语重构：DDBP → CBP, DegreeTracker → CostEstimator, BinPackingScheduler → CostAwareScheduler**  *(自动映射自 L1 宪法)*
+- **CBP 核心权重公式：batch_weight = Σ min(max_try, 1/(1-N_neg/candidate_size(e))) × B3_const**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-✅ Phase 5.5: Algorithm Validation — 验证完成
-- ✅ 编写 scripts/validate_weight_assumption.py 并在 node4 执行 400 batch
-- ✅ 采集 output/results/weight_validation.csv + weight_validation_summary.txt
-- ✅ 后验分析 scripts/analyze_weight_validation.py
+✅ Phase 5.6: Rename + Refactor Design — 完成
+- ✅ 全局术语重构：DDBP → CBP, DegreeTracker → CostEstimator, BinPackingScheduler → CostAwareScheduler
+- ✅ 核心权重公式修正：废弃 d/c_size 比值，启用 expected_cost = min(max_try, 1/(1-N_neg/c_size)) × B3_const
+- ✅ 重写 implementation_plan.md：文件命名改为 cbp_sampler.py，FFD 定位为工程手段，Weight 基于 candidate_size
 
-验证结果：
-- 原始假设 R=0.1657 ❌（d/c_size 公式扁平化）
-- 候选池大小 candidate_size vs time: R=0.9008 ✅
-- 修正后的 DDBP 权重公式: batch_weight = sum(1/(1-N_neg/candidate_size(entity)))
-- DDBP 假设本质上被验证通过，修正公式后推进 Phase 6
+CBP 算法最终架构锁定，准备进入 Phase 6 原型编码。
 
 ## 4. 下一步计划 (Next Steps)
-进入 Phase 6 — DDBP 原型编码:
-- 使用修正权重公式: batch_weight = sum(1/(1-N_neg/candidate_size(entity)))
-- Step 1: DegreeTracker + BinPackingScheduler 实现 (ddbp_sampler.py)
+进入 Phase 6 — CBP 原型编码:
+- Step 1: CostEstimator + CostAwareScheduler 实现 (cbp_sampler.py)
 - Step 2: batch.py + pytorch_dataloader.py 修改
-- Step 3: node4 验证 → node6 Benchmark
+- Step 3: node4 单卡验证 → node6 多卡 Benchmark
+- 验证标准：batch_weight vs actual_time 的 R > 0.85
