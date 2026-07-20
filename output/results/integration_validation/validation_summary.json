@@ -1,0 +1,19 @@
+{
+  "verdict": "PASS",
+  "baseline_avgcost_cv": 0.0008,
+  "cbp_avgcost_cv": 0.0735,
+  "baseline_maxcost_cv": 0.0,
+  "cbp_maxcost_cv": 0.0,
+  "baseline_hub_cv": 0.0794,
+  "cbp_hub_cv": 0.0464,
+  "hub_cv_reduction_pct": 41.6,
+  "within_batch_cv_baseline": 0.0552,
+  "within_batch_cv_cbp": 0.0124,
+  "regroup_ratio": 0.9814,
+  "checks_passed": 3,
+  "checks_total": 3,
+  "baseline_avg_hubs_per_batch": 2949.2,
+  "cbp_avg_hubs_per_batch": 2949.2,
+  "baseline_n_batches": 110,
+  "cbp_n_batches": 110
+}
