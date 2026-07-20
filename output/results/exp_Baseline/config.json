@@ -1,0 +1,10 @@
+{
+  "exp_label": "Baseline",
+  "sorter": "RANDOM",
+  "packer": "CHUNK",
+  "batch_size": 1000,
+  "neg_num": 100,
+  "epochs": 10,
+  "cost_table_mean_ms": 509.05047607421875,
+  "cost_table_max_ms": 518.0
+}
