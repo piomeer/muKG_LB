@@ -4,6 +4,7 @@
   "network": "offline",
   "gpu": "RTX3070",
   "vram": "8GB",
+  "internet": true,
   "can_run_cline": true,
   "can_access_github": true,
   "can_access_deepseek": true,
