@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-PPT Page 8 Top 20 Slowest Batches Hub Count 条形图生成
+PPT Page 10 实体访问长尾分布与缓存命中率组合图生成
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。batch_size=5000 OOM，安全使用 1000。
@@ -17,17 +17,17 @@ PPT Page 8 Top 20 Slowest Batches Hub Count 条形图生成
 - **基线冻结 (Baseline Freeze)：四组实验组别锁定 — BL (Random+Chunk+CPU) / CBP (Cost+FFD+CPU) / GPU (Random+Chunk+GPU) / CBP+GPU (Cost+FFD+GPU)**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-✅ Top 20 Slowest Hub Count 条形图已完成: output/figs/top20_slowest_hub_count.png
-✅ 脚本: scripts/plot_top20_slowest.py
-- 数据源: output/results/negative_sampling_cost.csv (455 batches)
-- 按 sampling_time 降序取前 20 个 batch
-- 关键发现: Top 20 batch 的 hub_entity_count 全部为 6000（batch 最大值）
-- 以 coral 色柱子 + 最大ハブ数水平虚线标注
+✅ PPT Page 10 组合图已完成: output/figs/hub_reuse_and_cache.png
+✅ 脚本: scripts/plot_reuse_and_cache.py
+- 左图: エンティティアクセス分布（ロングテール）- 对数尺度散点图+Top100/Top1000标注
+- 右图: キャッシュヒット率 vs 上位エンティティ数 - 柱状图+37.97%水平虚线
+- 数据源由 analyze_hub_reuse.py 生成
+- 日文字体（Noto Sans CJK JP），200 dpi
 
 无新 blocker
 
 ## 4. 卡点 (Blockers)
-1. [近] 确认 top20_slowest_hub_count.png 图片质量，插入 PPT Page 8
+1. [近] 确认 hub_reuse_and_cache.png 图片质量，插入 PPT Page 10
 2. [中] 继续 Phase 9 Step 3（10 epoch 收敛验证）
 
 ## 5. 下一步计划 (Next Steps)
