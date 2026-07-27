@@ -8,7 +8,7 @@ import math
 import numpy as np
 
 rows = []
-with open('output/results/cost_model_data.csv') as f:
+with open('output/results/cost_model_data.md') as f:
     for r in csv.DictReader(f):
         rows.append(r)
 

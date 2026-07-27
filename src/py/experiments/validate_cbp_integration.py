@@ -4,9 +4,9 @@ Phase 6 - Node 3.5: CBP Runtime Integration Validation
 验证 CBP 是否真正控制了 batch 组成，输出 batch cost 分布和重分组信息。
 
 输出文件（保存在 output/results/integration_validation/）：
-  - batch_composition.csv     每个 batch 的 cost/hub 分布
-  - batch_mapping.csv         样本在 Baseline 与 CBP 下的 batch 分配对比
-  - scheduler_trace.log       Scheduler 执行轨迹（含 Weight CV）
+  - batch_composition.md     每个 batch 的 cost/hub 分布
+  - batch_mapping.md         样本在 Baseline 与 CBP 下的 batch 分配对比
+  - scheduler_trace.md       Scheduler 执行轨迹（含 Weight CV）
 
 使用方法：
     python src/py/experiments/validate_cbp_integration.py
@@ -61,7 +61,7 @@ def setup_logging(output_dir):
     logger.setLevel(logging.INFO)
 
     # File handler
-    fh = logging.FileHandler(os.path.join(output_dir, 'scheduler_trace.log'),
+    fh = logging.FileHandler(os.path.join(output_dir, 'scheduler_trace.md'),
                              mode='w', encoding='utf-8')
     fh.setLevel(logging.INFO)
     fmt = logging.Formatter('%(asctime)s | %(message)s')
@@ -224,8 +224,8 @@ def generate_report(sample_map_base, sample_map_cbp,
                     composition_rows, output_dir, logger):
     """生成对照报告和 CSV 文件"""
 
-    # --- 1. batch_composition.csv ---
-    comp_file = os.path.join(output_dir, 'batch_composition.csv')
+    # --- 1. batch_composition.md ---
+    comp_file = os.path.join(output_dir, 'batch_composition.md')
     fieldnames = ['epoch', 'batch_idx', 'config_label',
                   'sorter', 'packer',
                   'avg_cost', 'max_cost', 'std_cost', 'cv_cost',
@@ -238,7 +238,7 @@ def generate_report(sample_map_base, sample_map_cbp,
     logger.info(f"Batch composition saved: {comp_file} "
                 f"({len(composition_rows)} rows)")
 
-    # --- 2. batch_mapping.csv ---
+    # --- 2. batch_mapping.md ---
     common_samples = set(sample_map_base.keys()) & set(sample_map_cbp.keys())
     logger.info(f"Common samples for mapping: {len(common_samples)}")
 
@@ -255,7 +255,7 @@ def generate_report(sample_map_base, sample_map_cbp,
         if old_batch != new_batch:
             changed += 1
 
-    map_file = os.path.join(output_dir, 'batch_mapping.csv')
+    map_file = os.path.join(output_dir, 'batch_mapping.md')
     with open(map_file, 'w', newline='') as f:
         writer = csv.DictWriter(f,
                                 fieldnames=['sample_id',

@@ -274,7 +274,7 @@ for i, strat in enumerate(strategies):
         print(f"  [{i+1}/{NUM_BATCHES}] ...")
 
 # Save CSV
-csv_path = os.path.join(OUT_DIR, "weight_validation.csv")
+csv_path = os.path.join(OUT_DIR, "weight_validation.md")
 with open(csv_path, "w", newline="") as f:
     w = csv.DictWriter(f, fieldnames=results[0].keys())
     w.writeheader()
@@ -334,7 +334,7 @@ else:
 print("=" * 60)
 
 # Save summary
-summary_path = os.path.join(OUT_DIR, "weight_validation_summary.txt")
+summary_path = os.path.join(OUT_DIR, "weight_validation_summary.md")
 with open(summary_path, "w") as f:
     f.write(f"Phase 5.5: Weight Assumption Validation\n")
     f.write(f"========================================\n")

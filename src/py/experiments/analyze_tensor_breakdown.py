@@ -1,7 +1,7 @@
 import pandas as pd, numpy as np
 
 # Skip duplicate headers
-df = pd.read_csv('output/results/tensor_breakdown/tensor_breakdown.csv')
+df = pd.read_csv('output/results/tensor_breakdown/tensor_breakdown.md')
 df = df[df['step'] != 'step']  # Remove duplicate header rows
 for col in ['step','batch_weight','t1_extract_pos','t2_numpy_convert','t3_tensor_pos','t4_neg_construct','t5_gpu_transfer','t6_gpu_warmup','tensor_total']:
     df[col] = pd.to_numeric(df[col], errors='coerce')
@@ -31,7 +31,7 @@ for config_name, grp in [('Baseline', baseline), ('CBP', cbp)]:
     for col in means.index:
         print(f"  {col}: {means[col]:.3f}ms ({means[col]/total*100:.1f}%)")
 
-with open('output/results/tensor_breakdown/breakdown_summary.txt','w') as f:
+with open('output/results/tensor_breakdown/breakdown_summary.md','w') as f:
     f.write("=== Tensor Construction Breakdown Summary (excl. step 0 warmup) ===\n\n")
     for config_name, grp in [('Baseline', baseline), ('CBP', cbp)]:
         f.write(f"--- {config_name} ---\n")

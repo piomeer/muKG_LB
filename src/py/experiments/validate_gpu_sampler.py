@@ -50,7 +50,7 @@ print("Output shapes correct.")
 
 # Save to CSV
 os.makedirs('output/results/gpu_sampler', exist_ok=True)
-with open('output/results/gpu_sampler/validation.csv', 'w', newline='') as f:
+with open('output/results/gpu_sampler/validation.md', 'w', newline='') as f:
     writer = csv.writer(f)
     writer.writerow(['step', 'time_ms'])
     for i, t in enumerate(times):

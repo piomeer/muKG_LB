@@ -3,7 +3,7 @@
 Top 20 Slowest Batches Hub Count — 竖向条形图
 用于 PPT Page 8
 
-数据源: output/results/negative_sampling_cost.csv
+数据源: output/results/negative_sampling_cost.md
 """
 
 import pandas as pd
@@ -25,7 +25,7 @@ except Exception:
 plt.rcParams['axes.unicode_minus'] = False
 
 # ── 2. 读取数据 ──
-df = pd.read_csv('output/results/negative_sampling_cost.csv')
+df = pd.read_csv('output/results/negative_sampling_cost.md')
 print(f"数据行数: {len(df)}")
 print(f"列名: {list(df.columns)}")
 

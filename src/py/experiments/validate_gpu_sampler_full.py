@@ -70,7 +70,7 @@ head_corrupt_ratio = float(corrupt_mask_np.mean())
 print(f"Head corruption ratio: {head_corrupt_ratio:.3f} (expected ~0.5)")
 
 os.makedirs('output/results/gpu_sampler_full', exist_ok=True)
-with open('output/results/gpu_sampler_full/validation.csv', 'w', newline='') as f:
+with open('output/results/gpu_sampler_full/validation.md', 'w', newline='') as f:
     writer = csv.writer(f)
     writer.writerow(['step', 'time_ms', 'invalid_rate', 'head_corrupt_ratio'])
     for i in range(BENCH):

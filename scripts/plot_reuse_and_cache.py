@@ -5,8 +5,8 @@ PPT Page 10 — 实体访问长尾分布与缓存命中率组合图
 右图: キャッシュヒット率 vs 上位エンティティ数
 
 数据源:
-  - output/results/hub_reuse_analysis.csv  (实体出现次数)
-  - output/results/cache_feasibility.csv   (Cache 理论命中率)
+  - output/results/hub_reuse_analysis.md   (实体出现次数)
+  - output/results/cache_feasibility.md    (Cache 理论命中率)
 """
 
 import pandas as pd
@@ -28,15 +28,15 @@ except Exception:
 plt.rcParams['axes.unicode_minus'] = False
 
 # ── 2. 读取数据 ──
-df_reuse = pd.read_csv('output/results/hub_reuse_analysis.csv')
-df_cache = pd.read_csv('output/results/cache_feasibility.csv')
+df_reuse = pd.read_csv('output/results/hub_reuse_analysis.md')
+df_cache = pd.read_csv('output/results/cache_feasibility.md')
 
-print(f"hub_reuse_analysis.csv: {len(df_reuse)} rows")
+print(f"hub_reuse_analysis.md: {len(df_reuse)} rows")
 print(f"  列名: {list(df_reuse.columns)}")
 print(f"  occurrence_count 范围: {df_reuse['occurrence_count'].min()} ~ {df_reuse['occurrence_count'].max()}")
 print(f"  实体数: {len(df_reuse)}")
 
-print(f"\ncache_feasibility.csv: {len(df_cache)} rows")
+print(f"\ncache_feasibility.md: {len(df_cache)} rows")
 print(f"  列名: {list(df_cache.columns)}")
 for _, row in df_cache.iterrows():
     print(f"  Top {row['top_k']}: cache_hit_rate = {row['cache_hit_rate']:.4f} ({row['cache_hit_rate']*100:.2f}%)")
@@ -123,13 +123,6 @@ bars = ax2.bar(range(len(top_k_vals)), hit_rates, color=colors_bar, width=0.6,
 for i, (bar, rate) in enumerate(zip(bars, hit_rates)):
     ax2.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5,
              f'{rate:.2f}%', ha='center', va='bottom', fontsize=11, fontweight='bold')
-
-# 红色水平虚线：Top 1000 = 37.97%
-top1000_rate = df_cache[df_cache['top_k'] == 1000]['cache_hit_rate'].values[0] * 100
-ax2.axhline(y=top1000_rate, color='red', linestyle='--', linewidth=1.5, alpha=0.7)
-ax2.text(len(top_k_vals) - 0.5, top1000_rate + 0.5,
-         f'Top1000 で {top1000_rate:.2f}%', fontsize=10, color='red',
-         fontweight='bold', ha='right', va='bottom')
 
 # X 轴标签
 ax2.set_xticks(range(len(top_k_vals)))

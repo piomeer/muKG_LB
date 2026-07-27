@@ -3,8 +3,8 @@
 Phase 6 - Node 4: Runtime Attribution Analysis
 目的：验证 batch cost → negative sampling time → total step time 的因果链。
 输出：
-  - runtime_attribution.csv  每个 batch 的分解时间 + batch weight
-  - attribution_report.txt   相关性矩阵与结论
+  - runtime_attribution.md  每个 batch 的分解时间 + batch weight
+  - attribution_report.md   相关性矩阵与结论
 
 使用方法：
     python src/py/experiments/runtime_attribution.py
@@ -53,7 +53,7 @@ def setup_logging(output_dir):
     os.makedirs(output_dir, exist_ok=True)
     logger = logging.getLogger('RuntimeAttribution')
     logger.setLevel(logging.INFO)
-    fh = logging.FileHandler(os.path.join(output_dir, 'attribution.log'),
+    fh = logging.FileHandler(os.path.join(output_dir, 'attribution.md'),
                              mode='w', encoding='utf-8')
     fh.setLevel(logging.INFO)
     fmt = logging.Formatter('%(asctime)s | %(message)s')
@@ -257,7 +257,7 @@ def main():
     all_results = base_results + cbp_results
 
     # Save CSV
-    csv_path = os.path.join(args.output_dir, 'runtime_attribution.csv')
+    csv_path = os.path.join(args.output_dir, 'runtime_attribution.md')
     fieldnames = ['config', 'batch_idx', 'batch_weight',
                   'neg_sampling_time', 'tensor_time', 'forward_time',
                   'total_time']
@@ -374,7 +374,7 @@ def main():
             "→ Investigate cost_table vs actual neg sampling time mapping."
         )
 
-    report_path = os.path.join(args.output_dir, 'attribution_report.txt')
+    report_path = os.path.join(args.output_dir, 'attribution_report.md')
     with open(report_path, 'w') as f:
         f.write('\n'.join(report_lines))
     logger.info(f"Report saved: {report_path}")

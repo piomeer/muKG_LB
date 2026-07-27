@@ -389,7 +389,7 @@ class kge_trainer:
                 'gpu_memory_allocated', 'gpu_memory_reserved',
                 'hub_count', 'avg_degree', 'avg_retry', 'max_retry',
             ]
-            path = os.path.join(out_dir, 'profiling_summary.csv')
+            path = os.path.join(out_dir, 'profiling_summary.md')
             with open(path, 'w', newline='') as f:
                 writer = csv.DictWriter(f, fieldnames=fields)
                 writer.writeheader()
@@ -402,7 +402,7 @@ class kge_trainer:
                 'batch_id', 'avg_degree', 'max_degree', 'hub_entity_count',
                 'neg_sampling_time', 'avg_retry', 'max_retry',
             ]
-            path = os.path.join(out_dir, 'hub_analysis.csv')
+            path = os.path.join(out_dir, 'hub_analysis.md')
             with open(path, 'w', newline='') as f:
                 writer = csv.DictWriter(f, fieldnames=fields_hub)
                 writer.writeheader()
@@ -420,7 +420,7 @@ class kge_trainer:
             total_all = total_collate + total_neg + total_tensor + total_fwd + total_bwd + total_opt
             
             breakdown_fields = ['stage', 'time_ms', 'pct']
-            path = os.path.join(out_dir, 'training_time_breakdown.csv')
+            path = os.path.join(out_dir, 'training_time_breakdown.md')
             with open(path, 'w', newline='') as f:
                 writer = csv.DictWriter(f, fieldnames=breakdown_fields)
                 writer.writeheader()
@@ -447,7 +447,7 @@ class kge_trainer:
                 'unique_entities', 'unique_relations',
                 'avg_retry', 'max_retry', 'total_retry',
             ]
-            path = os.path.join(out_dir, 'negative_sampling_cost.csv')
+            path = os.path.join(out_dir, 'negative_sampling_cost.md')
             with open(path, 'w', newline='') as f:
                 writer = csv.DictWriter(f, fieldnames=fields_cost)
                 writer.writeheader()
@@ -465,7 +465,7 @@ class kge_trainer:
             total_all_b = total_b1 + total_b2 + total_b3 + total_b4 + total_b5
             
             ns_breakdown_fields = ['Component', 'Time_ms', 'Ratio_pct']
-            path = os.path.join(out_dir, 'negative_sampling_breakdown.csv')
+            path = os.path.join(out_dir, 'negative_sampling_breakdown.md')
             with open(path, 'w', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow(ns_breakdown_fields)

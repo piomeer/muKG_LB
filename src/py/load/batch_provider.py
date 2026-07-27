@@ -12,9 +12,9 @@ Design principle:
     its assigned partition of the scheduled batches.
 
 Stage D logging probes emit:
-    1. batch_runtime_variance.csv    — actual per-batch cost (latency)
-    2. scheduler_overhead.csv        — scheduler wall time
-    3. batch_weight_distribution.csv — theoretical cost distribution
+    1. batch_runtime_variance.md    — actual per-batch cost (latency)
+    2. scheduler_overhead.md        — scheduler wall time
+    3. batch_weight_distribution.md — theoretical cost distribution
 """
 
 import csv
@@ -142,8 +142,8 @@ class BatchProvider:
         """Emit Stage D verification logs."""
         os.makedirs(LOG_DIR, exist_ok=True)
 
-        # 1. batch_weight_distribution.csv
-        w_path = os.path.join(LOG_DIR, "batch_weight_distribution.csv")
+        # 1. batch_weight_distribution.md
+        w_path = os.path.join(LOG_DIR, "batch_weight_distribution.md")
         with open(w_path, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["batch_id", "n_triples", "total_weight_ms"])
@@ -155,8 +155,8 @@ class BatchProvider:
                 writer.writerow([i, len(batch), round(w, 3)])
         print(f"[BatchProvider] Log: {w_path} ({len(all_batches)} batches)")
 
-        # 2. scheduler_overhead.csv
-        o_path = os.path.join(LOG_DIR, "scheduler_overhead.csv")
+        # 2. scheduler_overhead.md
+        o_path = os.path.join(LOG_DIR, "scheduler_overhead.md")
         with open(o_path, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["scheduler", "overhead_ms", "n_triples", "n_batches"])

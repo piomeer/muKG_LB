@@ -3,7 +3,7 @@
 import csv, math, numpy as np
 
 rows = []
-with open('output/results/weight_validation.csv') as f:
+with open('output/results/weight_validation.md') as f:
     for r in csv.DictReader(f):
         rows.append(r)
 

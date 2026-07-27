@@ -1,6 +1,6 @@
 import pandas as pd, numpy as np
 
-df = pd.read_csv('output/results/gpu_cost_model/benchmark.csv')
+df = pd.read_csv('output/results/gpu_cost_model/benchmark.md')
 
 # 线性拟合 CPU: T = a_cpu * N + b_cpu
 coef_cpu = np.polyfit(df['N'], df['cpu_time_ms'], 1)
@@ -42,7 +42,7 @@ for _, row in df.iterrows():
     print(f"N={int(row['N']):>8} | CPU={row['cpu_time_ms']:.3f}ms | GPU={row['gpu_total_ms']:.3f}ms | {sp:.2f}x")
 
 # 写入摘要文件
-with open('output/results/gpu_cost_model/cost_model_summary.txt', 'w') as f:
+with open('output/results/gpu_cost_model/cost_model_summary.md', 'w') as f:
     f.write(f"CPU: T = {a_cpu:.9f}*N + {b_cpu:.4f} ms\n")
     f.write(f"GPU: T = {a_gpu:.9f}*N + {b_gpu:.4f} ms\n")
     f.write(f"Break-even N: {int(N_star):,}\n")

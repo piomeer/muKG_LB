@@ -152,7 +152,7 @@ def run_config(label, use_gpu, sorter, packer,
     provider = BatchProvider(scheduler, cost_table, batch_size, enable_logging=False)
 
     # CSV writers
-    summary_path = os.path.join(out_dir, 'summary.csv')
+    summary_path = os.path.join(out_dir, 'summary.md')
     with open(summary_path, 'w', newline='') as sf:
         writer = csv.writer(sf)
         writer.writerow(['epoch', 'avg_loss', 'mrr', 'hits10', 'epoch_time_s', 'gpu_mem_mb'])
@@ -258,7 +258,7 @@ def main():
     print(f"\n{'='*60}")
     print("  FINAL SUMMARY")
     print(f"{'='*60}")
-    summary_file = 'output/results/phase9_step2/summary.csv'
+    summary_file = 'output/results/phase9_step2/summary.md'
     with open(summary_file, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['config', 'final_loss', 'mrr', 'hits10', 'avg_epoch_time_s', 'gpu_mem_mb'])

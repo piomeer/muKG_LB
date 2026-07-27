@@ -24,7 +24,7 @@ echo ""
 python3 -u "$SCRIPT" \
     --sorter Random --packer Chunk \
     --epochs "$EPOCHS" \
-    --exp-label Baseline 2>&1 | tee output/results/exp_Baseline/training.log
+    --exp-label Baseline 2>&1 | tee output/results/exp_Baseline/training.md
 
 echo ""
 echo "============================================"
@@ -38,7 +38,7 @@ echo ""
 python3 -u "$SCRIPT" \
     --sorter Cost --packer FFD \
     --epochs "$EPOCHS" \
-    --exp-label CBP 2>&1 | tee output/results/exp_CBP/training.log
+    --exp-label CBP 2>&1 | tee output/results/exp_CBP/training.md
 
 echo ""
 echo "============================================"

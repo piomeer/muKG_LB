@@ -43,7 +43,7 @@ def measure_cpu(N):
 
 out_dir = 'output/results/gpu_cost_model'
 os.makedirs(out_dir, exist_ok=True)
-csv_path = os.path.join(out_dir, 'benchmark.csv')
+csv_path = os.path.join(out_dir, 'benchmark.md')
 with open(csv_path, 'w', newline='') as f:
     writer = csv.writer(f)
     writer.writerow(['N', 'cpu_time_ms', 'gpu_randint_ms', 'gpu_total_ms'])

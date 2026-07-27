@@ -131,8 +131,8 @@ def main():
     provider = BatchProvider(scheduler, cost_table, args.batch_size, enable_logging=False)
 
     # 日志文件
-    trace_path = os.path.join(args.output_dir, f'runtime_trace_{sampling_mode}.csv')
-    epoch_summary_path = os.path.join(args.output_dir, f'epoch_summary_{sampling_mode}.csv')
+    trace_path = os.path.join(args.output_dir, f'runtime_trace_{sampling_mode}.md')
+    epoch_summary_path = os.path.join(args.output_dir, f'epoch_summary_{sampling_mode}.md')
 
     with open(trace_path, 'w', newline='') as trace_f, \
          open(epoch_summary_path, 'w', newline='') as epoch_f:

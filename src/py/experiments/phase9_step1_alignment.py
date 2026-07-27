@@ -198,7 +198,7 @@ def main():
         {'label': 'GPU_v2',       'use_gpu': True},
     ]
 
-    results_file = os.path.join(out_dir, 'results.csv')
+    results_file = os.path.join(out_dir, 'results.md')
     with open(results_file, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['config', 'epoch_1_loss', 'epoch_2_loss', 'mrr_sample', 'hits10_sample'])

@@ -351,7 +351,7 @@ def write_outputs(out_dir, exp_label, profiling_rows, batch_runtime_rows,
         fields = ['epoch', 'step', 'neg_sampling_time', 'forward_time',
                    'backward_time', 'optimizer_time', 'step_time',
                    'batch_size', 'avg_degree']
-        path = os.path.join(out_dir, 'profiling_summary.csv')
+        path = os.path.join(out_dir, 'profiling_summary.md')
         with open(path, 'w', newline='') as f:
             w = csv.DictWriter(f, fieldnames=fields)
             w.writeheader()
@@ -362,7 +362,7 @@ def write_outputs(out_dir, exp_label, profiling_rows, batch_runtime_rows,
         fields = ['epoch', 'step', 'step_time_ms', 'neg_sampling_ms',
                    'forward_ms', 'backward_ms', 'optimizer_ms',
                    'batch_size', 'avg_entity_degree']
-        path = os.path.join(out_dir, 'batch_runtime_variance.csv')
+        path = os.path.join(out_dir, 'batch_runtime_variance.md')
         with open(path, 'w', newline='') as f:
             w = csv.DictWriter(f, fieldnames=fields)
             w.writeheader()
@@ -374,14 +374,14 @@ def write_outputs(out_dir, exp_label, profiling_rows, batch_runtime_rows,
                    'cv_step', 'n_batches', 'avg_loss',
                    'neg_time_s', 'fwd_time_s', 'bwd_time_s', 'opt_time_s',
                    'scheduler_overhead_ms', 'batch_weight_cv']
-        path = os.path.join(out_dir, 'epoch_summary.csv')
+        path = os.path.join(out_dir, 'epoch_summary.md')
         with open(path, 'w', newline='') as f:
             w = csv.DictWriter(f, fieldnames=fields)
             w.writeheader()
             w.writerows(epoch_stats)
         print(f"[Output] {path} ({len(epoch_stats)} rows)")
 
-    eval_path = os.path.join(out_dir, 'evaluation_metrics.csv')
+    eval_path = os.path.join(out_dir, 'evaluation_metrics.md')
     with open(eval_path, 'w', newline='') as f:
         w = csv.writer(f)
         w.writerow(['metric', 'value'])
@@ -432,7 +432,7 @@ def print_summary(epoch_stats, exp_label, sorter_n, packer_n, out_dir):
     print(f"    Max step CV:        {max(cvs):.5f}")
 
     print(f"\n  Algorithm Integrity:")
-    eval_path = os.path.join(out_dir, 'evaluation_metrics.csv')
+    eval_path = os.path.join(out_dir, 'evaluation_metrics.md')
     if os.path.exists(eval_path):
         with open(eval_path) as f:
             for line in f:

@@ -7,8 +7,8 @@ distributions, measures actual negative sampling time, and fits a
 multivariate linear regression model to predict T_sampling.
 
 Outputs:
-  - output/results/cost_model_data.csv     (batch-level features + target)
-  - output/results/cost_model_summary.txt  (regression coefficients, R²)
+  - output/results/cost_model_data.md      (batch-level features + target)
+  - output/results/cost_model_summary.md   (regression coefficients, R²)
 """
 
 import csv
@@ -412,7 +412,7 @@ def main():
                   f"collision_rate={features['collision_rate']:.3f}")
 
     # 5. Save CSV
-    csv_path = os.path.join(OUT_DIR, "cost_model_data.csv")
+    csv_path = os.path.join(OUT_DIR, "cost_model_data.md")
     fieldnames = list(all_records[0].keys())
     with open(csv_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -498,7 +498,7 @@ def main():
     print(f"  CV (RMSE/Mean)  = {rmse / max(np.mean(y), 1e-10):.4f}")
 
     # 7. Save summary text
-    summary_path = os.path.join(OUT_DIR, "cost_model_summary.txt")
+    summary_path = os.path.join(OUT_DIR, "cost_model_summary.md")
     with open(summary_path, "w") as f:
         f.write("MuKG Runtime Cost Model Summary\n")
         f.write("=" * 60 + "\n")
@@ -533,7 +533,7 @@ def main():
     print(f"\n[SAVED] {summary_path}")
 
     print("\n[DONE] Cost model fitting complete.")
-    print(f"  CSV:  {csv_path}")
+    print(f"  Data:  {csv_path}")
     print(f"  Summary: {summary_path}")
 
 
