@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase 9 Step 2 — Main Benchmark (4 Configs) — 完成
+研究回顾文档生成 — RESEARCH_HANDOVER_20260727_1739.md 完成
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。batch_size=5000 OOM，安全使用 1000。
@@ -17,32 +17,20 @@ Phase 9 Step 2 — Main Benchmark (4 Configs) — 完成
 - **基线冻结 (Baseline Freeze)：四组实验组别锁定 — BL (Random+Chunk+CPU) / CBP (Cost+FFD+CPU) / GPU (Random+Chunk+GPU) / CBP+GPU (Cost+FFD+GPU)**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-✅ Phase 7 - GPU 迁移可行性研究 完成 [2026-07-23]
-✅ Phase 8 - GPU Negative Sampler 完成 [2026-07-23]
-  ✅ GPU 5 epochs: Loss 0.949 to 0.375, epoch 4.78s
-  ✅ CPU 2 epochs: Loss 1.029 to 0.666, epoch 37.06s
-  ✅ 加速比: neg_time 198x, epoch 7.7x
+✅ Phase 9 Step 2 四组对比基准完成 (BL/CBP/GPU/CBP+GPU, 5 epochs)
+  ✅ GPU epoch 4.4s (5.7x vs BL)
+  ✅ CBP+GPU epoch 4.7s (5.4x)
+  ✅ CBP zero overhead on GPU
 
-✅ Phase 9 Step 1 - Alignment and Freeze 完成 [2026-07-25]
-  ✅ Semantic gap accepted, baseline frozen
-
-✅ Phase 9 Step 2 - Main Benchmark 完成 [2026-07-25]
-  ✅ BL: loss 0.572, MRR 0.0136, Hits@10 0.0225, epoch 25.1s
-  ✅ CBP: loss 0.574, MRR 0.0150, Hits@10 0.0350, epoch 25.3s
-  ✅ GPU: loss 0.378, MRR 0.0132, Hits@10 0.0300, epoch 4.4s (5.7x)
-  ✅ CBP+GPU: loss 0.384, MRR 0.0113, Hits@10 0.0175, epoch 4.7s (5.4x)
-  ✅ float(inf) bug fixed (replaced by 1e9 masking)
-
-blocker: server_node4 RTX3070 8GB VRAM batch_size=5000 OOM
-blocker: network=offline cannot git push
-blocker: MCP Memory Server unavailable (JSON parse error)
+blocker: MCP Memory Server JSON 解析错误
+blocker: server_node4 offline 不能 git push
+blocker: Phase 9 Step 3 (10 epoch) 未执行
 
 ## 4. 卡点 (Blockers)
-1. [近] rsync to pc-cluster: rsync -av --delete ~/muKG_LB/ hma@192.168.100.104:~/muKG_LB/
-2. [近] On pc-cluster: git push origin production
-3. [近] On pc-cluster: sync MCP L2 entities/relations
-4. [中] Prepare paper results table from Phase 9 Step 2 data
-5. [远] Phase 9 Step 3: 10 epoch convergence stability study
+1. [近] rsync 到 pc-cluster: rsync -av --delete ~/muKG_LB/ hma@192.168.100.104:~/muKG_LB/
+2. [近] 在 pc-cluster 上执行 memory_bouncer.py 完成 L2/L3 同步 + git push
+3. [中] Phase 9 Step 3: 10 epoch 收敛验证 + 全量 MRR/Hits@10 评估
+4. [中] 完善论文结果表 (BL/CBP/GPU/CBP+GPU 四组对比)
 
 ## 5. 下一步计划 (Next Steps)
 1. [近] 同步代码到 pc-cluster: `rsync -av --delete ~/muKG_LB/ hma@192.168.100.104:~/muKG_LB/`
