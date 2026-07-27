@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-PPT Page 7 Hub Correlation Analysis 散点图生成
+PPT Page 8 Top 20 Slowest Batches Hub Count 条形图生成
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。batch_size=5000 OOM，安全使用 1000。
@@ -17,17 +17,18 @@ PPT Page 7 Hub Correlation Analysis 散点图生成
 - **基线冻结 (Baseline Freeze)：四组实验组别锁定 — BL (Random+Chunk+CPU) / CBP (Cost+FFD+CPU) / GPU (Random+Chunk+GPU) / CBP+GPU (Cost+FFD+GPU)**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-✅ Hub Correlation Analysis 散点图已完成: output/figs/hub_correlation_analysis.png
-✅ 脚本: scripts/plot_hub_correlation.py
+✅ Top 20 Slowest Hub Count 条形图已完成: output/figs/top20_slowest_hub_count.png
+✅ 脚本: scripts/plot_top20_slowest.py
 - 数据源: output/results/negative_sampling_cost.csv (455 batches)
-- 三子图: Hub数 vs サンプリング時間 (R=0.816) / 衝突チェック時間 (R=0.540) / 候補構築時間 (R=0.417)
-- 全部标签使用日文，300 dpi 输出
+- 按 sampling_time 降序取前 20 个 batch
+- 关键发现: Top 20 batch 的 hub_entity_count 全部为 6000（batch 最大值）
+- 以 coral 色柱子 + 最大ハブ数水平虚线标注
 
 无新 blocker
 
 ## 4. 卡点 (Blockers)
-1. [近] 确认图片质量，插入 PPT Page 7
-2. [中] 继续 Phase 9 Step 3 (10 epoch 收敛验证)
+1. [近] 确认 top20_slowest_hub_count.png 图片质量，插入 PPT Page 8
+2. [中] 继续 Phase 9 Step 3（10 epoch 收敛验证）
 
 ## 5. 下一步计划 (Next Steps)
 1. [近] 同步代码到 pc-cluster: `rsync -av --delete ~/muKG_LB/ hma@192.168.100.104:~/muKG_LB/`
