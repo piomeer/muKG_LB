@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-PPT Page 10 实体访问长尾分布与缓存命中率组合图生成
+Phase 9 Step 3 — 消融实验 (10 epochs × 4 configs) — 完成
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。batch_size=5000 OOM，安全使用 1000。
@@ -17,18 +17,18 @@ PPT Page 10 实体访问长尾分布与缓存命中率组合图生成
 - **基线冻结 (Baseline Freeze)：四组实验组别锁定 — BL (Random+Chunk+CPU) / CBP (Cost+FFD+CPU) / GPU (Random+Chunk+GPU) / CBP+GPU (Cost+FFD+GPU)**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-✅ PPT Page 10 组合图已完成: output/figs/hub_reuse_and_cache.png
-✅ 脚本: scripts/plot_reuse_and_cache.py
-- 左图: エンティティアクセス分布（ロングテール）- 对数尺度散点图+Top100/Top1000标注
-- 右图: キャッシュヒット率 vs 上位エンティティ数 - 柱状图+37.97%水平虚线
-- 数据源由 analyze_hub_reuse.py 生成
-- 日文字体（Noto Sans CJK JP），200 dpi
+✅ Phase 7, 8, 9 Step 1-2 全部完成
+✅ Phase 9 Step 3 消融实验完成 (2026-07-28)
 
-无新 blocker
+BL (Random+Chunk+CPU): loss 1.037→0.404, MRR 0.0064→0.0252, Hits@10 0.0075→0.060, epoch 24.9s, neg_std 28.5ms, step_std 34.3ms
+CBP (Cost+FFD+CPU): loss 1.042→0.405, MRR 0.0077→0.0249, Hits@10 0.0125→0.058, epoch 25.4s, neg_std 28.5ms, step_std 34.3ms
+GPU (Random+Chunk+GPUv2): loss 0.976→0.223, MRR 0.0059→0.0227, Hits@10 0.005→0.058, epoch 4.4s, neg_std 0.2ms, step_std 6.0ms
+CBP+GPU (Cost+FFD+GPUv2): loss 0.986→0.223, MRR 0.0063→0.0125, epoch 4.7s, neg_std 0.2ms, step_std 6.0ms
+
+核心发现: GPU 将 neg_std 从 28.5ms 降到 0.2ms (142x), step_std 从 34.3ms 降到 6.0ms (5.7x)。CBP 在 GPU 路径上边际收益减弱。
 
 ## 4. 卡点 (Blockers)
-1. [近] 确认 hub_reuse_and_cache.png 图片质量，插入 PPT Page 10
-2. [中] 继续 Phase 9 Step 3（10 epoch 收敛验证）
+1. 同步代码到 pc-cluster 并 git push (当前 node4 internet=true)
 
 ## 5. 下一步计划 (Next Steps)
 1. [近] 同步代码到 pc-cluster: `rsync -av --delete ~/muKG_LB/ hma@192.168.100.104:~/muKG_LB/`
