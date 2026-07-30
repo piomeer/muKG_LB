@@ -70,6 +70,23 @@ Continue Optimization
 - **默认同步命令**: 优先使用 `env_identity.json` 中的 `default_sync_command` 字段。如果该字段不存在，则提示用户使用项目默认 rsync 命令。
 - **实验结果真实性**: 不允许假设实验已经运行完成。不允许伪造实验结果。实验日志必须等待用户返回再分析，不得自行推断训练结果。
 
+## 0.55 论文命名区分规则 (Paper Naming Convention)
+
+**CRITICAL**: 在所有文档、代码注释、PPT、口头汇报中必须精确区分两个论文概念：
+
+- **muKG 原论文**: 指原始 MuKG 论文基线方法（Bordes et al. TransE 2013 等）。使用简单均匀随机负采样（`randint`），无碰撞检测/重试机制，无 CBP（Cluster-based Batch Partitioning），无 GPU Sampler，无统一运行时框架。**代码中不存在于本仓库**——它是最原始论文中描述的方法。
+- **muKG_CBP**（曾用名 muKG_LB）: 指本项目的修改版论文。基于 muKG 框架，增加了：
+  - CBP（Cluster-based Batch Partitioning）批分区机制
+  - GPU Sampler（GPU 端采样器）
+  - 碰撞检测 + 重试机制（B1-B5 五阶段负采样）
+  - 统一运行时框架（多级调度器、cost estimator 等）
+
+**禁止模糊表述**：如 "你的实验"、"你的代码"、"我们的方法"、"原论文的方法" 等必须明确指明是 muKG 原论文还是 muKG_CBP。
+
+**示例正确表述**：
+- "muKG 原论文中负采样仅用 randint 一步完成"
+- "muKG_CBP 引入了 B1-B5 五阶段 profiled 负采样（含 collision check + retry loop）以分析瓶颈"
+
 ## 0.6 Artifact Truth Source（实验真值来源）
 
 GPU 实验的唯一可信来源（Truth Source）包括：

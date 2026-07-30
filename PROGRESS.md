@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-修正 hub_count vs B1/B2/B3 相关性分析 — hub_entity_count 只有 2 个值，R=0.816 是伪相关
+论文命名区分规则写入 L1 宪法层 + 回答问题1和问题2
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。batch_size=5000 OOM，安全使用 1000。
@@ -15,18 +15,18 @@
 - **GPU 负采样器 (GPUNegativeSampler)：向量化 randint + isin，tail corruption + batch-level pos_tails 碰撞检查。统一运行时验证通过。**
 - **环境路由 (Environment Routing)：server_node4 (RTX3070 8GB), network=offline, can_train=true**
 - **基线冻结 (Baseline Freeze)：四组实验组别锁定 — BL (Random+Chunk+CPU) / CBP (Cost+FFD+CPU) / GPU (Random+Chunk+GPU) / CBP+GPU (Cost+FFD+GPU)**  *(自动映射自 L1 宪法)*
+- **无新增约束。所有数据严格基于 Phase 2 原始 Profiling，不使用 Phase 9 优化后的数据。**  *(自动映射自 L1 宪法)*
+- **所有文档/PPT/代码注释中必须精确区分 muKG 原论文 vs muKG_CBP（曾用名 muKG_LB）**  *(自动映射自 L1 宪法)*
+- **禁止使用模糊表述如'你的实验'、'你的代码'、'我们的方法'**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-✅ 修正完成：相关矩阵热图 (correlation_heatmap.png) + unique_entities vs B 散点图 (unique_entities_vs_B.png)
-✅ 脚本: scripts/plot_corrected_B_correlation.py + scripts/validate_b1_correlation.py
-- hub_entity_count 只有 2 个不同值: 4230 和 6000 (HUB_DEGREE_THRESHOLD ≈ 10 太低)
-- unique_entities (123 个值) 和 total_retry (131 个值) 作为替代
-- 真实相关: unique_entities vs B1: R=0.779, total_retry vs B1: R=0.804
-- 因果链: 更多唯一实体 → 更多重试 → B1/B2/B3 时间增加
+已完成: 1) 更新 .clinerules 添加 Section 0.55 论文命名区分规则 2) 回答用户问题1：确认 PPT 数据范围仅限 Phase 2 3) 回答用户问题2：解释 random.sample() 在 muKG 原论文 vs muKG_CBP 中的差异及 B1 耗时根因。
+阻塞: MCP Memory Server 不可用，无法写入 L2 知识图谱（按离线降级策略保留 Payload）
 
 ## 4. 卡点 (Blockers)
-1. [近] 更新 PPT Page 7 为修正后的散点图
-2. [中] 继续 Phase 9 Step 3 (10 epoch 收敛验证)
+1. 修正 docs/B1_B5_negative_sampling_explanation.md 中的术语，将模糊表述改为 muKG 原论文 / muKG_CBP
+2. 在 PPT 准备时严格按照命名规则区分两个论文概念
+3. 在 MCP Memory Server 恢复后，将 L1 规则同步到 L2 知识图谱
 
 ## 5. 下一步计划 (Next Steps)
 1. [近] 同步代码到 pc-cluster: `rsync -av --delete ~/muKG_LB/ hma@192.168.100.104:~/muKG_LB/`
