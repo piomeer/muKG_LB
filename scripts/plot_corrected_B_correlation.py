@@ -95,9 +95,9 @@ labels_jp = {
     'candidate_build_time': '候補構築時間 (B2)',
 }
 titles_jp = {
-    'sampling_time': 'ユニークエンティティ数 vs サンプリング時間',
-    'collision_check_time': 'ユニークエンティティ数 vs 衝突チェック時間',
-    'candidate_build_time': 'ユニークエンティティ数 vs 候補構築時間',
+    'sampling_time': 'hub数 vs サンプリング時間',
+    'collision_check_time': 'hub数 vs 衝突チェック時間',
+    'candidate_build_time': 'hub数 vs 候補構築時間',
 }
 palette = ['#4285F4', '#EA4335', '#34A853']
 
@@ -118,7 +118,7 @@ for idx, (yc, title) in enumerate(titles_jp.items()):
             bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8))
     
     ax.set_title(title, fontsize=13, fontweight='bold')
-    ax.set_xlabel('ユニークエンティティ数', fontsize=12)
+    ax.set_xlabel('hub数', fontsize=12)
     ax.set_ylabel(f'{labels_jp[yc]} (ms)', fontsize=12)
     ax.tick_params(labelsize=11)
     ax.grid(True, alpha=0.3, linestyle='--')
