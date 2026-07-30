@@ -79,13 +79,21 @@ def fig2_cost_model_correlation():
         MISSING_SOURCES.append('profiling_summary.csv')
         print('[SKIP] fig2_cost_model_correlation: profiling_summary.csv not found')
         return
-    # Read data
     hub_counts, neg_times = [], []
     with open(src) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            hub_counts.append(int(row.get('hub_count', 0)))
-            neg_times.append(float(row.get('neg_sampling_time', 0)))
+            hc = row.get('hub_count', '')
+            nt = row.get('neg_sampling_time', '')
+            if hc and nt:
+                try:
+                    hub_counts.append(int(hc))
+                    neg_times.append(float(nt))
+                except (ValueError, TypeError):
+                    pass
+    if len(hub_counts) == 0:
+        print('[SKIP] fig2: no valid data rows')
+        return
     hub_counts = np.array(hub_counts)
     neg_times = np.array(neg_times)
     r = np.corrcoef(hub_counts, neg_times)[0, 1]
@@ -97,41 +105,58 @@ def fig2_cost_model_correlation():
     ax.set_title(f'Fig 2: Cost Model Correlation (R={r:.3f})')
     fig.savefig(f'{OUT_FIGS}/fig2_cost_model_corr.pdf')
     plt.close(fig)
-    print(f'[OK] fig2_cost_model_corr.pdf (R={r:.3f})')
+    print(f'[OK] fig2_cost_model_corr.pdf ({len(hub_counts)} points, R={r:.3f})')
 
 
 # ═══════════════════════════════════════════════════════════════════
 # FIGURE 3 — Batch Cost Distribution (needs batch_composition.csv)
 # ═══════════════════════════════════════════════════════════════════
-def fig3_batch_weight_cv():
+def fig3_batch_cost_distribution():
     src = 'output/results/integration_validation/batch_composition.csv'
     if not os.path.exists(src):
         MISSING_SOURCES.append('batch_composition.csv')
-        print('[SKIP] fig3_batch_weight_cv: batch_composition.csv not found')
+        print('[SKIP] fig3_batch_cost_distribution: batch_composition.csv not found')
         return
     baseline_costs = []
     cbp_costs = []
     with open(src) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if row.get('config', '') == 'Baseline':
-                baseline_costs.append(float(row['avg_cost']))
-            elif row.get('config', '') == 'CBP':
-                cbp_costs.append(float(row['avg_cost']))
-    bl_cv = np.std(baseline_costs) / np.mean(baseline_costs) if len(baseline_costs) > 0 else 0
-    cbp_cv = np.std(cbp_costs) / np.mean(cbp_costs) if len(cbp_costs) > 0 else 0
+            # config_label field contains the phase name
+            label = row.get('config_label', '')
+            try:
+                avg_cost = float(row.get('avg_cost', 0))
+            except (ValueError, TypeError):
+                continue
+            if label == 'Baseline':
+                baseline_costs.append(avg_cost)
+            elif label == 'CBP':
+                cbp_costs.append(avg_cost)
+
+    if len(baseline_costs) == 0 and len(cbp_costs) == 0:
+        print('[SKIP] fig3: no valid data')
+        return
+
+    bl_cv = np.std(baseline_costs) / np.mean(baseline_costs) if len(baseline_costs) > 1 else (np.std(baseline_costs) / 1e-9 if len(baseline_costs) == 1 else 0)
+    cbp_cv = np.std(cbp_costs) / np.mean(cbp_costs) if len(cbp_costs) > 1 else (np.std(cbp_costs) / 1e-9 if len(cbp_costs) == 1 else 0)
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 4))
-    axes[0].hist(baseline_costs, bins=20, color='#FF6B6B', edgecolor='white', alpha=0.8)
-    axes[0].set_title(f'Baseline (CV={bl_cv:.4f})')
-    axes[0].set_xlabel('Avg Cost per Batch')
-    axes[1].hist(cbp_costs, bins=20, color=SINGLE_COLOR, edgecolor='white', alpha=0.8)
-    axes[1].set_title(f'CBP (CV={cbp_cv:.4f})')
-    axes[1].set_xlabel('Avg Cost per Batch')
+    if baseline_costs:
+        axes[0].hist(baseline_costs, bins=20, color='#FF6B6B', edgecolor='white', alpha=0.8)
+        axes[0].set_title(f'Baseline (CV={bl_cv:.4f})')
+        axes[0].set_xlabel('Avg Cost per Batch')
+    else:
+        axes[0].text(0.5, 0.5, 'No data', ha='center', va='center', transform=axes[0].transAxes)
+    if cbp_costs:
+        axes[1].hist(cbp_costs, bins=20, color=SINGLE_COLOR, edgecolor='white', alpha=0.8)
+        axes[1].set_title(f'CBP (CV={cbp_cv:.4f})')
+        axes[1].set_xlabel('Avg Cost per Batch')
+    else:
+        axes[1].text(0.5, 0.5, 'No data', ha='center', va='center', transform=axes[1].transAxes)
     fig.suptitle('Fig 3: Batch Cost Distribution')
-    fig.savefig(f'{OUT_FIGS}/fig3_batch_weight_cv.pdf')
+    fig.savefig(f'{OUT_FIGS}/fig3_batch_cost_distribution.pdf')
     plt.close(fig)
-    print(f'[OK] fig3_batch_weight_cv.pdf (Baseline CV={bl_cv:.4f}, CBP CV={cbp_cv:.4f})')
+    print(f'[OK] fig3_batch_cost_distribution.pdf (Baseline CV={bl_cv:.4f}, CBP CV={cbp_cv:.4f})')
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -310,7 +335,7 @@ def main():
 
     fig1_profiling_breakdown()
     fig2_cost_model_correlation()
-    fig3_batch_weight_cv()
+    fig3_batch_cost_distribution()
     fig4_gpu_runtime_trace()
     fig5_benchmark_bars()
     fig6_ablation_variance()

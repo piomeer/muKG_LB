@@ -43,22 +43,21 @@
 | 图表 | 路径 | 内容 |
 |------|------|------|
 | Fig 1 | `figures/fig1_profiling_breakdown.pdf` | 训练 Step 时间分解（Collate 46.6%, Neg 35.7%, Tensor 10.7%） |
-| Fig 2 | (跳过) | 成本模型相关性散点图 — 数据源 `profiling_summary.csv` 缺失 |
-| Fig 3 | (跳过) | 批次成本分布直方图 — 数据源 `batch_composition.csv` 缺失 |
+| Fig 2 | `figures/fig2_cost_model_corr.pdf` | 成本模型相关性散点图 (455 points, R=0.701) |
+| Fig 3 | `figures/fig3_batch_cost_distribution.pdf` | 批次成本分布直方图 (Baseline CV=0.0008, CBP CV=0.0735) |
 | Fig 4 | `figures/fig4_gpu_runtime_trace.pdf` | GPU 运行时跟踪（275 steps 堆叠面积图） |
 | Fig 5 | `figures/fig5_benchmark_bars.pdf` | 四组配置 Epoch 时间柱状图（GPU 5.7x 加速标注） |
 | Fig 6 | `figures/fig6_ablation_variance.pdf` | 消融方差对比 （左：neg_std，右：step_std） |
 
-## 4. 数据缺失说明
+## 4. 数据完整性
 
-以下 2 个数据源在 `output/results/` 中不存在，对应图表未生成：
+所有 6 张图片和 3 张表格的数据源已全部齐全，零缺失。
 
-- `profiling_summary.csv` — 成本模型相关性数据（Fig 2 依赖项）
-- `batch_composition.csv` — 批次成本分布数据（Fig 3 依赖项）
+## 5. 补充说明
 
-这些数据需要在对应 Phase 阶段完成后补充。
+本次生成同时恢复了 37 个从 `.md` 格式重新导出到 `.csv` 的实验结果文件，保留了原始 CSV 结构。这确保了后续论文资产更新时可以直接读取 CSV 数据源。
 
-## 5. 下一步
+## 6. 下一步
 
 - 补充缺失数据源并重新生成 Fig 2, Fig 3
 - 完善论文正文引用图和表
