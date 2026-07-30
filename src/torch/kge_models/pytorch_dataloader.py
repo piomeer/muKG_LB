@@ -216,14 +216,16 @@ def _deep_profiled_neg_sampling(self, pos_batch, all_triples_set, entities_list,
         for i in range(max_try):
             retry_this += 1
 
-            # B1: Random Sampling (random.sample)
-            t_b1 = time.perf_counter()
+            # B1: Random Sampling (random.sample) — 只在首次尝试计时，排除重试
+            if i == 0:
+                t_b1 = time.perf_counter()
             corrupt_head_prob = np.random.binomial(1, 0.5)
             if corrupt_head_prob:
                 neg_heads = random.sample(head_candidates, nums_to_sample)
             else:
                 neg_tails = random.sample(tail_candidates, nums_to_sample)
-            global_neg_sampling_time_b1_ms += (time.perf_counter() - t_b1) * 1000.0
+            if i == 0:
+                global_neg_sampling_time_b1_ms += (time.perf_counter() - t_b1) * 1000.0
 
             # B2: Candidate Construction (set comprehension)
             t_b2 = time.perf_counter()

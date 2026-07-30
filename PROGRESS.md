@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase 9 Step 3 — 消融实验 (10 epochs × 4 configs) — 完成
+修正 hub_count vs B1/B2/B3 相关性分析 — hub_entity_count 只有 2 个值，R=0.816 是伪相关
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。batch_size=5000 OOM，安全使用 1000。
@@ -17,18 +17,16 @@ Phase 9 Step 3 — 消融实验 (10 epochs × 4 configs) — 完成
 - **基线冻结 (Baseline Freeze)：四组实验组别锁定 — BL (Random+Chunk+CPU) / CBP (Cost+FFD+CPU) / GPU (Random+Chunk+GPU) / CBP+GPU (Cost+FFD+GPU)**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-✅ Phase 7, 8, 9 Step 1-2 全部完成
-✅ Phase 9 Step 3 消融实验完成 (2026-07-28)
-
-BL (Random+Chunk+CPU): loss 1.037→0.404, MRR 0.0064→0.0252, Hits@10 0.0075→0.060, epoch 24.9s, neg_std 28.5ms, step_std 34.3ms
-CBP (Cost+FFD+CPU): loss 1.042→0.405, MRR 0.0077→0.0249, Hits@10 0.0125→0.058, epoch 25.4s, neg_std 28.5ms, step_std 34.3ms
-GPU (Random+Chunk+GPUv2): loss 0.976→0.223, MRR 0.0059→0.0227, Hits@10 0.005→0.058, epoch 4.4s, neg_std 0.2ms, step_std 6.0ms
-CBP+GPU (Cost+FFD+GPUv2): loss 0.986→0.223, MRR 0.0063→0.0125, epoch 4.7s, neg_std 0.2ms, step_std 6.0ms
-
-核心发现: GPU 将 neg_std 从 28.5ms 降到 0.2ms (142x), step_std 从 34.3ms 降到 6.0ms (5.7x)。CBP 在 GPU 路径上边际收益减弱。
+✅ 修正完成：相关矩阵热图 (correlation_heatmap.png) + unique_entities vs B 散点图 (unique_entities_vs_B.png)
+✅ 脚本: scripts/plot_corrected_B_correlation.py + scripts/validate_b1_correlation.py
+- hub_entity_count 只有 2 个不同值: 4230 和 6000 (HUB_DEGREE_THRESHOLD ≈ 10 太低)
+- unique_entities (123 个值) 和 total_retry (131 个值) 作为替代
+- 真实相关: unique_entities vs B1: R=0.779, total_retry vs B1: R=0.804
+- 因果链: 更多唯一实体 → 更多重试 → B1/B2/B3 时间增加
 
 ## 4. 卡点 (Blockers)
-1. 同步代码到 pc-cluster 并 git push (当前 node4 internet=true)
+1. [近] 更新 PPT Page 7 为修正后的散点图
+2. [中] 继续 Phase 9 Step 3 (10 epoch 收敛验证)
 
 ## 5. 下一步计划 (Next Steps)
 1. [近] 同步代码到 pc-cluster: `rsync -av --delete ~/muKG_LB/ hma@192.168.100.104:~/muKG_LB/`
