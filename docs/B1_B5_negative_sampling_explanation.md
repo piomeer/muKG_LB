@@ -225,3 +225,129 @@ global_neg_sampling_time_b3_ms += (time.perf_counter() - t_b3) * 1000.0
 
 ## 5. B4 — Retry Logic（重试逻辑）
 
+### 代码（pytorch_dataloader.py: 255-262）
+
+```python
+# B4: Retry Processing
+t_b4 = time.perf_counter()
+if len(neg_triples) == neg_triples_num:
+    global_neg_sampling_time_b4_ms += (time.perf_counter() - t_b4) * 1000.0
+    break
+else:
+    nums_to_sample = neg_triples_num - len(neg_triples)
+    global_neg_sampling_time_b4_ms += (time.perf_counter() - t_b4) * 1000.0
+```
+
+### 详解
+
+1. **判断阶段**: 检查当前轮次收集到的负样本数是否已达到目标 `neg_triples_num`
+2. **满足条件 → break**: 如果 `len(neg_triples) == neg_triples_num`（通常 = 1），直接跳出 `for i in range(max_try)` 重试循环
+3. **不满足 → 继续重试**: 更新 `nums_to_sample`（还差几个），下一轮回到 B1 重新采样
+4. **`max_try` 保护**: 外层循环最多 10 次（由 `max_try=10` 控制），如果一直碰撞到第 10 轮还没有足够负样本，最后会走 B5 的 `neg_triples += list(i_neg_triples)` 直接接受（不再做 B3 过滤）
+5. **计时**: 不区分成功/失败分支，都累计到 B4
+
+### 为什么 B4 只占 0.20%？
+
+- 大多数情况下第一轮就成功（无碰撞或已过滤），retry 的额外开销很小
+- profiling 数据显示 retry 占比极小 → 说明碰撞概率很低
+
+---
+
+## 6. B5 — Output Build（输出构建）
+
+### 代码（pytorch_dataloader.py: 238-243, 250-253, 267-269）
+
+B5 在代码中出现在三个位置，都计入同一个累加器：
+
+```python
+# 位置 1（最后一轮重试时，直接接受，不过滤）
+if i == max_try - 1:
+    t_b5 = time.perf_counter()
+    neg_triples += list(i_neg_triples)
+    global_neg_sampling_time_b5_ms += (time.perf_counter() - t_b5) * 1000.0
+    break
+
+# 位置 2（非最后一轮，附加过滤后的结果）
+t_b5 = time.perf_counter()
+neg_triples += filtered
+global_neg_sampling_time_b5_ms += (time.perf_counter() - t_b5) * 1000.0
+
+# 位置 3（每个正样本处理完后，把该 triple 的负样本拼入全局 batch）
+t_b5 = time.perf_counter()
+neg_batch.extend(neg_triples)
+global_neg_sampling_time_b5_ms += (time.perf_counter() - t_b5) * 1000.0
+```
+
+### 详解
+
+1. **位置 1 & 2**: 把本轮生成的负三元组拼入 `neg_triples` 列表（当前正样本的收集器）。位置 1 是 max_try 的兜底（不经过 B3 碰撞过滤），位置 2 是正常流程
+2. **位置 3**: 等当前正样本的负三元组收集完毕后，通过 `neg_batch.extend(neg_triples)` 拼入全局的 `neg_batch`（整个 batch 的负采样结果）
+3. **数据结构转换**: `list(i_neg_triples)` 将集合转为列表供后续拼接
+4. **为何 B5 只占 1.12%**: `extend` 和 `+=` 每次只处理 1 个或少数几个元素，开销可以忽略不计
+
+---
+
+## 7. `global_neg_sampling_time_b1_ms` 的完整计时链路
+
+### 声明 & 初始化
+
+```python
+# pytorch_dataloader.py: 32
+global_neg_sampling_time_b1_ms = 0.0   # 模块级全局变量
+
+# pytorch_dataloader.py: 120 （每个 batch 开始时清零）
+global_neg_sampling_time_b1_ms = 0.0
+```
+
+### 累计计时
+
+```python
+# pytorch_dataloader.py: 219-228，对每个正样本的首轮尝试
+if i == 0:                          # 只在首次尝试时计时
+    t_b1 = time.perf_counter()
+# ... random.sample() + np.random.binomial() ...
+if i == 0:
+    global_neg_sampling_time_b1_ms += (time.perf_counter() - t_b1) * 1000.0
+```
+
+### 对外暴露
+
+```python
+# pytorch_dataloader.py: 78-89
+def get_per_batch_profiling():
+    return {
+        ...
+        'neg_sampling_b1_ms': global_neg_sampling_time_b1_ms,
+        ...
+    }
+```
+
+### 上游消费（kge_trainer.py 中读取）
+
+每个 batch 结束后，训练循环调用 `get_per_batch_profiling()` 获取 B1-B5 各阶段的累计耗时，然后写入 `negative_sampling_cost.csv`。
+
+---
+
+## 8. 实验数据总结（Phase 2 Profiling 产出）
+
+| 阶段 | 累计耗时 (ms) | 占负采样比例 | 每个正样本 ≈ |
+|------|-------------|:---:|:---:|
+| **B1: Sampling** | 46,719 | **42.26%** | ~0.172 ms |
+| B2: Candidate Build | 25,429 | 23.00% | ~0.093 ms |
+| B3: Collision Check | 15,725 | 14.22% | ~0.058 ms |
+| B4: Retry | 220 | 0.20% | ~0.001 ms |
+| B5: Output Build | 1,241 | 1.12% | ~0.005 ms |
+| **B1-B5 合计** | 89,335 | 80.80% | — |
+| 负采样总耗时 | 110,559 | 100% | — |
+
+**数据来源**: `output/results/negative_sampling_breakdown.md`（原始实验，未经过 Phase 9 的优化修改）
+
+### 核心结论
+
+1. **B1 (random.sample) 是绝对瓶颈**，占负采样时间的 42%
+2. B1 慢的原因不是单次 `random.sample` 本身慢（每次 1-3μs），而是 **27 万次 Python 函数调用 + NumPy 随机数 + 字典查找的累积效应**
+3. B4 (Retry) 几乎可以忽略不计 → 说明碰撞发生的概率极低
+4. B5 (Output Build) 开销极小 → 列表 extend 高效
+
+---
+*最后更新: 2026-07-30 | 基于 Phase 2 原始 Profiling 数据, Phase 9 未介入*
