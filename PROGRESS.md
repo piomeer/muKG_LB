@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-论文命名区分规则写入 L1 宪法层 + 回答问题1和问题2
+Phase 10 Step 2.5: Validation – Statistical Repeats & Sensitivity Experiments — 执行5个验证实验并生成汇总报告
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。batch_size=5000 OOM，安全使用 1000。
@@ -18,15 +18,16 @@
 - **无新增约束。所有数据严格基于 Phase 2 原始 Profiling，不使用 Phase 9 优化后的数据。**  *(自动映射自 L1 宪法)*
 - **所有文档/PPT/代码注释中必须精确区分 muKG 原论文 vs muKG_CBP（曾用名 muKG_LB）**  *(自动映射自 L1 宪法)*
 - **禁止使用模糊表述如'你的实验'、'你的代码'、'我们的方法'**  *(自动映射自 L1 宪法)*
+- **无新增约束。本次操作为纯规划类，未修改代码或数据。**  *(自动映射自 L1 宪法)*
+- **batch_size=10000 OOM on RTX 3070 8GB，论文中需标注8GB显存上限**  *(自动映射自 L1 宪法)*
+- **Cost Model Bootstrap 基于 cost_table (14,505点) 的 R²=0.38，低于 Phase 5.5 基于 455点 candidate_size→measured_cost 的 R²=0.90，论文优先引用后者**  *(自动映射自 L1 宪法)*
+- **GPU 5次重复的 epoch_time 标准差为0（4.4s完全一致），确认GPU运行时方差极低**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-已完成: 1) 更新 .clinerules 添加 Section 0.55 论文命名区分规则 2) 回答用户问题1：确认 PPT 数据范围仅限 Phase 2 3) 回答用户问题2：解释 random.sample() 在 muKG 原论文 vs muKG_CBP 中的差异及 B1 耗时根因。
-阻塞: MCP Memory Server 不可用，无法写入 L2 知识图谱（按离线降级策略保留 Payload）
+✅ GPU 5× repeats 完成: epoch 4.4s±0s, neg_std 0.7ms; ✅ CPU 3× repeats 完成: BL 25.6s±0.4s, CBP 25.5s; ✅ Cost Model Bootstrap 完成: R² CI [0.30,0.53]; ✅ Batch Size 敏感性完成: 1000/2500/5000 OK, 10000 OOM; ✅ Neg Num 敏感性完成: 10-150 全部 OK。⚠️ MCP Memory 不可访问。
 
 ## 4. 卡点 (Blockers)
-1. 修正 docs/B1_B5_negative_sampling_explanation.md 中的术语，将模糊表述改为 muKG 原论文 / muKG_CBP
-2. 在 PPT 准备时严格按照命名规则区分两个论文概念
-3. 在 MCP Memory Server 恢复后，将 L1 规则同步到 L2 知识图谱
+1) 进入 Phase 11: 论文写作 (基于 paper_outline.md + evidence_matrix.md + 全部实验数据)；2) 可先完成 Introduction + Method 章节；3) Experiments 章节引用 Phase 10 Step 2.5 的 statistical validation 结果。
 
 ## 5. 下一步计划 (Next Steps)
 1. [近] 同步代码到 pc-cluster: `rsync -av --delete ~/muKG_LB/ hma@192.168.100.104:~/muKG_LB/`
