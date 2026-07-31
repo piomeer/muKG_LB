@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase 10 Step 2.5: Validation – Statistical Repeats & Sensitivity Experiments — 执行5个验证实验并生成汇总报告
+Phase 10 Step 3: Method Section Draft — 撰写论文 Method 章节初稿 (paper/draft/method.md)
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。batch_size=5000 OOM，安全使用 1000。
@@ -22,12 +22,15 @@ Phase 10 Step 2.5: Validation – Statistical Repeats & Sensitivity Experiments 
 - **batch_size=10000 OOM on RTX 3070 8GB，论文中需标注8GB显存上限**  *(自动映射自 L1 宪法)*
 - **Cost Model Bootstrap 基于 cost_table (14,505点) 的 R²=0.38，低于 Phase 5.5 基于 455点 candidate_size→measured_cost 的 R²=0.90，论文优先引用后者**  *(自动映射自 L1 宪法)*
 - **GPU 5次重复的 epoch_time 标准差为0（4.4s完全一致），确认GPU运行时方差极低**  *(自动映射自 L1 宪法)*
+- **Method 章节不含具体实验结果数值（留给 Experiments 章节），仅提及设计预期和定性关系**  *(自动映射自 L1 宪法)*
+- **算法伪代码使用 algorithm/algorithmic 环境，便于后续 LaTeX 转换**  *(自动映射自 L1 宪法)*
+- **Figure X 框架架构图尚未生成，标注为占位符**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-✅ GPU 5× repeats 完成: epoch 4.4s±0s, neg_std 0.7ms; ✅ CPU 3× repeats 完成: BL 25.6s±0.4s, CBP 25.5s; ✅ Cost Model Bootstrap 完成: R² CI [0.30,0.53]; ✅ Batch Size 敏感性完成: 1000/2500/5000 OK, 10000 OOM; ✅ Neg Num 敏感性完成: 10-150 全部 OK。⚠️ MCP Memory 不可访问。
+✅ Method 章节 5 个子节全部完成 (161 行)；✅ 2 段算法伪代码 (FFD + GPU Sampler)；✅ 5 个 LaTeX 公式；⚠️ Figure X 架构图待生成；⚠️ MCP Memory 不可访问。
 
 ## 4. 卡点 (Blockers)
-1) 进入 Phase 11: 论文写作 (基于 paper_outline.md + evidence_matrix.md + 全部实验数据)；2) 可先完成 Introduction + Method 章节；3) Experiments 章节引用 Phase 10 Step 2.5 的 statistical validation 结果。
+进入 Phase 10 Step 4: Experiments Section Draft — 基于 evidence_matrix.md 和全部实验数据 (phase9_step2/3/4.5, phase10_step2_5) 撰写实验章节。
 
 ## 5. 下一步计划 (Next Steps)
 1. [近] 同步代码到 pc-cluster: `rsync -av --delete ~/muKG_LB/ hma@192.168.100.104:~/muKG_LB/`
