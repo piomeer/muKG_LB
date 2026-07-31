@@ -25,9 +25,11 @@ Phase 10 Step 2.5: Validation – Statistical Repeats & Sensitivity Experiments 
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
 ✅ GPU 5× repeats 完成: epoch 4.4s±0s, neg_std 0.7ms; ✅ CPU 3× repeats 完成: BL 25.6s±0.4s, CBP 25.5s; ✅ Cost Model Bootstrap 完成: R² CI [0.30,0.53]; ✅ Batch Size 敏感性完成: 1000/2500/5000 OK, 10000 OOM; ✅ Neg Num 敏感性完成: 10-150 全部 OK。⚠️ MCP Memory 不可访问。
+✅ [2026-07-31] env_identity.json 已从 main (67d4767) 和 production (3c4bedd) 分支的 Git 追踪中彻底移除。.gitignore 第42行已生效。L2 记忆已在 GitHub 版本基础上合并。各环境独立维护本地配置。
 
 ## 4. 卡点 (Blockers)
 1) 进入 Phase 11: 论文写作 (基于 paper_outline.md + evidence_matrix.md + 全部实验数据)；2) 可先完成 Introduction + Method 章节；3) Experiments 章节引用 Phase 10 Step 2.5 的 statistical validation 结果。
+4) node4 端需要 pull production 并恢复本地 env_identity.json 配置。
 
 ## 5. 下一步计划 (Next Steps)
 1. [近] 同步代码到 pc-cluster: `rsync -av --delete ~/muKG_LB/ hma@192.168.100.104:~/muKG_LB/`

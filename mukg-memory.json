@@ -137,3 +137,5 @@
 {"_meta":{"timestamp":"2026-07-31 16:19:41","source":"memory_bouncer"},"type":"relation","from":"Phase10_Step2.5_Validation_Results","to":"Phase9_Step2_Benchmark","relationType":"VALIDATES"}
 {"_meta":{"timestamp":"2026-07-31 16:19:41","source":"memory_bouncer"},"type":"relation","from":"Phase10_Step2.5_Validation_Results","to":"Phase9_Step3_Ablation","relationType":"VALIDATES"}
 {"_meta":{"timestamp":"2026-07-31 16:19:41","source":"memory_bouncer"},"type":"relation","from":"Phase10_Step2.5_Validation_Results","to":"Phase9_Step4.5_CPU_Variance","relationType":"CONFIRMS"}
+{"_meta":{"timestamp":"2026-07-31 16:36:32","source":"memory_bouncer"},"type":"entity","name":"env_identity.json","entityType":"config","observations":["[2026-07-31] 已从 main 和 production 分支的 Git 追踪中移除 (git rm --cached)。.gitignore 第42行包含 env_identity.json，已生效。各环境独立维护自己的 env_identity.json，互不干扰。"]}
+{"_meta":{"timestamp":"2026-07-31 16:36:32","source":"memory_bouncer"},"type":"relation","from":"env_identity.json","to":".gitignore","relationType":"PROTECTED_BY"}
