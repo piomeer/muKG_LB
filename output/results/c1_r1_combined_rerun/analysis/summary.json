@@ -1,0 +1,271 @@
+{
+  "C1.2-R1": {
+    "A_gate_passed": true,
+    "ci95_high": 6.084031875738808,
+    "ci95_low": 5.943567835146286,
+    "geometric_mean_speedup": 6.013389739959145,
+    "paired_speedups": [
+      5.981964542214122,
+      6.047008513508963,
+      5.969404903746033,
+      6.102916949669412,
+      5.922387486257841,
+      6.058517718563409
+    ]
+  },
+  "C1.3-R1": {
+    "A_gate_passed": true,
+    "ci95_high": 105.90687145797659,
+    "ci95_low": 72.9166768045892,
+    "estimand": "paired compression of the run mean of five within-epoch population SDs, full 5000-example batches only",
+    "geometric_mean_sd_compression": 87.87705683218147,
+    "paired_sd_compressions": [
+      90.70711370976989,
+      103.69659507976294,
+      64.40381965298316,
+      103.80186646838924,
+      81.83786310034145,
+      89.4903292418392
+    ]
+  },
+  "C1.7-R1": {
+    "A_gate_passed": true,
+    "ci95_high_ms": 3.0266465302709316,
+    "ci95_low_ms": 2.9785926760183763,
+    "gpu_run_full_batch_neg_means_ms": [
+      2.9995127320754715,
+      2.9989672415094337,
+      3.0324824301886792,
+      2.9630067735849055,
+      3.0114624452830188,
+      3.010285996226415
+    ],
+    "six_run_mean_ms": 3.002619603144654,
+    "six_run_sample_sd_ms": 0.022895093527278334
+  },
+  "checks": [
+    {
+      "check": "job_throughput_BL_seed42_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed42_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_BL_seed43_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed43_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_BL_seed44_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed44_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_BL_seed45_attempt2",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed45_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_BL_seed46_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed46_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_BL_seed47_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed47_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed42_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed42_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed43_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed43_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed44_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed44_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed45_attempt2",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed45_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed46_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed46_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed47_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed47_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "excluded_throughput_GPU_seed45_attempt1",
+      "passed": true,
+      "reason": "explicit thermal slowdown telemetry; one paired retry allowed"
+    },
+    {
+      "check": "stored_artifact_hashes",
+      "errors": [],
+      "passed": true
+    }
+  ],
+  "environment": {
+    "gpu": {
+      "compute_capability": "8.6",
+      "name": "NVIDIA GeForce RTX 3070",
+      "total_memory_mib_reported_by_nvidia_smi": 8192.0
+    },
+    "hostname": "node4",
+    "pytorch": "2.7.1+cu118",
+    "torch_cuda_runtime": "11.8"
+  },
+  "protocol_id": "C1-R1-v1.1",
+  "validity": {
+    "all_jobs_valid": true,
+    "artifact_hashes_valid": true,
+    "complete_six_pairs": true,
+    "hash_errors": [],
+    "invalid_jobs": [],
+    "preflight_passed": true,
+    "protocol_allowed_retry_used": true
+  },
+  "warnings": []
+}

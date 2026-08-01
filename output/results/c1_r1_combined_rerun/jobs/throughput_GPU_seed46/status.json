@@ -1,0 +1,39 @@
+{
+  "config": "GPU",
+  "invalid_reasons": [],
+  "pass_name": "throughput",
+  "protocol_id": "C1-R1-v1.1",
+  "row_counts": {
+    "epochs": 5,
+    "steps": 0
+  },
+  "seed": 46,
+  "split": {
+    "declared_triples": 272115,
+    "disk_column_order": [
+      "head",
+      "tail",
+      "relation"
+    ],
+    "file_order_sha256": "79157f27094bd45426bd3b7997aa14573b8725f071123c47f6c4cbce72e56790",
+    "held_out_order_sha256": "79d198cedf9245db7a0f7026e11866dcb2f22e7b77841dcdf385c63a3c80f1e1",
+    "held_out_size": 5000,
+    "historical_alignment": "Exact Phase 9 Step 2/3 split rule and sizes: 272115 -> 5000 held out + 267115 training",
+    "in_memory_column_order": [
+      "head",
+      "relation",
+      "tail"
+    ],
+    "loader_order": "incrementally populated set, then list(set(loader_set)), matching read_kge_dataset + KG",
+    "raw_order_sha256": "8c973664ec5efca9ba4fb99d49ff3ec7e3aa09b3165c5f0458459baf03518a39",
+    "raw_triples": 272115,
+    "source_path": "src/py/data/FB15K237/train2id.txt",
+    "source_sha256": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2",
+    "split_algorithm": "Python random.Random(42).shuffle; first 5000 held out",
+    "split_seed": 42,
+    "training_order_sha256": "618a1a1f010e59b750d2d69e994c92d2d2280d0eccb0ea606bd75d6a30ac7339",
+    "training_set_size": 267115
+  },
+  "valid": true,
+  "warnings": []
+}

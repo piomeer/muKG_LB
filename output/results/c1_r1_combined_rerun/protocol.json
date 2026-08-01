@@ -1,0 +1,156 @@
+{
+  "claims": {
+    "C1.2-R1": "paired end-to-end throughput epoch speedup",
+    "C1.3-R1": "paired full-batch within-epoch negative-time standard-deviation compression",
+    "C1.7-R1": "GPU full-batch negative-sampling mean and stability"
+  },
+  "configs": {
+    "BL": "RandomSorter(42)+ChunkPacker; original CPU Bernoulli(0.5) head/tail corruption; global train-triple collision set; H2D included",
+    "GPU": "RandomSorter(42)+ChunkPacker; tail-only GPUNegativeSampler; batch pos_tails filtering",
+    "semantic_disclosure": "BL and GPU samplers are intentionally non-equivalent runtime paths; this protocol makes no quality-equivalence claim"
+  },
+  "created_at": "generated at run start; wall-clock timestamp is stored in environment.json",
+  "dataset": {
+    "declared_triples": 272115,
+    "disk_column_order": [
+      "head",
+      "tail",
+      "relation"
+    ],
+    "file_order_sha256": "79157f27094bd45426bd3b7997aa14573b8725f071123c47f6c4cbce72e56790",
+    "held_out_order_sha256": "79d198cedf9245db7a0f7026e11866dcb2f22e7b77841dcdf385c63a3c80f1e1",
+    "held_out_size": 5000,
+    "historical_alignment": "Exact Phase 9 Step 2/3 split rule and sizes: 272115 -> 5000 held out + 267115 training",
+    "in_memory_column_order": [
+      "head",
+      "relation",
+      "tail"
+    ],
+    "loader_order": "incrementally populated set, then list(set(loader_set)), matching read_kge_dataset + KG",
+    "raw_order_sha256": "8c973664ec5efca9ba4fb99d49ff3ec7e3aa09b3165c5f0458459baf03518a39",
+    "raw_triples": 272115,
+    "source_path": "src/py/data/FB15K237/train2id.txt",
+    "source_sha256": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2",
+    "split_algorithm": "Python random.Random(42).shuffle; first 5000 held out",
+    "split_seed": 42,
+    "training_order_sha256": "618a1a1f010e59b750d2d69e994c92d2d2280d0eccb0ea606bd75d6a30ac7339",
+    "training_set_size": 267115
+  },
+  "diagnostics": {
+    "loss": "finite required; final >= epoch0 is warning only",
+    "speedup_over_10x": "warning only",
+    "telemetry": "before/after warmup, before/after each epoch, after job; never queried inside timed epoch"
+  },
+  "model": {
+    "embedding_dim": 400,
+    "learning_rate": 0.001,
+    "margin": 1.0,
+    "name": "SimpleTransE",
+    "optimizer": "Adam"
+  },
+  "partial_batch_assertions": {
+    "batches_per_epoch": 54,
+    "full_batches": 53,
+    "partial_batch_size": 2115,
+    "partial_batches": 1,
+    "training_examples": 267115
+  },
+  "passes": {
+    "compute_only": "diagnostic only: fixed full batch and prebuilt GPU tensors, 3 warmups + 20 forward/backward/optimizer observations per seed",
+    "throughput": {
+      "epoch_boundary": "CUDA synchronize; timer starts before BatchProvider.iterate() executes and stops after final optimizer step and synchronize",
+      "loss_readback": "GPU scalar accumulated; one CPU read per epoch",
+      "partial_batch_included": true,
+      "per_step_synchronization": false
+    },
+    "trace": {
+      "neg_time_ns": "sampler call start until negative tensors are ready on target GPU; BL includes Python sampling, CPU tensor construction and H2D",
+      "partial_filter_for_primary_analysis": "is_partial == False AND batch_size_actual == 5000",
+      "per_component_synchronization": true,
+      "positive_tensor_build_ns": "positive h/r/t Python lists to GPU tensors; identical code in BL/GPU"
+    }
+  },
+  "preflight": {
+    "P1": "sampler-only full 5000x150 generation",
+    "P2": "GPU full training step",
+    "P3": "BL full training step",
+    "failure_rule": "stop; never reduce batch size",
+    "vram_limit": "peak reserved strictly below 90% of physical VRAM"
+  },
+  "protocol_id": "C1-R1-v1.1",
+  "source_files": [
+    {
+      "path": "src/py/data/FB15K237/train2id.txt",
+      "sha256": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2"
+    },
+    {
+      "path": "output/results/entity_features.npz",
+      "sha256": "bfd6889e070a33037465bd2f53d321b93d256ba8fa85c492dfbc3e3108cdec04"
+    },
+    {
+      "path": "src/py/load/gpu_sampler.py",
+      "sha256": "cf88e9c0d0f6f9c98b0b8685771e651ef3591f72a3d34aec533c8b725a2f5da0"
+    },
+    {
+      "path": "src/py/load/batch_provider.py",
+      "sha256": "fb508b1cb5ecb64cb3072cb08359bf3456d894f5a30bf8eb70a8e57d9e18e3d5"
+    },
+    {
+      "path": "src/py/load/schedulers.py",
+      "sha256": "83088a3ae353d455e8de7bd337605cca38d4fd3fbed360c7f39e1d722e0fb987"
+    },
+    {
+      "path": "src/py/experiments/c1_r1_combined_rerun.py",
+      "sha256": "2556df6aa6e50d20ae2c188fe987a7694dff1743473aaf0dd62a4e96615710ab"
+    }
+  ],
+  "statistics": {
+    "A_gate_C1.2_C1.3": "six valid pairs, complete raw data, valid protocol, lower 95% CI > 1",
+    "C1.2": "mean five throughput epochs per config/seed; paired ratios; geometric mean and two-sided 95% t CI on log ratios",
+    "C1.3": "ddof=0 within each trace epoch on full batches; mean five epoch standard deviations per run; paired ratios; log-scale t CI",
+    "C1.7": "GPU full-batch neg-time mean per run; six-run arithmetic mean, sample SD and two-sided 95% t CI",
+    "independent_unit": "seed-level paired run",
+    "t_critical_df5": 2.570581835636314
+  },
+  "training": {
+    "batch_size": 5000,
+    "epochs_per_job": 5,
+    "independent_seeds": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47
+    ],
+    "jobs_are_separate_processes": true,
+    "negative_samples_per_positive": 150,
+    "paired_order": {
+      "42": [
+        "BL",
+        "GPU"
+      ],
+      "43": [
+        "GPU",
+        "BL"
+      ],
+      "44": [
+        "BL",
+        "GPU"
+      ],
+      "45": [
+        "GPU",
+        "BL"
+      ],
+      "46": [
+        "BL",
+        "GPU"
+      ],
+      "47": [
+        "GPU",
+        "BL"
+      ]
+    },
+    "warmup": "three full training steps on a disposable model/optimizer; discard, clear cache, reseed, then construct measured model"
+  }
+}

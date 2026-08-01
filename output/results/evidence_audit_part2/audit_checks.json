@@ -1,0 +1,400 @@
+{
+  "audit": "Phase X Step 2 — C1 GPU Runtime",
+  "audit_date": "2026-08-01",
+  "audit_version": "1.0",
+  "checks": [
+    {
+      "check_id": "source_manifest_complete",
+      "claim_ids": [
+        "C1.1",
+        "C1.2",
+        "C1.3",
+        "C1.4",
+        "C1.5",
+        "C1.6",
+        "C1.7",
+        "C1.8",
+        "C1.9"
+      ],
+      "detail": "All required sources exist, are non-empty, and satisfy their declared CSV schemas.",
+      "evidence": [
+        "output/results/unified_runtime/runtime_trace_CPU.csv",
+        "output/results/unified_runtime/runtime_trace_GPU.csv",
+        "output/results/unified_runtime/epoch_summary_CPU.csv",
+        "output/results/unified_runtime/epoch_summary_GPU.csv",
+        "output/results/phase9_step1/results.csv",
+        "output/results/phase9_step2/summary.csv",
+        "output/results/phase9_step2/BL/summary.csv",
+        "output/results/phase9_step2/GPU/summary.csv",
+        "output/results/phase9_step3/BL/summary.csv",
+        "output/results/phase9_step3/GPU/summary.csv",
+        "output/results/phase9_step3/CBP+GPU/summary.csv",
+        "output/results/phase10_step2_5/gpu_repeats.csv",
+        "output/results/phase10_step2_5/cpu_repeats.csv",
+        "output/results/training_time_breakdown.md",
+        "output/results/gpu_sampler/validation.csv",
+        "analyze_profiling.py",
+        "src/py/experiments/validate_gpu_sampler.py",
+        "src/py/experiments/run_unified_runtime_validation.py",
+        "src/py/experiments/phase9_step1_alignment.py",
+        "src/py/experiments/phase9_step2_benchmark.py",
+        "src/py/experiments/phase9_step3_ablation.py",
+        "src/py/experiments/phase10_step2_5_validation.py",
+        "src/py/load/gpu_sampler.py",
+        "src/py/experiments/validate_gpu_sampler_full.py",
+        "generate_paper_assets.py",
+        "docs/semantic_alignment_report.md",
+        "paper_assets/figures/fig4_gpu_runtime_trace.pdf",
+        "paper_assets/figures/fig5_benchmark_bars.pdf",
+        "paper_assets/figures/fig6_ablation_variance.pdf"
+      ],
+      "severity": "critical",
+      "status": "PASS"
+    },
+    {
+      "check_id": "phase8_trace_recomputable",
+      "claim_ids": [
+        "C1.1",
+        "C1.4"
+      ],
+      "detail": "Full-precision Phase 8 per-step traces support deterministic sensitivity recomputation.",
+      "evidence": [
+        "output/results/unified_runtime/runtime_trace_CPU.csv",
+        "output/results/unified_runtime/runtime_trace_GPU.csv"
+      ],
+      "severity": "info",
+      "status": "PASS"
+    },
+    {
+      "check_id": "phase8_cpu_comparator_identity",
+      "claim_ids": [
+        "C1.1",
+        "C1.4"
+      ],
+      "detail": "The CPU function generates both a replacement head and replacement tail for every negative and has no all_triples_set/global collision check. It is not the original CPU sampler named by the claims.",
+      "evidence": [
+        "src/py/experiments/run_unified_runtime_validation.py"
+      ],
+      "severity": "critical",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "phase8_gpu_sampler_semantics",
+      "claim_ids": [
+        "C1.1",
+        "C1.4"
+      ],
+      "detail": "The current GPU sampler is tail-only and filters candidates against batch pos_tails.",
+      "evidence": [
+        "src/py/load/gpu_sampler.py"
+      ],
+      "severity": "high",
+      "status": "PASS"
+    },
+    {
+      "check_id": "figure4_comparative_lineage",
+      "claim_ids": [
+        "C1.1",
+        "C1.4"
+      ],
+      "detail": "Fig.4 reads only runtime_trace_GPU.md and plots the GPU component stack; it contains no CPU series and cannot evidence a CPU/GPU ratio.",
+      "evidence": [
+        "generate_paper_assets.py",
+        "paper_assets/figures/fig4_gpu_runtime_trace.pdf"
+      ],
+      "severity": "high",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "phase9_epoch_speedup_reproduced",
+      "claim_ids": [
+        "C1.2"
+      ],
+      "detail": "The mean of stored rounded epochs reproduces BL/GPU=5.70454545455x.",
+      "evidence": [
+        "output/results/phase9_step2/BL/summary.csv",
+        "output/results/phase9_step2/GPU/summary.csv"
+      ],
+      "severity": "info",
+      "status": "PASS"
+    },
+    {
+      "check_id": "figure5_data_lineage",
+      "claim_ids": [
+        "C1.2"
+      ],
+      "detail": "Fig.5 bar heights are hardcoded as 25.1, 25.3, 4.4, and 4.7 rather than loaded from the cited summary CSV.",
+      "evidence": [
+        "generate_paper_assets.py",
+        "paper_assets/figures/fig5_benchmark_bars.pdf"
+      ],
+      "severity": "high",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "phase9_process_stable_seed",
+      "claim_ids": [
+        "C1.2",
+        "C1.3",
+        "C1.7",
+        "C1.8"
+      ],
+      "detail": "Python hash(label) is process-dependent unless PYTHONHASHSEED is externally frozen.",
+      "evidence": [
+        "src/py/experiments/phase9_step2_benchmark.py",
+        "src/py/experiments/phase9_step3_ablation.py"
+      ],
+      "severity": "high",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "phase9_torch_seed",
+      "claim_ids": [
+        "C1.2",
+        "C1.3",
+        "C1.7",
+        "C1.8"
+      ],
+      "detail": "The Phase 9 Step 2/3 drivers do not set a Torch seed before model initialization.",
+      "evidence": [
+        "src/py/experiments/phase9_step2_benchmark.py",
+        "src/py/experiments/phase9_step3_ablation.py"
+      ],
+      "severity": "high",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "phase10_unrounded_repeat_precision",
+      "claim_ids": [
+        "C1.2",
+        "C1.3",
+        "C1.7"
+      ],
+      "detail": "Phase 10 writes timing values with one-decimal formatting before downstream statistics.",
+      "evidence": [
+        "src/py/experiments/phase10_step2_5_validation.py",
+        "output/results/phase10_step2_5/gpu_repeats.csv",
+        "output/results/phase10_step2_5/cpu_repeats.csv"
+      ],
+      "severity": "critical",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "phase9_final_epoch_variance_ratio_reproduced",
+      "claim_ids": [
+        "C1.3"
+      ],
+      "detail": "The stored rounded final-epoch values reproduce 142.5x.",
+      "evidence": [
+        "output/results/phase9_step3/BL/summary.csv",
+        "output/results/phase9_step3/GPU/summary.csv"
+      ],
+      "severity": "info",
+      "status": "PASS"
+    },
+    {
+      "check_id": "figure6_raw_lineage",
+      "claim_ids": [
+        "C1.3",
+        "C1.7"
+      ],
+      "detail": "Fig.6 reads only the last row of each rounded Phase 9 Step 3 summary; absent per-step traces prevent raw-data verification.",
+      "evidence": [
+        "generate_paper_assets.py",
+        "paper_assets/figures/fig6_ablation_variance.pdf"
+      ],
+      "severity": "high",
+      "status": "UNVERIFIABLE"
+    },
+    {
+      "check_id": "phase9_variance_raw_trace",
+      "claim_ids": [
+        "C1.3",
+        "C1.7"
+      ],
+      "detail": "No Phase 9 Step 3 per-step raw trace exists; only rounded per-epoch summaries are stored.",
+      "evidence": [
+        "output/results/phase9_step3/"
+      ],
+      "severity": "critical",
+      "status": "UNVERIFIABLE"
+    },
+    {
+      "check_id": "phase9_variance_partial_batch_control",
+      "claim_ids": [
+        "C1.3"
+      ],
+      "detail": "numpy.std is applied to all batches, including the short final batch; batch size is not stored per observation.",
+      "evidence": [
+        "src/py/experiments/phase9_step3_ablation.py"
+      ],
+      "severity": "high",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "phase9_step1_quality_evaluator",
+      "claim_ids": [
+        "C1.5"
+      ],
+      "detail": "The evaluator masks the target tail itself, causing the saved MRR/Hits@10 values to be meaningless.",
+      "evidence": [
+        "src/py/experiments/phase9_step1_alignment.py"
+      ],
+      "severity": "critical",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "phase9_step2_quality_scope",
+      "claim_ids": [
+        "C1.8"
+      ],
+      "detail": "Evaluation uses 200 triples sampled from a shuffled training pool after only five epochs, not an official full-test convergence protocol.",
+      "evidence": [
+        "src/py/experiments/phase9_step2_benchmark.py"
+      ],
+      "severity": "critical",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "phase9_step3_quality_internal_consistency",
+      "claim_ids": [
+        "C1.5",
+        "C1.8"
+      ],
+      "detail": "CBP+GPU stores Hits@10=1.0 with MRR below 0.1, an impossible metric combination under the stated rank definitions.",
+      "evidence": [
+        "output/results/phase9_step3/CBP+GPU/summary.csv"
+      ],
+      "severity": "high",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "sampler_only_memory_measurement",
+      "claim_ids": [
+        "C1.6"
+      ],
+      "detail": "The validation CSV contains timing only. Phase 9 stores rounded whole-training peaks; sampler-only allocated/reserved deltas are absent.",
+      "evidence": [
+        "output/results/phase9_step2/summary.csv",
+        "output/results/gpu_sampler/validation.csv"
+      ],
+      "severity": "critical",
+      "status": "UNVERIFIABLE"
+    },
+    {
+      "check_id": "legacy_sampler_validator_interface",
+      "claim_ids": [
+        "C1.5",
+        "C1.6"
+      ],
+      "detail": "The legacy validator expects three return values and head/tail corruption, while the current sampler returns two tail-only tensors.",
+      "evidence": [
+        "src/py/experiments/validate_gpu_sampler_full.py",
+        "src/py/load/gpu_sampler.py"
+      ],
+      "severity": "high",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "bottleneck_component_denominator_alignment",
+      "claim_ids": [
+        "C1.9"
+      ],
+      "detail": "Phase 6 includes Collate/Tensor Construction, while Phase 8 records neg/fwd/bwd/opt under a different denominator.",
+      "evidence": [
+        "output/results/training_time_breakdown.md",
+        "output/results/unified_runtime/runtime_trace_GPU.csv"
+      ],
+      "severity": "critical",
+      "status": "FAIL"
+    }
+  ],
+  "claim_grades": [
+    {
+      "claim_id": "C1.1",
+      "grade": "B",
+      "paper_disposition": "excluded",
+      "paper_safe_wording": "Audit-only: the Phase 8 synthetic CPU validation sampler and the GPU tail-only sampler recorded different component timings under non-equivalent sampling procedures.",
+      "reason": "The full-precision trace is recomputable, but the Phase 8 CPU comparator simultaneously corrupts head and tail and is not the original Bernoulli/global-collision CPU sampler named by the claim.",
+      "remediation": "If a component-level speedup is required, benchmark the frozen original CPU sampler and GPU sampler with unrounded per-call traces, matched batches, explicit warm-up, and at least three independent runs."
+    },
+    {
+      "claim_id": "C1.2",
+      "grade": "C",
+      "paper_disposition": "hold_pending_reexperiment",
+      "paper_safe_wording": "Audit-only: the stored Phase 9 summaries report mean epoch times of 25.1s for BL and 4.4s for GPU.",
+      "reason": "The 25.1s and 4.4s summaries reproduce approximately 5.7x, but Phase 9 is a single run and Phase 10 repeat outputs were rounded before statistical analysis.",
+      "remediation": "Repeat matched BL/GPU runs at three or more seeds, retain full precision per-epoch timing, freeze warm-up handling, and report repeat-level speedup uncertainty."
+    },
+    {
+      "claim_id": "C1.3",
+      "grade": "C",
+      "paper_disposition": "hold_pending_reexperiment",
+      "paper_safe_wording": "Audit-only: the rounded final-epoch Phase 9 summaries contain 28.5ms for BL and 0.2ms for GPU.",
+      "reason": "The 142.5x ratio is computed from rounded final-epoch within-run batch standard deviations; per-step traces are absent, the short final batch is included, and independent-run uncertainty is missing.",
+      "remediation": "Record unrounded per-step timings and batch sizes for matched independent runs; report full-size-batch dispersion per run and between-run uncertainty separately."
+    },
+    {
+      "claim_id": "C1.4",
+      "grade": "B",
+      "paper_disposition": "excluded",
+      "paper_safe_wording": "Audit-only: Phase 8 recorded step times for two non-equivalent validation sampling paths.",
+      "reason": "The Phase 8 step-time trace is recomputable, but it uses the same synthetic CPU comparator as C1.1 and is not an original-CPU end-to-end comparison.",
+      "remediation": "Use the matched original CPU/GPU repeat protocol required by C1.2 and retain unrounded step-component traces."
+    },
+    {
+      "claim_id": "C1.5",
+      "grade": "C",
+      "paper_disposition": "excluded",
+      "paper_safe_wording": "No quality-equivalence or non-inferiority claim is allowed.",
+      "reason": "The Phase 9 Step 1 evaluator masks the target entity itself with infinity, producing meaningless MRR/Hits@10; two epochs cannot establish non-inferiority between semantically different samplers.",
+      "remediation": "Use a corrected filtered evaluator on the official test split, freeze a non-inferiority margin before running, train to convergence, and run sufficient independent seeds for the chosen test."
+    },
+    {
+      "claim_id": "C1.6",
+      "grade": "C",
+      "paper_disposition": "hold_pending_reexperiment",
+      "paper_safe_wording": "No sampler-only VRAM overhead claim is allowed.",
+      "reason": "The stored memory values are rounded whole-training peak allocations and do not isolate memory attributable to the sampler.",
+      "remediation": "Measure allocated and reserved VRAM immediately before and after sampler generation with reset peaks, matched batches, warm-up, and at least three independent runs."
+    },
+    {
+      "claim_id": "C1.7",
+      "grade": "C",
+      "paper_disposition": "hold_pending_reexperiment",
+      "paper_safe_wording": "Audit-only: Phase 9 rounded epoch summaries report GPU negative-sampling means between 2.9ms and 3.4ms.",
+      "reason": "The 2.9--3.4ms range is present in rounded epoch summaries, but unrounded per-step traces and repeat-level uncertainty are absent.",
+      "remediation": "Preserve unrounded per-step traces in the matched repeat protocol for C1.2/C1.3 and summarize steady-state full-size batches."
+    },
+    {
+      "claim_id": "C1.8",
+      "grade": "C",
+      "paper_disposition": "excluded",
+      "paper_safe_wording": "The sampled MRR values are retained only as audit history.",
+      "reason": "The values come from five training epochs and a fixed 200-sample held-out subset of shuffled training triples, not a full official test/convergence protocol.",
+      "remediation": "Only revisit quality after the corrected full-convergence protocol defined for C1.5; do not promote the current descriptive values."
+    },
+    {
+      "claim_id": "C1.9",
+      "grade": "C",
+      "paper_disposition": "hold_pending_reexperiment",
+      "paper_safe_wording": "Phase 6 and Phase 8 component shares may be described separately under their own measurement definitions, not as a pre/post shift.",
+      "reason": "Phase 6 includes Collate/Tensor Construction while the Phase 8 per-step trace uses different component boundaries and omits a comparable Collate field; the pre/post shares cannot be combined.",
+      "remediation": "Instrument CPU and GPU paths in one driver with identical, exhaustive timing regions whose shares sum to the same end-to-end denominator."
+    }
+  ],
+  "strict_a_rule": "A requires unrounded raw observations, a frozen and symmetric estimand, at least three independent repeats, repeat-level uncertainty, valid code, and paper wording limited to that protocol.",
+  "summary": {
+    "check_count": 20,
+    "check_status_counts": {
+      "FAIL": 12,
+      "PASS": 5,
+      "UNVERIFIABLE": 3
+    },
+    "claim_count": 9,
+    "grade_counts": {
+      "B": 2,
+      "C": 7
+    }
+  }
+}

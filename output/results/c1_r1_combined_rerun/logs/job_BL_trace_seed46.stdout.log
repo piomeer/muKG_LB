@@ -1,0 +1,6 @@
+[CostModel] cost_table built: mean=512.84ms, max=518.00ms, min=53.13ms, shape=(14505,)
+trace BL seed=46 epoch=0 time=26.548167s loss=1.052454
+trace BL seed=46 epoch=1 time=26.603315s loss=0.853964
+trace BL seed=46 epoch=2 time=26.002958s loss=0.724718
+trace BL seed=46 epoch=3 time=25.853515s loss=0.636774
+trace BL seed=46 epoch=4 time=25.789107s loss=0.573806

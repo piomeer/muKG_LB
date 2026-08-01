@@ -1,0 +1,6 @@
+[CostModel] cost_table built: mean=512.84ms, max=518.00ms, min=53.13ms, shape=(14505,)
+throughput GPU seed=43 epoch=0 time=4.393920s loss=0.977532
+throughput GPU seed=43 epoch=1 time=4.369382s loss=0.707044
+throughput GPU seed=43 epoch=2 time=4.362715s loss=0.547397
+throughput GPU seed=43 epoch=3 time=4.368412s loss=0.447646
+throughput GPU seed=43 epoch=4 time=4.363733s loss=0.380637
