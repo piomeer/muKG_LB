@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase 10 Step 3: Method Section Draft — 撰写论文 Method 章节初稿 (paper/draft/method.md)
+Phase X — Evidence Audit Template Generation（证据审计模板生成）。生成可复用的审计模板 docs/evidence_audit_template.md，定义审计层级 Level A/B/C/D、Claim 审计表、变量血缘表、跨 Claim 风险汇总矩阵，用于后续 Evidence Audit Parts 2–7。
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。batch_size=5000 OOM，安全使用 1000。
@@ -27,10 +27,15 @@ Phase 10 Step 3: Method Section Draft — 撰写论文 Method 章节初稿 (pape
 - **Figure X 框架架构图尚未生成，标注为占位符**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-✅ Method 章节 5 个子节全部完成 (161 行)；✅ 2 段算法伪代码 (FFD + GPU Sampler)；✅ 5 个 LaTeX 公式；⚠️ Figure X 架构图待生成；⚠️ MCP Memory 不可访问。
+已完成: docs/evidence_audit_template.md 生成，包含 4 个核心部分（审计层级定义、Claim 审计表 11 字段、变量血缘表、跨 Claim 风险矩阵）+ 使用说明。模板为空白可复用格式，不含具体审计结果。堵塞点: 无。注意: Evidence Audit Part 1 中发现 gpu_cost_microbench.py 路径未确认，将在 Part 2 中处理。
 
 ## 4. 卡点 (Blockers)
-进入 Phase 10 Step 4: Experiments Section Draft — 基于 evidence_matrix.md 和全部实验数据 (phase9_step2/3/4.5, phase10_step2_5) 撰写实验章节。
+1. 执行 Evidence Audit Part 2: 按模板填充 C1 (GPU Runtime) 审计结果
+2. 执行 Evidence Audit Part 3: 按模板填充 C2 (Unified Runtime Framework)
+3. 执行 Evidence Audit Part 4: 按模板填充 C3 (Offline Cost Model)
+4. 执行 Evidence Audit Part 5: 按模板填充 C4 (CBP)
+5. 确认 gpu_cost_microbench.py 是否存在
+6. 将累计变量血缘表在各 Part 中持续更新
 
 ## 5. 下一步计划 (Next Steps)
 1. [近] 同步代码到 pc-cluster: `rsync -av --delete ~/muKG_LB/ hma@192.168.100.104:~/muKG_LB/`
