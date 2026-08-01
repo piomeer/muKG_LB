@@ -2,10 +2,10 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase X — Evidence Audit Part 2（C1 GPU Runtime）已完成只读证据追溯、独立重算与 A/B/C/D 定级。下一步由用户决定：先执行 C1 补实验，或继续 Part 3（C2 架构审计）。
+Phase X — Evidence Audit Part 2（C1 GPU Runtime）与 C1-R1 v1.1 合并补跑均已完成。C1.2-R1、C1.3-R1、C1.7-R1 已升为 A；下一步进入 Part 3（C2 架构审计）。
 
 ## 2. 活跃约束提醒 (Active Constraints)
-- **显存红线**：严格控制 batch_size 与 neg_triple_num 的乘积，防止 OOM。batch_size=5000 OOM，安全使用 1000。
+- **显存红线**：batch_size=10000、neg_num=150 在 RTX 3070 8GB 上仍为已知 OOM 配置。C1-R1 preflight 证明 batch_size=5000、neg_num=150 的完整 BL/GPU step 在当前环境峰值 reserved 约 44%，但其他代码路径仍须独立预检。
 - **性能红线**：重构代码时，严禁在 DataLoader 的高频循环中使用纯 Python 的 O(n) 操作（如 for 循环装配列表、重复构建 set）。GPU 负采样必须全向量化。
 - **§0.6 Artifact Truth Source：GPU 实验的唯一可信来源为 stdout/stderr/TensorBoard/WandB/CSV/JSON/实验日志/checkpoint/用户返回等真实 Artifact**  *(自动映射自 L1 宪法)*
 - **CBP 架构层定义暂未冻结：story freeze 为四层，Method draft 与 runtime spec 各给出不同五层边界；C2.1 保持 HOLD，Part 3 须统一论文正式定义并区分已实现模块与设计概念。**
@@ -25,19 +25,19 @@ Phase X — Evidence Audit Part 2（C1 GPU Runtime）已完成只读证据追溯
 - **Part 1 的 ACTIVE/HOLD/RETRACTED 是工作流状态，不是 A/B/C/D 可信度结论。**
 - **C1 严格 A 级门槛：未舍入原始观测、统一且对称的 estimand、至少 3 次独立重复、重复间不确定性、有效代码与协议限定措辞必须同时通过。**
 - **Phase 8 的 CPU comparator 是 synthetic validation sampler（同时替换 head/tail、无全局碰撞检查），不是原始 CPU Bernoulli/global-collision sampler；198×/8.5× 已退出论文证据。**
-- **Phase 9 的 25.1s/4.4s 可从舍入 summary 重现为 5.7045×，但当前定级为 C，未经合格补跑不得作为已验证 headline。**
+- **Phase 9 的 25.1s/4.4s 与 142× 已被 C1-R1 替换，不再作为论文定稿值。新值为 6.013× [5.944, 6.084] 与 87.88× [72.92, 105.91] standard-deviation compression。**
 - **C1 不主张 CPU/GPU 质量等价或 non-inferiority；C1.5/C1.8 均退出论文正文。**
 - **Method 章节不含具体实验结果数值（留给 Experiments 章节），仅提及设计预期和定性关系**  *(自动映射自 L1 宪法)*
 - **算法伪代码使用 algorithm/algorithmic 环境，便于后续 LaTeX 转换**  *(自动映射自 L1 宪法)*
 - **Figure X 框架架构图尚未生成，标注为占位符**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-已完成 `docs/evidence_audit_part2_c1_gpu_runtime.md` v1.0 与可复算审计包。C1.1–C1.9 最终定级为 0 A、2 B（C1.1/C1.4）、7 C、0 D。审计脚本核对 29 个来源并生成 26 条派生指标与 20 项机器检查；连续两次运行输出哈希一致。确认 Phase 8 的 198×/8.5× comparator 无效；Phase 9 5.7× 缺少未舍入合格重复；142× 是舍入后的单 epoch within-run dispersion 比值；sampler-only VRAM 与统一口径 bottleneck shift 均无现成证据。
+已完成 `docs/evidence_audit_part2_c1_gpu_runtime.md` v1.1 与 C1-R1 原始证据包。六个配对 seeds、throughput/trace 独立进程、24 个主 jobs、6 个 compute-only 诊断均完成。C1.2-R1 端到端 speedup=6.013× [5.944, 6.084]；C1.3-R1 full-batch within-epoch standard-deviation compression=87.88× [72.92, 105.91]；C1.7-R1 GPU neg time=3.0026ms（sample SD=0.0229ms，95% CI [2.9786, 3.0266]）。Part 2 最终为 3 A、2 B、4 C、0 D。seed45 throughput GPU attempt1 因 warm-up 前 thermal 标志被排除，完整 GPU→BL pair 按协议仅补跑一次并通过；失败 artifact 保留。
 
 ## 4. 卡点 (Blockers)
-无文档执行阻塞。论文的 C1 性能 headline 当前被 C 级证据阻塞；升级到 A 需要 matched BL/GPU、未舍入逐 step/epoch 数据、明确 warm-up/短 batch 规则与至少 3 次独立重复。任何补实验仍需用户另行批准。C2.1 架构层边界留待 Part 3 正式冻结。
+C1 性能 headline 不再被证据等级阻塞，但必须披露 CPU Bernoulli/global-collision 与 GPU tail-only/batch-tail-filter 的语义差异，且不得推导质量等价。C1.6 sampler-only memory 与 C1.9 统一瓶颈占比仍为 C。C2.1 架构层边界留待 Part 3 正式冻结。
 
 ## 5. 下一步计划 (Next Steps)
-1. 与用户复核 Part 2 的 0 A / 2 B / 7 C 结论。
-2. 决定先设计并执行 C1.2/C1.3/C1.7 合并补跑协议，还是继续 Part 3 — C2 Unified Runtime Framework 审计。
-3. 未经合格补跑，不把 5.7×、142×或 sampler-only memory 写成已验证论文结论。
+1. 进入 Part 3 — C2 Unified Runtime Framework 审计，先冻结四层/五层正式边界。
+2. 从 C1-R1 派生 CSV 重新生成论文 Fig.5/Fig.6 与表格；不得复用 hardcoded 5.7×/142×。
+3. C1.6 与 C1.9 仅在论文确有需要时另行设计隔离测量；C1.5/C1.8 继续退出正文。

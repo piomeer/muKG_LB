@@ -1,11 +1,11 @@
 # Evidence Audit Part 2 — C1 GPU Runtime
 
-**Version**: 1.0
+**Version**: 1.1
 **Date**: 2026-08-01
-**Status**: Complete
+**Status**: Complete; C1-R1 replacement experiment incorporated
 **Scope**: C1.1–C1.9 from `docs/evidence_audit_part1_claim_inventory.md`
-**Execution Boundary**: Existing artifacts and static source inspection only; no
-training or GPU experiment was run
+**Execution Boundary**: v1.0 audited existing artifacts only. v1.1 adds the
+authorized C1-R1 v1.1 replacement experiment on node4 / RTX 3070.
 
 ---
 
@@ -13,28 +13,29 @@ training or GPU experiment was run
 
 | Grade | Count | Claims |
 |-------|------:|--------|
-| A (Verified) | 0 | — |
+| A (Verified) | 3 | C1.2-R1, C1.3-R1, C1.7-R1 |
 | B (Re-analysis) | 2 | C1.1, C1.4 |
-| C (Re-experiment) | 7 | C1.2, C1.3, C1.5, C1.6, C1.7, C1.8, C1.9 |
+| C (Re-experiment) | 4 | C1.5, C1.6, C1.8, C1.9 |
 | D (Invalid) | 0 | — |
 
-No current C1 claim satisfies the frozen publication-level A standard:
-unrounded raw observations, a symmetric and frozen estimand, at least three
-independent repeats, repeat-level uncertainty, valid generating code, and
-paper wording limited to the audited protocol.
+C1.2-R1, C1.3-R1, and C1.7-R1 satisfy the frozen publication-level A
+standard: integer-nanosecond raw observations, symmetric frozen estimands, six
+independent paired seeds, repeat-level uncertainty, complete generating code,
+and protocol-limited paper wording.
 
 The main conclusions are:
 
 1. **Phase 8's 198×/8.5× results are removed from paper evidence.** The CPU
    comparator is a synthetic validation function that simultaneously replaces
    head and tail and does not perform the original global collision check.
-2. **The Phase 9 summaries do contain 25.1s and 4.4s, yielding 5.7045×.**
-   This remains a C-level headline because the Phase 9 result is a single run
-   and the Phase 10 repeats discarded full precision before statistical
-   analysis.
-3. **The reported 142× is not a repeat-level variance result.** It is
+2. **C1-R1 replaces the historical 5.7× headline with 6.013×.** The geometric
+   mean of six paired end-to-end speedups is 6.013×, with a 95% log-scale
+   t interval of [5.944, 6.084].
+3. **The historical 142× remains invalid, but C1.3-R1 supplies a valid
+   replacement.** The old result is
    28.5/0.2=142.5 from two rounded, final-epoch, within-run population standard
-   deviations. Rounding alone permits a ratio from 113.8× to 190.3×.
+   deviations. C1.3-R1 instead estimates full-batch standard-deviation
+   compression at 87.88× [72.92, 105.91] across six paired runs.
 4. **No quality-equivalence claim is allowed.** Phase 9 Step 1 has a broken
    evaluator; the later 200-sample values are not a full official-test or
    convergence protocol.
@@ -49,6 +50,10 @@ The main conclusions are:
 - Recomputed metrics: `output/results/evidence_audit_part2/recomputed_metrics.csv`
 - Machine-readable checks and grades:
   `output/results/evidence_audit_part2/audit_checks.json`
+- C1-R1 runner: `src/py/experiments/c1_r1_combined_rerun.py`
+- C1-R1 analyzer: `scripts/analyze_c1_r1.py`
+- C1-R1 frozen protocol, raw traces, telemetry, hashes, and results:
+  `output/results/c1_r1_combined_rerun/`
 
 ---
 
@@ -78,6 +83,7 @@ The main conclusions are:
 | Phase 9 Step 3 | Ten per-epoch summaries per configuration | Timing 0.1ms/0.1s | No per-step trace; `numpy.std(..., ddof=0)` includes the final short batch |
 | Phase 10 repeats | Three CPU and five GPU summary rows | Timing 0.1ms/0.1s | Values rounded before CI/std; neg/step metrics aggregate all epochs while epoch time is the final epoch |
 | Phase 6 profile | One aggregate component table | Mixed rounded | Includes Collate and Tensor Construction; denominator differs from Phase 8 |
+| C1-R1 v1.1 | Six paired seeds; five epochs/job; throughput and trace passes in independent processes | Integer ns | Preflight passed; 24 primary jobs completed; one thermal-marked throughput attempt was retained and its full pair rerun once under the frozen infrastructure-failure rule |
 
 ### 2.3 Figure Lineage
 
@@ -115,53 +121,53 @@ The main conclusions are:
 | Fix Recommendation | If a component result is needed, run the frozen original CPU and GPU samplers on matched batches with unrounded traces, explicit warm-up, and ≥3 independent runs |
 | Responsible / Status | Codex; audit closed; claim excluded from paper |
 
-### C1.2 — Phase 9 End-to-End Epoch Speedup
+### C1.2-R1 — Replacement End-to-End Epoch Speedup
 
 | Field | Audit Finding |
 |-------|---------------|
-| Claim ID | C1.2 |
+| Claim ID | C1.2-R1; replacement child of inventory Claim C1.2 |
 | Inventory Status | ACTIVE |
-| Claim Statement | Under Phase 9 Step 2, GPU reports 25.1s → 4.4s average epoch time (5.7×) relative to BL |
+| Claim Statement | Under C1-R1 v1.1, the redesigned GPU runtime path accelerates end-to-end training epochs relative to BL |
 | Claim Type | End-to-end performance |
-| Frozen Protocol | FB15k-237; held-out 5k shuffled training triples; TransE dim=400; RandomSorter+ChunkPacker; batch_size=5000; neg_num=150; five epochs per configuration |
-| Supporting Figure/Table | Fig.5 and Table 2; Fig.5 values are hardcoded |
-| Primary Raw Evidence | Per-configuration Phase 9 Step 2 epoch summaries; no unrounded per-step/epoch timing trace |
-| Derived Evidence | Mean of stored epochs: BL=25.1s, GPU=4.4s, ratio=5.704545×; possible ratio from 0.1s rounding alone is 5.6292×–5.7816× |
-| Supporting Script | `src/py/experiments/phase9_step2_benchmark.py`; Phase 10 is context only |
-| Key Variables | `epoch_time_s`, configuration, run/seed, sampler semantics |
-| Variable Trustworthiness | Direct epoch observations exist but were rounded before storage; Phase 10 repeat timings were also rounded before statistics |
-| Metric / Estimand Definition | Mean of five rounded epoch times within one Phase 9 execution; not a mean across independent runs |
-| Statistical Method Audit | Does not meet the ≥3 independent matched-repeat rule. Phase 10 stores 3 BL and 5 GPU summaries and yields 5.8258×, but lost precision prevents valid CI/zero-variance claims |
-| Code Audit | `hash(label)` is process-dependent; the Phase 9 driver does not set `torch.manual_seed()` before model initialization |
-| Semantic / Fairness Audit | Phase 9 correctly uses the original CPU implementation for BL and the frozen tail-only GPU design, but their semantic difference must be disclosed |
-| Conclusion | **C — Re-experiment** |
-| Paper-safe Wording | Audit only: the stored Phase 9 summaries report BL=25.1s and GPU=4.4s |
-| Fix Recommendation | Run matched BL/GPU at ≥3 seeds, retain full-precision per-epoch timing, freeze warm-up, compute run-level speedups, and report repeat-level uncertainty |
-| Responsible / Status | Codex; audit closed; headline held pending re-experiment |
+| Frozen Protocol | FB15k-237; Phase-9 loader lineage; Random(42) held-out 5,000; training_set_size=267,115; TransE dim=400; RandomSorter+ChunkPacker; batch_size=5,000; neg_num=150; seeds 42–47; five epochs; three disposable warm-up steps; independent process per job |
+| Supporting Figure/Table | `analysis/paired_metrics.csv`; the old hardcoded Fig.5 must be regenerated |
+| Primary Raw Evidence | 60 unrounded `epoch_time_ns` observations under `jobs/throughput_*`; per-job telemetry, loss, manifest, and SHA-256 records |
+| Derived Evidence | Run means: BL=26.2785±0.2744s and GPU=4.36981±0.00489s across six runs (sample SD). Paired speedups=5.982, 6.047, 5.969, 6.103, 5.922, 6.059 |
+| Supporting Script | `src/py/experiments/c1_r1_combined_rerun.py`; `scripts/rerun_c1_r1_pair.py`; `scripts/analyze_c1_r1.py` |
+| Key Variables | Integer `epoch_time_ns`, configuration, paired seed, attempt, sampler semantics |
+| Variable Trustworthiness | Throughput epochs synchronize only at epoch boundaries; timer includes scheduling and the final partial batch; loss is read once per epoch, outside the timed boundary |
+| Metric / Estimand Definition | For each seed, mean of five end-to-end epoch times for BL divided by the corresponding GPU mean; geometric mean across six paired ratios |
+| Statistical Method Audit | Two-sided 95% t interval on log paired ratios, df=5: **6.013× [5.944, 6.084]**; lower bound exceeds 1 |
+| Code Audit | Python, NumPy, Torch, and CUDA seeds are frozen; each job is a separate process; raw timing is not rounded before analysis |
+| Semantic / Fairness Audit | BL uses original CPU Bernoulli/global-collision sampling; GPU is tail-only with batch-level tail filtering. The result compares declared runtime paths and does not establish sampling-quality equivalence |
+| Conclusion | **A — Verified** |
+| Paper-safe Wording | On FB15k-237 with TransE, batch_size=5,000 and 150 negatives, the declared GPU runtime path achieved a 6.01× paired geometric-mean end-to-end epoch speedup over BL (95% CI 5.94×–6.08×; six seeds) |
+| Fix Recommendation | None for this frozen estimand; regenerate the main-results figure/table directly from `analysis/paired_metrics.csv` |
+| Responsible / Status | Codex; replacement experiment and audit closed |
 
-### C1.3 — Phase 9 Negative-Sampling Dispersion Ratio
+### C1.3-R1 — Full-Batch Negative-Time Dispersion Compression
 
 | Field | Audit Finding |
 |-------|---------------|
-| Claim ID | C1.3 |
+| Claim ID | C1.3-R1; replacement child of inventory Claim C1.3 |
 | Inventory Status | ACTIVE |
-| Claim Statement | Final-epoch within-epoch neg-time std is 28.5ms for BL and 0.2ms for GPU (reported 142×) |
+| Claim Statement | The redesigned GPU runtime path compresses full-batch within-epoch negative-time standard deviation relative to BL |
 | Claim Type | Runtime dispersion |
-| Frozen Protocol | Phase 9 Step 3; ten epochs; batch_size=5000; neg_num=150; BL vs GPU; final epoch selected after observing all epochs |
-| Supporting Figure/Table | Fig.6 and Table 3; Fig.6 reads rounded final summary rows |
-| Primary Raw Evidence | No per-step Phase 9 trace exists |
-| Derived Evidence | Final summary ratio 28.5/0.2=142.5×; rounding interval 113.8×–190.3333×; mean of the ten stored epoch stds is 30.31/0.37=81.9189× |
-| Supporting Script | `src/py/experiments/phase9_step3_ablation.py` |
-| Key Variables | `neg_time_std_ms`, `neg_times`, final epoch, batch length |
-| Variable Trustworthiness | Stored at 0.1ms; denominator is only 0.2ms; batch length is absent |
-| Metric / Estimand Definition | `numpy.std(neg_times)` with `ddof=0` across batches inside one epoch, including the short final batch |
-| Statistical Method Audit | Batch dispersion is not repeat uncertainty; final-epoch selection and rounding make the ratio unstable; no raw data exist to remove the partial batch |
-| Code Audit | Computation is `np.std` over every batch in the epoch and writes only a one-decimal summary |
-| Semantic / Fairness Audit | Different CPU/GPU samplers are acceptable only as declared runtime paths; “eliminates variance” would overgeneralize |
-| Conclusion | **C — Re-experiment** |
-| Paper-safe Wording | Audit only: rounded final-epoch summaries contain BL=28.5ms and GPU=0.2ms |
-| Fix Recommendation | Save unrounded per-step time and batch size for matched repeats; compute full-size-batch within-run dispersion per run and between-run uncertainty separately |
-| Responsible / Status | Codex; audit closed; 142× paper claim held |
+| Frozen Protocol | C1-R1 trace pass; same data/model/config pairs as C1.2-R1; synchronization at every component boundary |
+| Supporting Figure/Table | `analysis/run_level_metrics.csv` and `analysis/paired_metrics.csv`; old Fig.6 is not evidence for this replacement |
+| Primary Raw Evidence | 3,240 unrounded step rows (270/job × 12 trace jobs), including actual batch size, partial flag, component timings, total, and residual |
+| Derived Evidence | Mean run-level epoch population SD: BL=3.1672±0.4358ms; GPU=0.03629±0.00702ms. Paired compression ratios range from 64.40× to 103.80× |
+| Supporting Script | C1-R1 runner and analyzer |
+| Key Variables | `neg_time_ns`, `batch_size_actual`, `is_partial`, epoch, paired seed |
+| Variable Trustworthiness | Primary filter is hard-coded as `is_partial == False AND batch_size_actual == 5000`; every epoch asserts 53 full batches and one 2,115-example partial batch |
+| Metric / Estimand Definition | Within each epoch, population SD (`ddof=0`) across 53 full batches; each run is the mean of its five epoch SDs; paired BL/GPU run ratio |
+| Statistical Method Audit | Geometric mean and two-sided 95% log-scale t interval across six paired ratios: **87.88× [72.92, 105.91]** |
+| Code Audit | Analyzer verifies component sums, timing residuals, row counts, and the full/partial filter before calculating the estimand |
+| Semantic / Fairness Audit | This is standard-deviation/dispersion compression, not variance compression and not repeat-level uncertainty; sampler semantics remain explicitly different |
+| Conclusion | **A — Verified** |
+| Paper-safe Wording | Across six paired seeds, the declared GPU path reduced full-batch within-epoch negative-sampling time dispersion by 87.9× in standard-deviation terms (95% CI 72.9×–105.9×) |
+| Fix Recommendation | Replace the old 142× figure and never label this ratio as variance compression |
+| Responsible / Status | Codex; replacement experiment and audit closed |
 
 ### C1.4 — Phase 8 Recorded Step-Time Speedup
 
@@ -235,29 +241,29 @@ The main conclusions are:
 | Fix Recommendation | Reset peaks after warm-up, measure allocated and reserved memory immediately around sampler generation on matched batches, and repeat ≥3 times |
 | Responsible / Status | Codex; audit closed; measurement open |
 
-### C1.7 — GPU Negative-Sampling Mean Range
+### C1.7-R1 — GPU Full-Batch Negative-Sampling Mean
 
 | Field | Audit Finding |
 |-------|---------------|
-| Claim ID | C1.7 |
+| Claim ID | C1.7-R1; replacement child of inventory Claim C1.7 |
 | Inventory Status | ACTIVE |
-| Claim Statement | Phase 9 reports GPU neg-sampling means of 2.9–3.4ms across ten epochs, with post-warm-up epochs near 2.9–3.2ms |
+| Claim Statement | Quantify the redesigned GPU path's full-batch negative-sampling mean and repeat-level stability |
 | Claim Type | Component performance / stability |
-| Frozen Protocol | Phase 9 Step 3 GPU configuration; ten epochs; batch_size=5000; neg_num=150 |
-| Supporting Figure/Table | Fig.6 and Table 3 |
-| Primary Raw Evidence | No per-step trace |
-| Derived Evidence | Stored epoch-summary minimum/maximum=2.9/3.4ms; after excluding epoch 0=2.9/3.2ms |
-| Supporting Script | `src/py/experiments/phase9_step3_ablation.py` |
-| Key Variables | `neg_time_mean_ms`, epoch, warm-up, batch length |
-| Variable Trustworthiness | Values are rounded to 0.1ms and include the final partial batch |
-| Metric / Estimand Definition | Range of ten within-run epoch means; “post-warm-up” is a sensitivity label, not a pre-frozen rule |
-| Statistical Method Audit | Ten epochs are not ten independent runs; no unrounded uncertainty |
-| Code Audit | Per-step data are discarded after each rounded epoch row is written |
-| Semantic / Fairness Audit | Valid only for the redesigned GPU tail-only path under this protocol |
-| Conclusion | **C — Re-experiment** |
-| Paper-safe Wording | Audit only: rounded Phase 9 epoch summaries range from 2.9ms to 3.4ms |
-| Fix Recommendation | Retain unrounded per-step traces in the matched repeat protocol for C1.2/C1.3 and summarize steady-state full-size batches |
-| Responsible / Status | Codex; audit closed; claim held |
+| Frozen Protocol | C1-R1 trace GPU jobs; six seeds; five measured epochs; 53 full batches per epoch; batch_size=5,000; neg_num=150; disposable warm-up |
+| Supporting Figure/Table | `analysis/run_level_metrics.csv` and `analysis/summary.json` |
+| Primary Raw Evidence | 1,590 GPU full-batch `neg_time_ns` observations after the frozen filter |
+| Derived Evidence | Six run means: 2.9995, 2.9990, 3.0325, 2.9630, 3.0115, and 3.0103ms |
+| Supporting Script | C1-R1 runner and analyzer |
+| Key Variables | `neg_time_ns`, seed, epoch, batch size, partial flag |
+| Variable Trustworthiness | GPU readiness is enforced by synchronization at the end of the timing region; partial batches are excluded by two explicit predicates |
+| Metric / Estimand Definition | Mean full-batch negative time within each GPU run, followed by arithmetic mean and repeat-level sample SD across six independent runs |
+| Statistical Method Audit | Six-run mean **3.0026ms**, sample SD **0.0229ms**, two-sided 95% t interval **[2.9786, 3.0266]ms** |
+| Code Audit | All raw step rows, batch identities, loss diagnostics, telemetry, and hashes passed machine checks |
+| Semantic / Fairness Audit | Valid only for the redesigned tail-only, batch-tail-filtered GPU path under C1-R1 |
+| Conclusion | **A — Verified** |
+| Paper-safe Wording | The redesigned GPU sampler averaged 3.003ms per full 5,000-example batch (six-run sample SD 0.023ms; 95% CI 2.979–3.027ms) |
+| Fix Recommendation | None for this frozen component estimand |
+| Responsible / Status | Codex; replacement experiment and audit closed |
 
 ### C1.8 — Five-Epoch Sampled Quality Observation
 
@@ -315,9 +321,9 @@ The main conclusions are:
 |----------|--------|--------|-------------------------|-------------------|--------------|
 | `neg_time_ms` | Phase 8 synchronized trace | C1.1, C1.9 | CPU/GPU per-step full precision | Clear within Phase 8 only | Comparator invalid for original-CPU claim |
 | `total_step_ms` | Sum of Phase 8 neg/fwd/bwd/opt | C1.4, C1.9 | Per-step full precision | Incomplete end-to-end denominator | Cannot represent Collate-inclusive step |
-| `epoch_time_s` | Phase 9/10 runner | C1.2 | 25.1s and 4.4s in Phase 9 | Clear, but stored at 0.1s | Repeat uncertainty lost |
-| `neg_time_std_ms` | `np.std(neg_times)`, `ddof=0` | C1.3 | 28.5ms and 0.2ms final epoch | Clear formula; mixed batch sizes | Not repeat-level uncertainty |
-| `neg_time_mean_ms` | Phase 9 epoch summary | C1.7 | 2.9–3.4ms | Rounded; raw steps absent | Requires re-experiment |
+| `epoch_time_ns` | C1-R1 throughput pass | C1.2-R1 | BL run mean 26.2785s; GPU 4.36981s | Integer ns; includes scheduler and partial batch | A-level paired repeat evidence |
+| `neg_time_ns` full-batch epoch SD | C1-R1 trace pass, `ddof=0` | C1.3-R1 | BL run-level mean 3.1672ms; GPU 0.03629ms | Explicit full-batch filter | A-level dispersion evidence |
+| `neg_time_ns` full-batch run mean | C1-R1 trace pass | C1.7-R1 | Six-run mean 3.0026ms | Integer ns; GPU readiness synchronized | A-level component evidence |
 | `mrr` / `hits10` | Phase 9 evaluators | C1.5, C1.8 | Step 1 invalid; Step 2 sampled | Protocol-dependent | No paper quality claim |
 | `gpu_mem_mb` | Whole-training `max_memory_allocated()` | C1.6 | 5818–5820MiB | Not sampler-specific | Required estimand missing |
 | `pct` | Phase 6 aggregate profile | C1.9 | Negative Sampling=35.70% | Clear only in Phase 6 denominator | Not comparable to Phase 8 |
@@ -329,12 +335,12 @@ The main conclusions are:
 | Claim | Grade | Paper Risk | Required Action |
 |-------|-------|------------|-----------------|
 | C1.1 | B | High | Remove 198× from paper; rerun only if component result is required |
-| C1.2 | C | High | Matched unrounded CPU/GPU repeat benchmark |
-| C1.3 | C | High | Per-step, per-batch-size traces plus independent repeats |
+| C1.2-R1 | A | Low under frozen runtime-path wording | Regenerate result assets from C1-R1 derived CSV |
+| C1.3-R1 | A | Medium if mislabeled as variance | Use standard-deviation/dispersion wording and the full-batch estimand |
 | C1.4 | B | High | Remove Phase 8 8.5× from paper |
 | C1.5 | C | High | No quality claim; corrected convergence study only if later required |
 | C1.6 | C | Medium | Isolated sampler memory measurement |
-| C1.7 | C | Medium | Fold into the matched C1.2/C1.3 repeat protocol |
+| C1.7-R1 | A | Low under frozen GPU-path wording | Use repeat-level mean, sample SD, and CI |
 | C1.8 | C | High | Exclude sampled values from manuscript |
 | C1.9 | C | High | One-driver exhaustive component profiling |
 
@@ -342,19 +348,17 @@ The main conclusions are:
 
 | Paper Section | Impact |
 |---------------|--------|
-| Abstract / Introduction headline | 5.7× must remain on hold until the C1.2 replacement protocol reaches A |
+| Abstract / Introduction headline | Historical 5.7× is superseded; 6.01× [5.94, 6.08] is eligible with the declared runtime-path wording |
 | Method §3.4 GPU Runtime | Design and semantic description may remain; no quality-equivalence wording |
-| Experiments §4.2 Main Results | 198× and 8.5× removed; Fig.5 must be regenerated from audited data after rerun |
-| Experiments §4.3 Ablation | 142× cannot be presented as repeat-level variance compression |
+| Experiments §4.2 Main Results | 198× and 8.5× remain removed; regenerate Fig.5 from C1-R1 paired data |
+| Experiments §4.3 Ablation | Replace 142× with 87.9× [72.9, 105.9] standard-deviation compression |
 | Experiments §4.5 Bottleneck Shift | Pre/post percentage chart blocked until one-denominator profiling exists |
 
 ---
 
 ## 6. Remediation Order
 
-1. **C1.2/C1.3/C1.7 combined protocol**: matched BL/GPU runs, ≥3 seeds,
-   unrounded per-step and per-epoch data, explicit batch length and warm-up,
-   run-level speedup and dispersion uncertainty.
+1. **C1.2-R1/C1.3-R1/C1.7-R1**: closed at A under C1-R1 v1.1.
 2. **C1.6 memory isolation**: add allocated/reserved/peak measurements around
    sampler generation within the same matched protocol.
 3. **C1.9 unified profiling**: use identical exhaustive timing regions for both
@@ -362,7 +366,12 @@ The main conclusions are:
 4. **C1.5 quality**: remains out of scope unless the paper later chooses to
    pursue a pre-registered non-inferiority claim.
 
-No remediation experiment was authorized or executed in Part 2.
+C1-R1 was subsequently authorized and executed. Preflight and all selected
+jobs passed. The first throughput GPU attempt for seed 45 recorded
+`sw_thermal_slowdown=Active` before warm-up; no measured-epoch snapshot was
+active. The attempt was nevertheless excluded under the frozen rule, its
+artifacts were retained, and the complete seed-45 throughput GPU→BL pair was
+rerun once. Attempt 2 passed every check and is the selected evidence.
 
 ---
 

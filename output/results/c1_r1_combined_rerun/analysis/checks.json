@@ -1,0 +1,207 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "check": "job_throughput_BL_seed42_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed42_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_BL_seed43_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed43_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_BL_seed44_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed44_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_BL_seed45_attempt2",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed45_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_BL_seed46_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed46_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_BL_seed47_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_BL_seed47_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed42_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed42_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed43_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed43_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed44_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed44_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed45_attempt2",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed45_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed46_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed46_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_throughput_GPU_seed47_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 0,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "job_trace_GPU_seed47_attempt1",
+      "epoch_rows": 5,
+      "other_compute_process": false,
+      "passed": true,
+      "step_rows": 270,
+      "thermal_slowdown": false
+    },
+    {
+      "check": "excluded_throughput_GPU_seed45_attempt1",
+      "passed": true,
+      "reason": "explicit thermal slowdown telemetry; one paired retry allowed"
+    },
+    {
+      "check": "stored_artifact_hashes",
+      "errors": [],
+      "passed": true
+    }
+  ]
+}

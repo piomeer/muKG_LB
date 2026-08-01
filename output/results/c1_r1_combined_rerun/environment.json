@@ -1,0 +1,33 @@
+{
+  "captured_time_ns": 1785574239752265079,
+  "cuda_available": true,
+  "gpu": {
+    "compute_capability": "8.6",
+    "name": "NVIDIA GeForce RTX 3070",
+    "total_memory_mib_reported_by_nvidia_smi": 8192.0
+  },
+  "historical_environment_difference": "This rerun uses the currently installed PyTorch/CUDA stack; historical Phase 9 documentation referenced an older stack. Results replace, not pool with, historical rounded observations.",
+  "hostname": "node4",
+  "platform": "Linux-5.15.0-139-generic-x86_64-with-glibc2.31",
+  "protocol_id": "C1-R1-v1.1",
+  "python": "3.13.12 | packaged by Anaconda, Inc. | (main, Feb 24 2026, 16:13:31) [GCC 14.3.0]",
+  "pytorch": "2.7.1+cu118",
+  "raw_command_captures": {
+    "nvidia_smi_driver": {
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "Sat Aug  1 17:50:39 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 550.67                 Driver Version: 550.67         CUDA Version: 12.4     |\n|-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 3070        Off |   00000000:01:00.0 Off |                  N/A |\n|  0%   38C    P8             18W /  220W |      20MiB /   8192MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n                                                                                         \n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A      1177      G   /usr/lib/xorg/Xorg                              9MiB |\n|    0   N/A  N/A      1311      G   /usr/bin/gnome-shell                            3MiB |\n+-----------------------------------------------------------------------------------------+\n"
+    },
+    "nvidia_smi_identity": {
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "NVIDIA GeForce RTX 3070, 8192, 8.6\n"
+    },
+    "nvidia_smi_q_clock_power_temperature": {
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "\n==============NVSMI LOG==============\n\nTimestamp                                 : Sat Aug  1 17:50:39 2026\nDriver Version                            : 550.67\nCUDA Version                              : 12.4\n\nAttached GPUs                             : 1\nGPU 00000000:01:00.0\n    Temperature\n        GPU Current Temp                  : 38 C\n        GPU T.Limit Temp                  : N/A\n        GPU Shutdown Temp                 : 98 C\n        GPU Slowdown Temp                 : 95 C\n        GPU Max Operating Temp            : 93 C\n        GPU Target Temperature            : 83 C\n        Memory Current Temp               : N/A\n        Memory Max Operating Temp         : N/A\n    GPU Power Readings\n        Power Draw                        : 18.70 W\n        Current Power Limit               : 220.00 W\n        Requested Power Limit             : 220.00 W\n        Default Power Limit               : 220.00 W\n        Min Power Limit                   : 100.00 W\n        Max Power Limit                   : 240.00 W\n    Power Samples\n        Duration                          : 81.08 sec\n        Number of Samples                 : 119\n        Max                               : 53.92 W\n        Min                               : 18.59 W\n        Avg                               : 19.47 W\n    GPU Memory Power Readings \n        Power Draw                        : N/A\n    Module Power Readings\n        Power Draw                        : N/A\n        Current Power Limit               : N/A\n        Requested Power Limit             : N/A\n        Default Power Limit               : N/A\n        Min Power Limit                   : N/A\n        Max Power Limit                   : N/A\n    Clocks\n        Graphics                          : 210 MHz\n        SM                                : 210 MHz\n        Memory                            : 405 MHz\n        Video                             : 555 MHz\n    Applications Clocks\n        Graphics                          : N/A\n        Memory                            : N/A\n    Default Applications Clocks\n        Graphics                          : N/A\n        Memory                            : N/A\n    Deferred Clocks\n        Memory                            : N/A\n    Max Clocks\n        Graphics                          : 2100 MHz\n        SM                                : 2100 MHz\n        Memory                            : 7001 MHz\n        Video                             : 1950 MHz\n    Max Customer Boost Clocks\n        Graphics                          : N/A\n    SM Clock Samples\n        Duration                          : Not Found\n        Number of Samples                 : Not Found\n        Max                               : Not Found\n        Min                               : Not Found\n        Avg                               : Not Found\n    Memory Clock Samples\n        Duration                          : Not Found\n        Number of Samples                 : Not Found\n        Max                               : Not Found\n        Min                               : Not Found\n        Avg                               : Not Found\n    Clock Policy\n        Auto Boost                        : N/A\n        Auto Boost Default                : N/A\n\n"
+    }
+  },
+  "torch_cuda_runtime": "11.8"
+}

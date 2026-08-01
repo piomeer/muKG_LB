@@ -1,0 +1,6 @@
+[CostModel] cost_table built: mean=512.84ms, max=518.00ms, min=53.13ms, shape=(14505,)
+trace GPU seed=46 epoch=0 time=4.443344s loss=1.005063
+trace GPU seed=46 epoch=1 time=4.448541s loss=0.721143
+trace GPU seed=46 epoch=2 time=4.449775s loss=0.554900
+trace GPU seed=46 epoch=3 time=4.466777s loss=0.452540
+trace GPU seed=46 epoch=4 time=4.475038s loss=0.384258

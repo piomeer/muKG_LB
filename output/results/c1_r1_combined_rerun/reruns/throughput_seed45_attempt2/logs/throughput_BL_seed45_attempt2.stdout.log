@@ -1,0 +1,6 @@
+[CostModel] cost_table built: mean=512.84ms, max=518.00ms, min=53.13ms, shape=(14505,)
+throughput BL seed=45 epoch=0 time=26.716748s loss=1.037935
+throughput BL seed=45 epoch=1 time=26.575448s loss=0.845260
+throughput BL seed=45 epoch=2 time=26.571273s loss=0.719503
+throughput BL seed=45 epoch=3 time=26.725954s loss=0.633870
+throughput BL seed=45 epoch=4 time=26.483058s loss=0.571940

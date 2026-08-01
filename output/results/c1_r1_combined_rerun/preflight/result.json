@@ -1,0 +1,83 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "baseline_allocated_bytes": 0,
+      "baseline_reserved_bytes": 0,
+      "check": "P1_gpu_sampler_only",
+      "delta_peak_allocated_bytes": 56082432,
+      "delta_peak_reserved_bytes": 62914560,
+      "device": "cuda:0",
+      "elapsed_ns": 2651485,
+      "neg_heads_shape": [
+        750000
+      ],
+      "neg_tails_shape": [
+        750000
+      ],
+      "passed": true,
+      "peak_allocated_bytes": 56082432,
+      "peak_reserved_bytes": 62914560,
+      "peak_reserved_fraction": 0.007533488711538009,
+      "total_vram_bytes": 8351318016
+    },
+    {
+      "batch_size": 5000,
+      "check": "P2_gpu_full_training_step",
+      "elapsed_ns": 146642600,
+      "loss": 1.165590763092041,
+      "loss_finite": true,
+      "negative_count": 750000,
+      "passed": true,
+      "peak_allocated_bytes": 3658404864,
+      "peak_reserved_bytes": 3693084672,
+      "peak_reserved_fraction": 0.4422157873672811,
+      "total_vram_bytes": 8351318016
+    },
+    {
+      "batch_size": 5000,
+      "check": "P3_bl_full_training_step",
+      "elapsed_ns": 488583304,
+      "loss": 1.1648139953613281,
+      "loss_finite": true,
+      "negative_count": 750000,
+      "passed": true,
+      "peak_allocated_bytes": 3657530880,
+      "peak_reserved_bytes": 3674210304,
+      "peak_reserved_fraction": 0.4399557407538197,
+      "total_vram_bytes": 8351318016
+    },
+    {
+      "check": "P4_no_other_compute_process",
+      "observations": [],
+      "passed": true
+    }
+  ],
+  "protocol_id": "C1-R1-v1.1",
+  "split": {
+    "declared_triples": 272115,
+    "disk_column_order": [
+      "head",
+      "tail",
+      "relation"
+    ],
+    "file_order_sha256": "79157f27094bd45426bd3b7997aa14573b8725f071123c47f6c4cbce72e56790",
+    "held_out_order_sha256": "79d198cedf9245db7a0f7026e11866dcb2f22e7b77841dcdf385c63a3c80f1e1",
+    "held_out_size": 5000,
+    "historical_alignment": "Exact Phase 9 Step 2/3 split rule and sizes: 272115 -> 5000 held out + 267115 training",
+    "in_memory_column_order": [
+      "head",
+      "relation",
+      "tail"
+    ],
+    "loader_order": "incrementally populated set, then list(set(loader_set)), matching read_kge_dataset + KG",
+    "raw_order_sha256": "8c973664ec5efca9ba4fb99d49ff3ec7e3aa09b3165c5f0458459baf03518a39",
+    "raw_triples": 272115,
+    "source_path": "src/py/data/FB15K237/train2id.txt",
+    "source_sha256": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2",
+    "split_algorithm": "Python random.Random(42).shuffle; first 5000 held out",
+    "split_seed": 42,
+    "training_order_sha256": "618a1a1f010e59b750d2d69e994c92d2d2280d0eccb0ea606bd75d6a30ac7339",
+    "training_set_size": 267115
+  }
+}
