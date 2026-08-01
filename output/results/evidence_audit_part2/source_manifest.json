@@ -1,0 +1,390 @@
+{
+  "audit": "Phase X Step 2 — C1 GPU Runtime",
+  "audit_date": "2026-08-01",
+  "audit_version": "1.0",
+  "source_count": 29,
+  "sources": [
+    {
+      "bytes": 10597,
+      "columns": [
+        "epoch",
+        "step",
+        "neg_time_ms",
+        "fwd_time_ms",
+        "bwd_time_ms",
+        "opt_time_ms",
+        "total_step_ms"
+      ],
+      "kind": "csv",
+      "path": "output/results/unified_runtime/runtime_trace_CPU.csv",
+      "precision": "full_precision_float",
+      "row_count": 110,
+      "sha256": "03b96e3e964d43d83cd92ee82b02c0d106c37b97f2150313c206ce62b0ab7065",
+      "source_id": "phase8_cpu_trace"
+    },
+    {
+      "bytes": 26595,
+      "columns": [
+        "epoch",
+        "step",
+        "neg_time_ms",
+        "fwd_time_ms",
+        "bwd_time_ms",
+        "opt_time_ms",
+        "total_step_ms"
+      ],
+      "kind": "csv",
+      "path": "output/results/unified_runtime/runtime_trace_GPU.csv",
+      "precision": "full_precision_float",
+      "row_count": 275,
+      "sha256": "43573eb4e8bc92ededc57254daa273fb2584c0ad0fd20d800c84c0272c10ab33",
+      "source_id": "phase8_gpu_trace"
+    },
+    {
+      "bytes": 105,
+      "columns": [
+        "epoch",
+        "avg_loss",
+        "total_time_s"
+      ],
+      "kind": "csv",
+      "path": "output/results/unified_runtime/epoch_summary_CPU.csv",
+      "precision": "full_precision_float",
+      "row_count": 2,
+      "sha256": "63ca1a7f04c088a6b68cfb22f4a40459eae0e6cc4a337ee42fbc24c2e0835063",
+      "source_id": "phase8_cpu_epoch"
+    },
+    {
+      "bytes": 222,
+      "columns": [
+        "epoch",
+        "avg_loss",
+        "total_time_s"
+      ],
+      "kind": "csv",
+      "path": "output/results/unified_runtime/epoch_summary_GPU.csv",
+      "precision": "full_precision_float",
+      "row_count": 5,
+      "sha256": "84442037d816f56ee7497cd36c4d626102c10c9731bb000d5df08a777f9dfa9d",
+      "source_id": "phase8_gpu_epoch"
+    },
+    {
+      "bytes": 204,
+      "columns": [
+        "config",
+        "epoch_1_loss",
+        "epoch_2_loss",
+        "mrr_sample",
+        "hits10_sample"
+      ],
+      "kind": "csv",
+      "path": "output/results/phase9_step1/results.csv",
+      "precision": "mixed_full_precision",
+      "row_count": 2,
+      "sha256": "54f15f57c7120e18c3260058136b89c4447036d7bfeb5cea619a6515c171589f",
+      "source_id": "phase9_step1_results"
+    },
+    {
+      "bytes": 205,
+      "columns": [
+        "config",
+        "final_loss",
+        "mrr",
+        "hits10",
+        "avg_epoch_time_s",
+        "gpu_mem_mb"
+      ],
+      "kind": "csv",
+      "path": "output/results/phase9_step2/summary.csv",
+      "precision": "timing_rounded_0.1s_memory_rounded_1MiB",
+      "row_count": 4,
+      "sha256": "d1b111d35538d69c3265301b44f6705639f058a657a21679cd5fe807fc16b820",
+      "source_id": "phase9_step2_summary"
+    },
+    {
+      "bytes": 219,
+      "columns": [
+        "Epoch",
+        "Loss",
+        "MRR",
+        "Hits@10",
+        "Time (s)",
+        "GPU Mem (MB)"
+      ],
+      "kind": "csv",
+      "path": "output/results/phase9_step2/BL/summary.csv",
+      "precision": "timing_rounded_0.1s_quality_rounded_0.0001",
+      "row_count": 5,
+      "sha256": "7afbf4582e213da30afa56708fe3da15c91b238ca31d0a487a496d2b08607bc6",
+      "source_id": "phase9_step2_bl"
+    },
+    {
+      "bytes": 219,
+      "columns": [
+        "epoch",
+        "avg_loss",
+        "mrr",
+        "hits10",
+        "epoch_time_s",
+        "gpu_mem_mb"
+      ],
+      "kind": "csv",
+      "path": "output/results/phase9_step2/GPU/summary.csv",
+      "precision": "timing_rounded_0.1s_quality_rounded_0.0001",
+      "row_count": 5,
+      "sha256": "2fbce46be18db7c61f6ccbd1951a7ab30c28f47444676765b302c282cc268d88",
+      "source_id": "phase9_step2_gpu"
+    },
+    {
+      "bytes": 638,
+      "columns": [
+        "epoch",
+        "avg_loss",
+        "mrr",
+        "hits10",
+        "epoch_time_s",
+        "neg_time_mean_ms",
+        "neg_time_std_ms",
+        "step_time_mean_ms",
+        "step_time_std_ms"
+      ],
+      "kind": "csv",
+      "path": "output/results/phase9_step3/BL/summary.csv",
+      "precision": "timing_rounded_0.1",
+      "row_count": 10,
+      "sha256": "88bc967d513f223b0eb133f3701068a0eac9b3f409281e1cb15c94d55a007f73",
+      "source_id": "phase9_step3_bl"
+    },
+    {
+      "bytes": 578,
+      "columns": [
+        "epoch",
+        "avg_loss",
+        "mrr",
+        "hits10",
+        "epoch_time_s",
+        "neg_time_mean_ms",
+        "neg_time_std_ms",
+        "step_time_mean_ms",
+        "step_time_std_ms"
+      ],
+      "kind": "csv",
+      "path": "output/results/phase9_step3/GPU/summary.csv",
+      "precision": "timing_rounded_0.1",
+      "row_count": 10,
+      "sha256": "9b9b573eb693ee2f4972c77b3aa0249716d515d182ed3667aa99124f0e51c9f0",
+      "source_id": "phase9_step3_gpu"
+    },
+    {
+      "bytes": 579,
+      "columns": [
+        "epoch",
+        "avg_loss",
+        "mrr",
+        "hits10",
+        "epoch_time_s",
+        "neg_time_mean_ms",
+        "neg_time_std_ms",
+        "step_time_mean_ms",
+        "step_time_std_ms"
+      ],
+      "kind": "csv",
+      "path": "output/results/phase9_step3/CBP+GPU/summary.csv",
+      "precision": "timing_rounded_0.1",
+      "row_count": 10,
+      "sha256": "33ce5a8a450723a7696b8e6717a204fc40b00ac398b8a251bb7813f550bcd110",
+      "source_id": "phase9_step3_cbp_gpu"
+    },
+    {
+      "bytes": 672,
+      "columns": [
+        "config",
+        "run",
+        "seed",
+        "final_loss",
+        "final_mrr",
+        "final_hits10",
+        "epoch_time_s",
+        "mean_neg_ms",
+        "std_neg_ms",
+        "mean_step_ms",
+        "std_step_ms"
+      ],
+      "kind": "csv",
+      "path": "output/results/phase10_step2_5/gpu_repeats.csv",
+      "precision": "timing_rounded_0.1",
+      "row_count": 10,
+      "sha256": "b5bdf9511cff47ef0d0ea753b72b234e771123a541df83967e987b94e670a57a",
+      "source_id": "phase10_gpu_repeats"
+    },
+    {
+      "bytes": 297,
+      "columns": [
+        "config",
+        "run",
+        "seed",
+        "epoch_time_s",
+        "mean_neg_ms",
+        "std_neg_ms",
+        "mean_step_ms",
+        "std_step_ms"
+      ],
+      "kind": "csv",
+      "path": "output/results/phase10_step2_5/cpu_repeats.csv",
+      "precision": "timing_rounded_0.1",
+      "row_count": 6,
+      "sha256": "d8a758f566aa5ddca5c3ea7a44f369ac28c1e99b0035452e2290e1d81ef7c94d",
+      "source_id": "phase10_cpu_repeats"
+    },
+    {
+      "bytes": 194,
+      "columns": [
+        "stage",
+        "time_ms",
+        "pct"
+      ],
+      "kind": "csv",
+      "path": "output/results/training_time_breakdown.md",
+      "precision": "timing_rounded_0.001ms_percentage_rounded_0.01",
+      "row_count": 7,
+      "sha256": "b8015b125fb2da9a533a6c5213ca1b384a576aa9d5b4f7b4e2694de753283600",
+      "source_id": "phase6_breakdown"
+    },
+    {
+      "bytes": 216,
+      "columns": [
+        "step",
+        "time_ms"
+      ],
+      "kind": "csv",
+      "path": "output/results/gpu_sampler/validation.csv",
+      "precision": "full_precision_float",
+      "row_count": 10,
+      "sha256": "aea95571c824d36368b0766ec36788fdb8763d6367b5bf412150dd0c5cdcc065",
+      "source_id": "gpu_sampler_validation"
+    },
+    {
+      "bytes": 11235,
+      "kind": "python",
+      "line_count": 271,
+      "path": "analyze_profiling.py",
+      "precision": "not_applicable",
+      "sha256": "428db2e87cfc81346643e43a5df0eeb8f0f04647a0a6c217893242b39631b22c",
+      "source_id": "profiling_analyzer"
+    },
+    {
+      "bytes": 1760,
+      "kind": "python",
+      "line_count": 59,
+      "path": "src/py/experiments/validate_gpu_sampler.py",
+      "precision": "not_applicable",
+      "sha256": "aa1fe9608ee9238b68c0858e4af656e84b001a2d365f5ec6bded8475d2e40607",
+      "source_id": "sampler_validator"
+    },
+    {
+      "bytes": 10332,
+      "kind": "python",
+      "line_count": 252,
+      "path": "src/py/experiments/run_unified_runtime_validation.py",
+      "precision": "not_applicable",
+      "sha256": "1fd23de99757f47dc7b68a54e21b9dd6af98a0f14300c6cc6de20f14df022c52",
+      "source_id": "phase8_driver"
+    },
+    {
+      "bytes": 11204,
+      "kind": "python",
+      "line_count": 291,
+      "path": "src/py/experiments/phase9_step1_alignment.py",
+      "precision": "not_applicable",
+      "sha256": "d8790fe14586e11f2cc15d82c2f541013eb6e23a53ba01983727a3c9d481c355",
+      "source_id": "phase9_step1_driver"
+    },
+    {
+      "bytes": 11133,
+      "kind": "python",
+      "line_count": 283,
+      "path": "src/py/experiments/phase9_step2_benchmark.py",
+      "precision": "not_applicable",
+      "sha256": "dca542d2fd7c4182ef82f74174e7ff874908fa8f777b94b0fddf9609f75ae241",
+      "source_id": "phase9_step2_driver"
+    },
+    {
+      "bytes": 11812,
+      "kind": "python",
+      "line_count": 292,
+      "path": "src/py/experiments/phase9_step3_ablation.py",
+      "precision": "not_applicable",
+      "sha256": "38417ab8cd08b0fbd2b248a9354a3946e7aa850fef6d9b9843242f8d96fc51eb",
+      "source_id": "phase9_step3_driver"
+    },
+    {
+      "bytes": 31999,
+      "kind": "python",
+      "line_count": 809,
+      "path": "src/py/experiments/phase10_step2_5_validation.py",
+      "precision": "not_applicable",
+      "sha256": "1cfe13c9cd38e1547635e72e0a54f6f1fa6724b61ac1ff4673232063e41293df",
+      "source_id": "phase10_driver"
+    },
+    {
+      "bytes": 1890,
+      "kind": "python",
+      "line_count": 55,
+      "path": "src/py/load/gpu_sampler.py",
+      "precision": "not_applicable",
+      "sha256": "cf88e9c0d0f6f9c98b0b8685771e651ef3591f72a3d34aec533c8b725a2f5da0",
+      "source_id": "gpu_sampler"
+    },
+    {
+      "bytes": 2935,
+      "kind": "python",
+      "line_count": 83,
+      "path": "src/py/experiments/validate_gpu_sampler_full.py",
+      "precision": "not_applicable",
+      "sha256": "840fe4219d383db463b564e46dea747845af30cb56006b613cc87b18c1aa476b",
+      "source_id": "stale_sampler_validator"
+    },
+    {
+      "bytes": 16346,
+      "kind": "python",
+      "line_count": 353,
+      "path": "generate_paper_assets.py",
+      "precision": "not_applicable",
+      "sha256": "078ecbe0c676e4093673e5f2f13f7e3fafdabf869bda88bb05927a823d0e76c7",
+      "source_id": "paper_asset_generator"
+    },
+    {
+      "bytes": 2782,
+      "kind": "markdown",
+      "line_count": 52,
+      "path": "docs/semantic_alignment_report.md",
+      "precision": "narrative",
+      "sha256": "4fafbd2cf61804be661a25418f41886a10dea49ea959a17b7d1e7d9880b99b84",
+      "source_id": "semantic_alignment_report"
+    },
+    {
+      "bytes": 27134,
+      "kind": "pdf",
+      "path": "paper_assets/figures/fig4_gpu_runtime_trace.pdf",
+      "precision": "derived_figure",
+      "sha256": "28253a6809dbaed44b2cdca2e541262c56424cb58640730e25f27b842fc2bf31",
+      "source_id": "figure4_gpu_runtime_trace"
+    },
+    {
+      "bytes": 19049,
+      "kind": "pdf",
+      "path": "paper_assets/figures/fig5_benchmark_bars.pdf",
+      "precision": "derived_figure",
+      "sha256": "5c79cd0d25d682821e0b2349e0532c9c8ef74833b0e69dc42f199c11eb98d35e",
+      "source_id": "figure5_benchmark_bars"
+    },
+    {
+      "bytes": 19310,
+      "kind": "pdf",
+      "path": "paper_assets/figures/fig6_ablation_variance.pdf",
+      "precision": "derived_figure",
+      "sha256": "d33c14458d4c41045e0bf20e988a81c838adee09ad4be78b88e26f1e95d9e2a6",
+      "source_id": "figure6_ablation_variance"
+    }
+  ]
+}
