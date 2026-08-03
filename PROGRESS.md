@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase X — Evidence Audit Part 3（C2 Unified Runtime Framework）已完成。C2 正式冻结为“双阶段、五个已实现角色”，审计结论为 4 A、1 B、0 C、1 D；下一步进入 Part 4（C3 Offline Cost Model）。
+Phase X X0（RQ、scope、contribution 与 estimand freeze）已完成。论文采用方案 A：C1 是唯一主实证贡献，C2 是支持性实现架构，C3/C4 在 Part 4/5 通过前保持条件性或探索性。下一步进入 X1.5 文献与新颖性审计。
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：batch_size=10000、neg_num=150 在 RTX 3070 8GB 上仍为已知 OOM 配置。C1-R1 preflight 证明 batch_size=5000、neg_num=150 的完整 BL/GPU step 在当前环境峰值 reserved 约 44%，但其他代码路径仍须独立预检。
@@ -30,14 +30,18 @@ Phase X — Evidence Audit Part 3（C2 Unified Runtime Framework）已完成。C
 - **Method 章节不含具体实验结果数值（留给 Experiments 章节），仅提及设计预期和定性关系**  *(自动映射自 L1 宪法)*
 - **算法伪代码使用 algorithm/algorithmic 环境，便于后续 LaTeX 转换**  *(自动映射自 L1 宪法)*
 - **Figure X 框架架构图尚未生成，标注为占位符**  *(自动映射自 L1 宪法)*
+- **X0 canonical freeze：论文最小可行主线不依赖 C3/C4；默认按二者审计失败仍可完整成稿**  *(自动映射自 L1 宪法)*
+- **外部有效性边界：现有性能证据仅覆盖 muKG、SimpleTransE、FB15k-237、RTX 3070、batch_size=5000、neg_num=150**  *(自动映射自 L1 宪法)*
+- **当前无论文级 batch-size/neg-num sensitivity；Phase 10 舍入数据不得替代；跨模型、跨数据集、跨 GPU 型号单卡复现与多 GPU scaling 必须分别注册新 Claim/协议**  *(自动映射自 L1 宪法)*
+- **RQ1/RQ2 是 post-result paper-level formalization 下的 primary RQ/estimand；C1-R1-v1.1 replacement protocol 在补跑前冻结，不得把 X0 称为前瞻性预注册**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-已完成 `docs/unified_runtime_architecture_freeze.md`、`docs/evidence_audit_part3_c2_framework.md` 与 CPU-only 审计脚本 `scripts/audit_c2_framework.py`。C2.1-R1/C2.3/C2.4/C2.5 为 A，C2.2 因 Phase 9 Step 2 写 `summary.md`、聚合读 `summary.csv` 的 artifact lineage 不自洽而为 B，C2.6 保持 RETRACTED/D。Phase 6 scheduler overhead 复核为 64.757ms（Random+Chunk）和 1165ms（Cost+FFD）；C1-R1 Random+Chunk scheduler mean 为 BL 73.0879968667ms、GPU 66.8442073333ms，占平均 epoch 0.279904% / 1.529412%，仅作协议限定描述，不创建 C2.6-R1。审计输出含 source manifest、architecture mapping、recomputed metrics 和 machine checks。
+已批准并冻结 docs/phase_x_x0_research_freeze.md。RQ1 对应 E1 六 paired seeds 的 epoch speedup 6.013× [5.944, 6.084]；RQ2 对应 E2 full-batch within-epoch SD compression 87.88× [72.92, 105.91]；E3 为 GPU full-batch neg time 3.0026ms [2.9786, 3.0266]；RQ3/E4 限于实现事实。C3 需 Part 4 恢复 target provenance、排除 leakage 并建立 out-of-sample estimand；C4 受 FFDPacker==ChunkPacker 阻塞。三单外部有效性仍是投稿风险，但不通过无证据措辞扩张 scope。
 
-## 4. 卡点 (Blockers)
-C2 架构定义不再阻塞，但 C2.2 artifact lineage 尚待 Part 7/数据整理修复；旧 C2.6 “~0.5ms” 必须继续删除。当前 FFDPacker 与 ChunkPacker 在冻结 fixture 上等价，是 Part 5 的算法语义 blocker。论文 Method、story freeze、旧 runtime spec 与 Figure 尚未按 canonical architecture 修订，这些修改明确留给 Part 7。
+当前卡点：X1.5 文献与新颖性审计尚未执行；C3/C4 尚未完成 Part 4/5 裁决；跨模型、跨数据集、跨 GPU 型号单卡复现与多 GPU scaling 仍是可选 gap-closing 分支。
 
-## 5. 下一步计划 (Next Steps)
-1. 进入 Part 4 — C3 Offline Cost Model 审计，优先追溯 `candidate_size`、R²=0.9008、r=0.7124 与预测目标/样本单位。
-2. Part 5 审计 C4 时，把 FFDPacker==ChunkPacker 作为首要实现 blocker，区分 sorter 效果、packer 效果与历史实验命名。
-3. Part 7 按 canonical freeze 修订 Method、story/architecture wording、Figure，并修复或披露 C2.2 `.md`→`.csv` artifact lineage。
+## 4. 下一步计划 (Next Steps)
+1. 执行 X1.5 文献与新颖性审计，建立 KGE runtime systems / GPU negative sampling / modular reproducibility 的 systematic mapping 与 novelty matrix。
+2. Part 4 审计 C3，决定 CostModel 是贡献、实现细节还是撤回。
+3. Part 5 审计 C4，并按最坏情况骨架决定 CBP 进入正文、附录或删除。
+4. 只有完成前三项贡献裁决后，才设计可选的跨模型、跨数据集、跨 GPU 型号或多 GPU gap-closing experiments。
