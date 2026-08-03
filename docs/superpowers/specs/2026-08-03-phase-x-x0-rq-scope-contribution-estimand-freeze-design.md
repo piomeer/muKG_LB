@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-03
 
-**Status:** Approved in dialogue; pending written-spec review
+**Status:** Revised after written-spec review; pending final review
 
 **Mode:** Read-only research design and evidence governance
 
@@ -25,6 +25,10 @@ The selected paper strategy is **A: a focused GPU runtime redesign paper**.
 C1 is the sole primary empirical contribution. C2 is supporting implementation
 architecture. C3 and C4 remain conditional or exploratory until their
 respective audits pass.
+
+The minimum viable manuscript is designed under the conservative assumption
+that C3 and C4 do not survive their audits. The paper must remain coherent and
+complete with C1 as the sole empirical contribution.
 
 ## 2. Research Chronology and Epistemic Status
 
@@ -147,6 +151,29 @@ frozen protocol. A title or abstract may mention KGE training only if it clearly
 identifies the work as a muKG case study and does not universalize the measured
 effects.
 
+The abstract must name the tested model, dataset, and hardware rather than use
+an unverified class-level phrase such as “lightweight KGE models” or
+“mid-range GPUs.” The current evidence supports TransE on FB15k-237 on one
+RTX 3070, not the surrounding model or hardware classes.
+
+### 4.4 Triple-Single External-Validity Boundary
+
+The current evidence has three coupled external-validity limits:
+
+1. one model: SimpleTransE;
+2. one dataset: FB15k-237; and
+3. one GPU model: RTX 3070.
+
+These limits do not invalidate E1 or E2, but they constrain publication scope
+and venue fit. The Discussion and Limitations must state that the observed
+effect may change with model compute intensity, graph scale and topology,
+negative-sampling pressure, host-to-device balance, and GPU architecture.
+
+No current artifact establishes batch-size or negative-count sensitivity under
+the C1-R1 standard. C1-R1 fixes batch size at 5,000 and negative count at 150.
+The rounded Phase 10 sensitivity summaries cannot be substituted for a
+publication-grade sensitivity analysis.
+
 ## 5. Contribution Freeze
 
 ### 5.1 Primary Contribution — C1
@@ -166,11 +193,15 @@ sampler-only VRAM, universal KGE generalization, or SOTA superiority.
 
 **Implemented and audited runtime organization**
 
-- Offline control plane:
-  FeatureExtractor → CostModel → Cost Table.
-- Online path:
+- The canonical implementation contains the audited offline control plane
+  FeatureExtractor → CostModel → Cost Table and online path
   Scheduler → BatchProvider.
-- The training loop explicitly selects the CPU or GPU sampling backend.
+- The minimum viable paper contribution is narrower: a shared online
+  Scheduler/BatchProvider integration boundary with explicit CPU/GPU backend
+  selection in the training loop.
+- Offline cost-model roles enter the main Method only if Part 4 or Part 5
+  establishes that they are necessary to a retained paper claim. Otherwise,
+  they remain implementation context or move to an appendix.
 
 The contribution is limited to implemented interfaces, boundaries, and
 auditable composition. RuntimePolicy and GPUExecution remain future concepts.
@@ -206,6 +237,27 @@ exploratory ablation, research-history note, appendix, or is removed.
 
 Failed or unsupported C3/C4 results must not be repackaged as “future-proof,”
 “key enabler,” “visionary,” or equivalent contribution claims.
+
+### 5.5 Worst-Case Manuscript Backbone
+
+Until Part 4 and Part 5 pass their promotion gates, manuscript planning assumes
+that EQ1 and EQ2 remain exploratory. The minimum Method backbone is:
+
+1. profiled problem and frozen comparison boundary;
+2. CPU and GPU sampler-semantics disclosure;
+3. GPU-native sampling-path design;
+4. integration through the shared Scheduler/BatchProvider online path; and
+5. frozen measurement and statistical protocol.
+
+The primary narrative is therefore:
+
+> identify the runtime bottleneck → define the semantic redesign boundary →
+> implement the GPU-native path → integrate it explicitly → verify its
+> end-to-end and dispersion effects.
+
+The narrative does not depend on CostModel or CBP success. If Part 4 or Part 5
+later passes, the supported material is added as a secondary branch rather than
+used to repair the primary story.
 
 ## 6. Estimand Freeze
 
@@ -305,6 +357,9 @@ Link-prediction quality is diagnostic-only in X0:
 - The abstract and Results report rounded, informative effect estimates and
   confidence intervals rather than hiding them behind thresholds such as
   “greater than 5×.”
+- The abstract identifies the empirical setting as muKG with TransE on
+  FB15k-237 and an RTX 3070. It does not imply validation for a model class,
+  dataset class, hardware class, or general KGE framework.
 - Machine-readable audit artifacts retain full stored precision.
 - The Introduction may summarize the headline result but must disclose the
   protocol scope and non-equivalent sampler semantics.
@@ -312,7 +367,35 @@ Link-prediction quality is diagnostic-only in X0:
   the main text, an exploratory ablation, an appendix, or nowhere.
 - Old 198×, 8.5×, 5.7×, and 142× values do not re-enter paper evidence.
 
-## 10. X0 Acceptance Criteria
+## 10. Optional External-Validity Expansion
+
+External-validity work is a separate gap-closing branch and does not modify the
+definitions of E1 or E2. Every added cell requires a new Claim ID, protocol,
+raw observations, and estimand.
+
+Priority order, if time and laboratory access permit:
+
+1. **Cross-model, fixed dataset and hardware:** repeat the declared runtime-path
+   comparison with at least one materially different KGE model. RotatE probes a
+   different scoring cost; ConvE probes a more compute-intensive architecture.
+2. **Cross-dataset, fixed model and hardware:** repeat with a graph that differs
+   in scale or topology. The dataset must be chosen after a memory and runtime
+   preflight.
+3. **Cross-hardware, fixed model and dataset:** execute the same single-GPU
+   protocol on a second GPU model. This tests hardware sensitivity more directly
+   than multi-GPU scaling.
+4. **Multi-GPU scaling:** treat as a separate future research question. It
+   requires a real distributed execution path, communication boundaries, and
+   scaling-efficiency estimands. Rank-strided slicing alone is insufficient.
+
+The first three branches test generalization. The fourth tests parallel
+scalability. They must not be conflated.
+
+If no expansion is completed before submission, the paper proceeds with the
+minimum viable scope and carries the triple-single boundary as an explicit
+limitation rather than implying unmeasured stability.
+
+## 11. X0 Acceptance Criteria
 
 X0 is complete when:
 
@@ -324,6 +407,8 @@ X0 is complete when:
    distinguished;
 5. C3/C4 promotion gates and failure paths are explicit;
 6. prohibited interpretations are listed;
-7. PROGRESS and project memory point to the freeze; and
-8. no training code, runtime code, GPU experiment, paper Method, story freeze,
+7. the worst-case manuscript remains coherent if C3 and C4 fail;
+8. triple-single limitations and optional generalization branches are distinct;
+9. PROGRESS and project memory point to the freeze; and
+10. no training code, runtime code, GPU experiment, paper Method, story freeze,
    or historical audit register is modified.
