@@ -41,3 +41,6 @@ Thumbs.db
 # 7. 其他敏感信息（如环境配置）
 env_identity.json
 node_modules/
+
+# Local Superpowers brainstorming companion (not project evidence)
+.superpowers/

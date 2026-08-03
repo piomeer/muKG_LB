@@ -1,0 +1,205 @@
+{
+  "audit": "Phase X Part 3 — C2 Unified Runtime Framework",
+  "audit_version": "1.0",
+  "checks": [
+    {
+      "check_id": "architecture_roles_present",
+      "detail": "FeatureExtractor, build_cost_table, Scheduler, and BatchProvider symbols are present; cost table is materialized.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "phase9_four_configs",
+      "detail": "AST-derived labels must exactly match the four registered configurations.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "phase9_artifact_lineage",
+      "detail": "Per-config writer uses summary.md while final aggregation reads summary.csv.",
+      "status": "FAIL"
+    },
+    {
+      "check_id": "explicit_backend_selection",
+      "detail": "Phase 9 training loop contains an explicit use_gpu branch.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "design_only_classes_absent",
+      "detail": "RuntimePolicy and GPUExecution classes/modules are absent from the implementation.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "cost_model_fixture",
+      "detail": "Repeated inputs produce byte-identical float32 arrays.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "batch_provider_fixture",
+      "detail": "Small fixture covers each input triple exactly once.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "rank_partition_fixture",
+      "detail": "Three rank-strided partitions are pairwise disjoint and their union covers all batches.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ffd_chunk_semantic_blocker",
+      "detail": "FFDPacker equals ChunkPacker on the frozen ordered fixture; registered as a Part 5 blocker.",
+      "status": "WARN"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "C2.1-R1",
+      "evidence_chain": [
+        "source AST",
+        "architecture_mapping.csv",
+        "docs/unified_runtime_architecture_freeze.md"
+      ],
+      "grade": "A",
+      "inventory_status": "HOLD replaced by audited suffix claim",
+      "original_claim_id": "C2.1",
+      "paper_safe_wording": "The implementation comprises an offline FeatureExtractor–CostModel–cost-table control plane and an online Scheduler–BatchProvider path; the training loop selects the negative-sampling backend.",
+      "remediation": "None for the implementation claim; apply the frozen wording and figure corrections in Part 7."
+    },
+    {
+      "claim_id": "C2.2",
+      "evidence_chain": [
+        "src/py/experiments/phase9_step2_benchmark.py AST",
+        "phase9_config_labels check",
+        "summary suffix lineage check"
+      ],
+      "grade": "B",
+      "inventory_status": "ACTIVE",
+      "original_claim_id": "C2.2",
+      "paper_safe_wording": "The Phase 9 Step 2 driver defines BL, CBP, GPU, and CBP+GPU in one configuration loop; its checked-in per-configuration artifact lineage requires reconciliation.",
+      "remediation": "Repair or document the .md-write/.csv-read conversion lineage and regenerate the aggregate from explicitly hashed per-config sources."
+    },
+    {
+      "claim_id": "C2.3",
+      "evidence_chain": [
+        "Scheduler and BatchProvider AST",
+        "Phase 9 use_gpu branch AST",
+        "CPU composition fixture"
+      ],
+      "grade": "A",
+      "inventory_status": "ACTIVE",
+      "original_claim_id": "C2.3",
+      "paper_safe_wording": "Both configured sampling paths consume batches from the same Scheduler and BatchProvider interfaces, while the training loop explicitly selects the CPU or GPU sampling backend.",
+      "remediation": "None; avoid transparent or drop-in backend-switching language."
+    },
+    {
+      "claim_id": "C2.4",
+      "evidence_chain": [
+        "build_cost_table AST",
+        "deterministic float32 CPU fixture",
+        "cost-table array access source"
+      ],
+      "grade": "A",
+      "inventory_status": "ACTIVE",
+      "original_claim_id": "C2.4",
+      "paper_safe_wording": "The implemented cost model deterministically constructs a float32 cost table from static features and configured constants, after which scheduling uses array lookups.",
+      "remediation": "None for implementation behavior; audit predictive validity separately in Part 4."
+    },
+    {
+      "claim_id": "C2.5",
+      "evidence_chain": [
+        "BatchProvider AST",
+        "batch coverage fixture",
+        "rank-strided partition fixture"
+      ],
+      "grade": "A",
+      "inventory_status": "ACTIVE",
+      "original_claim_id": "C2.5",
+      "paper_safe_wording": "BatchProvider yields preassembled triple-list batches and exposes rank-strided batch partitioning whose tested partitions are disjoint and collectively complete.",
+      "remediation": "None for the API claim; do not describe rank slicing alone as DDP readiness."
+    },
+    {
+      "claim_id": "C2.6",
+      "evidence_chain": [
+        "Phase 6 training logs",
+        "C1-R1 per_epoch traces",
+        "recomputed_metrics.csv"
+      ],
+      "grade": "D",
+      "inventory_status": "RETRACTED",
+      "original_claim_id": "C2.6",
+      "paper_safe_wording": "No universal scheduler-overhead claim is retained; observed overheads are reported only with their phase, configuration, timing boundary, and aggregation.",
+      "remediation": "Keep the ~0.5ms claim removed. A future performance claim requires a frozen timing boundary, raw precision, and independent repeated runs."
+    }
+  ],
+  "facts": {
+    "actual_interface_signatures": {
+      "batch_provider_init": "__init__(self, scheduler: Scheduler, cost_table: np.ndarray, batch_size: int, enable_logging: bool=True)",
+      "build_cost_table": "build_cost_table(features: dict, neg_num: int=150, max_try: int=10, b3_const: float=51.8)",
+      "feature_extractor_build": "build(self, force_recompute: bool=False)",
+      "feature_extractor_init": "__init__(self, triples_list: List[Tuple[int, int, int]], num_entities: int)",
+      "iterate": "iterate(self, triples_list: List[Tuple[int, int, int]])",
+      "pack_batches": "pack_batches(self, triples_list: List[Tuple[int, int, int]], cost_table: np.ndarray, batch_size: int)",
+      "scheduler_init": "__init__(self, sorter: BaseSorter, packer: BasePacker)",
+      "set_rank": "set_rank(self, rank: int, world_size: int)"
+    },
+    "architecture_term": "two-stage architecture with five implemented roles",
+    "batch_provider_calls_pack_batches": true,
+    "batch_provider_class_present": true,
+    "batch_provider_is_torch_dataloader": false,
+    "batch_provider_methods": [
+      "iterate",
+      "set_rank"
+    ],
+    "cost_model_function_present": true,
+    "experiment_validates_all_four_scheduler_combinations": false,
+    "factory_scheduler_combinations": [
+      "CostSorter+FFDPacker",
+      "RandomSorter+ChunkPacker"
+    ],
+    "factory_supports_all_four_combinations": false,
+    "feature_extractor_class_present": true,
+    "feature_output_fields": [
+      "candidate_size",
+      "degree",
+      "hub_flag"
+    ],
+    "gpu_execution_implemented": false,
+    "gpu_execution_module_present": false,
+    "phase9_config_labels": [
+      "BL",
+      "CBP",
+      "CBP+GPU",
+      "GPU"
+    ],
+    "phase9_per_config_read_suffix": ".csv",
+    "phase9_per_config_write_suffix": ".md",
+    "phase9_scheduler_combinations": [
+      "CostSorter+FFDPacker",
+      "RandomSorter+ChunkPacker"
+    ],
+    "runtime_cost_access_uses_array_subscript": true,
+    "runtime_policy_implemented": false,
+    "runtime_policy_module_present": false,
+    "scheduler_class_present": true,
+    "scheduler_configure_method_present": false,
+    "scheduler_method_present": true,
+    "scheduler_schedule_method_present": false,
+    "scheduling_occurs_per_iterate_call": true,
+    "training_loop_selects_backend": true
+  },
+  "fixtures": {
+    "batch_provider_full_coverage": true,
+    "cost_model_deterministic": true,
+    "cost_model_float32": true,
+    "cost_model_shape": [
+      6
+    ],
+    "ffd_equals_chunk_on_frozen_fixture": true,
+    "rank_partitions_cover_all_batches": true,
+    "rank_partitions_disjoint": true,
+    "scheduler_combinations": [
+      "CostSorter+ChunkPacker",
+      "CostSorter+FFDPacker",
+      "RandomSorter+ChunkPacker",
+      "RandomSorter+FFDPacker"
+    ]
+  },
+  "scope": "read-only source/artifact audit with deterministic CPU fixtures"
+}
