@@ -1,0 +1,6 @@
+node,variable,definition,producer,consumer,unit,sampling_unit,dataset_scope,leakage_status,provenance_status,audit_note
+triples,train2id,FB15k-237 training triples,scripts/fit_cost_model.py,FeatureExtractor,triples,triple,historical full train; split hash absent,unknown,missing dataset/split metadata,Current probe loads train2id.txt directly.
+FeatureExtractor,candidate_size,union of head_to_tails[e] and tail_to_heads[e],src/py/load/features.py,CostModel,count,entity,cache scope not recorded,relation-type mismatch,cache provenance absent,Relation id is not used in neighbor union.
+CostModel,cost_table,"min(max_try, 1/(1-neg_num/candidate_size))*b3_const",src/py/load/cost_model.py,Scheduler,declared ms,entity,depends on feature cache,formula not measured against target,deterministic construction only,"Formula is an implementation mapping, not validated prediction."
+Scheduler,batch_weight,sum of unique entity costs in a batch,src/py/load/cost_model.py,BatchProvider,declared ms,batch,historical runtime layout,target unit mismatch unresolved,partial,Unique-entity aggregation is not the same as measured sampler work.
+Runtime,neg_sampling_time,measured negative-sampling timer,output/results/runtime_attribution/runtime_attribution.csv,C3.2,ms,batch,single Phase 6 epoch,no out-of-sample split,rounded/limited,Descriptive association only.

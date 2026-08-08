@@ -1,0 +1,15 @@
+metric_id,claim_id,phase,configuration,statistic,value,unit,n,filter,source_paths,derivation,paper_use
+c3_1_r_candidate_size_time,C3.1-R1,Phase 5.5,synthetic,pearson_r,0.900793589789,unitless,400,separator_rows_removed,output/results/weight_validation.md,candidate_size vs actual_time_ms,synthetic-only
+c3_1_r2_candidate_size_time,C3.1-R1,Phase 5.5,synthetic,r_squared,0.811429091405,unitless,400,separator_rows_removed,output/results/weight_validation.md,Pearson r squared; not an independent OLS fit,synthetic-only
+c3_1_ols_r2_candidate_size_time,C3.1-R1,Phase 5.5,synthetic,ols_r_squared,0.811429091405,unitless,400,separator_rows_removed,output/results/weight_validation.md,OLS with intercept on same synthetic rows,synthetic-only
+c3_1_r_theoretical_weight_time,C3.1-R1,Phase 5.5,synthetic,pearson_r,0.165677717567,unitless,400,separator_rows_removed,output/results/weight_validation.md,theoretical_weight vs actual_time_ms,historical-diagnostic
+c3_1_r_avg_retry_time,C3.1-R1,Phase 5.5,synthetic,pearson_r,-0.269792505831,unitless,400,separator_rows_removed,output/results/weight_validation.md,avg_retry vs actual_time_ms,historical-diagnostic
+c3_1_cost_probe_rows,C3.1-L,Phase 5,probe,numeric_rows,500,rows,500,separator_rows_removed,output/results/cost_model_data.md,CSV rows after separator removal,lineage-only
+c3_2_cbp_weight_neg_r_all,C3.2,Phase 6,CBP,pearson_r,0.712386691066,unitless,273,all,output/results/runtime_attribution/runtime_attribution.csv,"Pearson correlation(batch_weight, neg_sampling_time)",descriptive-only
+c3_2_cbp_weight_neg_r_exclude_first_batch,C3.2,Phase 6,CBP,pearson_r,0.716294415657,unitless,272,exclude_first_batch,output/results/runtime_attribution/runtime_attribution.csv,"Pearson correlation(batch_weight, neg_sampling_time)",descriptive-only
+c3_2_cbp_weight_neg_r_exclude_last_short_batch,C3.2,Phase 6,CBP,pearson_r,0.124900441936,unitless,272,exclude_last_short_batch,output/results/runtime_attribution/runtime_attribution.csv,"Pearson correlation(batch_weight, neg_sampling_time)",descriptive-only
+c3_2_cbp_weight_neg_r_exclude_first_and_last,C3.2,Phase 6,CBP,pearson_r,0.130005570859,unitless,271,exclude_first_and_last,output/results/runtime_attribution/runtime_attribution.csv,"Pearson correlation(batch_weight, neg_sampling_time)",descriptive-only
+c3_4_microbenchmark_crossover_n,C3.4,Phase 7 Step 3,CPU-vs-GPU,linear_interpolated_crossover,153596.50107,samples,7,adjacent measured points,output/results/gpu_cost_model/benchmark.csv,linear interpolation of cpu_time_ms - gpu_total_ms,context-only
+c3_6_feature_entries,C3.6,artifact,entity_features,entry_count,14505,entries,14505,all,output/results/entity_features.npz,candidate_size array length,implementation-only
+c3_6_cost_table_entries,C3.6,artifact,cost_table,entry_count,14505,entries,14505,all,output/results/cost_table.npy,cost_table array length,implementation-only
+c3_6_cost_table_data_bytes,C3.6,artifact,cost_table,data_bytes,58020,bytes,14505,all,output/results/cost_table.npy,"float32 ndarray nbytes, excluding .npy header",implementation-only

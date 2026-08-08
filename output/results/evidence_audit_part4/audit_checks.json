@@ -1,0 +1,20 @@
+{
+  "audit_version": "1.0",
+  "c3_predictive_gate_passed": false,
+  "candidate_size_ignores_relation_type": true,
+  "cost_model_is_deterministic_formula": true,
+  "cost_model_probe_numeric_rows": 500,
+  "feature_cache_lacks_provenance_metadata": true,
+  "gpu_microbenchmark_rows": 7,
+  "hub_count_two_value_warning_present": true,
+  "partial_batch_metadata_present_in_runtime_csv": false,
+  "phase10_circularity_warning": true,
+  "phase10_target_is_deterministic_cost_table": true,
+  "rounded_runtime_artifact": true,
+  "runtime_attribution_raw_repeat_artifact_present": false,
+  "runtime_attribution_rows": 546,
+  "runtime_attribution_single_epoch_warning": true,
+  "source_paths_all_present": true,
+  "synthetic_candidate_construction": true,
+  "weight_validation_numeric_rows": 400
+}

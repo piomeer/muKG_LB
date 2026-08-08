@@ -1,0 +1,154 @@
+{
+  "sources": [
+    {
+      "bytes": 29822,
+      "exists": true,
+      "path": "docs/evidence_audit_part1_claim_inventory.md",
+      "sha256": "93dc4b0b6c363bc98e266449010436528c701988caaf5b6e3437255a407cb7a6"
+    },
+    {
+      "bytes": 14045,
+      "exists": true,
+      "path": "docs/phase_x_x0_research_freeze.md",
+      "sha256": "1eec3484f028047d0bcfc4fb3cd5ff332cd084088ef60c7900d7411253291fb7"
+    },
+    {
+      "bytes": 8819,
+      "exists": true,
+      "path": "docs/cost_model.md",
+      "sha256": "fa4c3cf2cd689a7dd866a1458d7a1e30b67295ea560eb16371edcffcc0c478f7"
+    },
+    {
+      "bytes": 12961,
+      "exists": true,
+      "path": "scripts/validate_weight_assumption.py",
+      "sha256": "6c4cba6f2a21816f004f5d6e2e7e5647e942ff7a8a7cf4f2c36fc9a71754099c"
+    },
+    {
+      "bytes": 2506,
+      "exists": true,
+      "path": "scripts/analyze_weight_validation.py",
+      "sha256": "4411e0a060d13b9f8797745febd7ff1931170d0666f27ef95292739403aaf479"
+    },
+    {
+      "bytes": 20763,
+      "exists": true,
+      "path": "scripts/fit_cost_model.py",
+      "sha256": "0ebbd30a82f6d3c35b418ce748e5e32401882c785deae76ecd7827deac7fa58d"
+    },
+    {
+      "bytes": 10069,
+      "exists": true,
+      "path": "scripts/generate_validation_report.py",
+      "sha256": "fdf72f2016a67424c1eba01a28cef9c4168b5e04e9ced3bfea9137da99999451"
+    },
+    {
+      "bytes": 6017,
+      "exists": true,
+      "path": "src/py/load/features.py",
+      "sha256": "15539dc5e45342eaa687390590bbc42a13a7130eeb76597c290590d0eedb1a73"
+    },
+    {
+      "bytes": 3205,
+      "exists": true,
+      "path": "src/py/load/cost_model.py",
+      "sha256": "b2564329f7ceee4110e628bc0c7508fe661d1a3d2adaee0e4dbc113b2dd82d6a"
+    },
+    {
+      "bytes": 3416118,
+      "exists": true,
+      "path": "src/py/data/FB15K237/train2id.txt",
+      "sha256": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2"
+    },
+    {
+      "bytes": 218557,
+      "exists": true,
+      "path": "src/py/data/FB15K237/entity2id.txt",
+      "sha256": "2df2382d68595f17c638a13557265226d06beaac04b2f4b31c9646d8c3ffe16b"
+    },
+    {
+      "bytes": 17669,
+      "exists": true,
+      "path": "output/results/weight_validation.md",
+      "sha256": "22894691e608c938e32fb61827d3ab599e8edf3aaf51a30a85daba9f2574d316"
+    },
+    {
+      "bytes": 53930,
+      "exists": true,
+      "path": "output/results/cost_model_data.md",
+      "sha256": "9424026d2973ecbc147db4bb6c383daffe1b6172e4908f9592e0728c90e3bf34"
+    },
+    {
+      "bytes": 1546,
+      "exists": true,
+      "path": "output/results/cost_model_summary.md",
+      "sha256": "0050f8bc09dfcf36e85fd8f90d0f5fc7127909f9056d048ce2f065518d3628fb"
+    },
+    {
+      "bytes": 4705,
+      "exists": true,
+      "path": "output/results/phase10_step2_5/validation_results.md",
+      "sha256": "3b29ee55061f32ad9e5274062098612d7f2f13d0ce969813659c21a03fa961bc"
+    },
+    {
+      "bytes": 28861,
+      "exists": true,
+      "path": "output/results/runtime_attribution/runtime_attribution.csv",
+      "sha256": "8c5b3e121b45e76ecdb8400e89347452a0b0ef6eb5b9dd4c55a7aa35952ed3bb"
+    },
+    {
+      "bytes": 1925,
+      "exists": true,
+      "path": "output/results/runtime_attribution/attribution_report.md",
+      "sha256": "9c227714e83cd799c01b38ab6cb81342eda728697064b925ccb893e90190e9fc"
+    },
+    {
+      "bytes": 1717,
+      "exists": true,
+      "path": "output/results/runtime_attribution/attribution_interpretation.md",
+      "sha256": "3ec706e45657eeabe6943590a9a46155a0b16422ec93eef13c8d75f847fab002"
+    },
+    {
+      "bytes": 496,
+      "exists": true,
+      "path": "output/results/gpu_cost_model/benchmark.csv",
+      "sha256": "b63d3576402d8edf156efcaa30ab696743e5de523729d989944811da3e893d8b"
+    },
+    {
+      "bytes": 513,
+      "exists": true,
+      "path": "output/results/gpu_cost_model/benchmark.md",
+      "sha256": "800dabf0c76c1fb28f02ba4f34db481f4cb44cb9cfb827973c5b354de922e053"
+    },
+    {
+      "bytes": 35713,
+      "exists": true,
+      "path": "output/results/entity_features.npz",
+      "sha256": "bfd6889e070a33037465bd2f53d321b93d256ba8fa85c492dfbc3e3108cdec04"
+    },
+    {
+      "bytes": 58148,
+      "exists": true,
+      "path": "output/results/cost_table.npy",
+      "sha256": "104041a9de652c1ee024952b0757e97985f64303596731a2637a34bdab88fe52"
+    },
+    {
+      "bytes": 16150,
+      "exists": true,
+      "path": "output/results/hub_analysis.md",
+      "sha256": "e14e0d58e4df3a83f7e30640e75364537a1399378bbd22567ac3b960f8abb429"
+    },
+    {
+      "bytes": 5443,
+      "exists": true,
+      "path": "scripts/validate_b1_correlation.py",
+      "sha256": "4927a50ae1a0415d311e34279f2d58d314635ba002c7175a08c0b933cb299632"
+    },
+    {
+      "bytes": 6575,
+      "exists": true,
+      "path": "scripts/plot_corrected_B_correlation.py",
+      "sha256": "30a4f30d9e03433fafe0ea27f3656664318302dcdb1137b40823295fafb5b64b"
+    }
+  ]
+}

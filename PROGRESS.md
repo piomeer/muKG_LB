@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-X1.5 DBLP retry state machine and fallback closure implementation
+Phase X X4 — C3 cost-model evidence audit; X1.5 is governance-frozen and deferred
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：batch_size=10000、neg_num=150 在 RTX 3070 8GB 上仍为已知 OOM 配置。C1-R1 preflight 证明 batch_size=5000、neg_num=150 的完整 BL/GPU step 在当前环境峰值 reserved 约 44%，但其他代码路径仍须独立预检。
@@ -51,9 +51,11 @@ X1.5 DBLP retry state machine and fallback closure implementation
 - **NOT_DUE retry checks are read-only: no network request and no artifact mutation before the 600-second interval elapses.**  *(自动映射自 L1 宪法)*
 - **The first persistent next batch was attempted once for KBGAN, LibKGE, and Marius; all three recorded DNS transport failures and must not receive an immediate same-round retry.**  *(自动映射自 L1 宪法)*
 - **The next DBLP batch is not due before 2026-08-08T06:50:59Z; preserve the 600-second gate even when the prior transport failed.**  *(自动映射自 L1 宪法)*
+- **X1.5 governance freeze:** retrieval remains `OPEN`, C1 closure remains `UNRESOLVED`, and the 14-query retry universe (3 recovered, 11 pending, 0 completed rounds) is preserved without further network calls until X5.5/X6 and X6.5 completion or waiver.
+- **X4 C3 audit:** strict read-only audit; no GPU, training, network, runtime-code, paper-body, or Part 1 changes. The primary rescue estimand is held-out complete-batch CPU negative-sampling time.
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-Persistent retry ledger and fallback closure are implemented and validated. Round 1 next batch executed exactly once for 3 queries; all failed with temporary DNS resolution errors, while the prior 3 recovered pages remain recovered. Current state is retry universe 14, recovered 3, pending 11, completed rounds 0, retrieval OPEN. Part 2-4 artifacts were regenerated; C1 remains UNRESOLVED due retrieval_channel_open, peer-review uncertainty, and human adjudication queue.
+X1.5 retry/fallback machinery is implemented and its snapshot is frozen for governance. Round 1 next batch executed exactly once for 3 queries; all failed with temporary DNS resolution errors, while the prior 3 recovered pages remain recovered. Current state is retry universe 14, recovered 3, pending 11, completed rounds 0, retrieval OPEN. Part 2-4 artifacts were regenerated; C1 remains UNRESOLVED due retrieval_channel_open, peer-review uncertainty, and human adjudication queue. X4 C3 audit implementation is now in progress.
 
 ## 4. 下一步计划 (Next Steps)
-After the recorded next_eligible_at time, run only --retry-dblp-next for the stable next batch. Continue up to three rounds with post-batch manifest/state/raw-hash checks and manual overlay replay; then qualify fallback closure and rerun Part 2-4. Do not treat DNS failure as a reason to bypass the scheduler.
+Complete X4 C3 source/variable/artifact audit and deterministic verification. Do not run `--retry-dblp-next`, Snowball, or any external retrieval while X1.5 is `FROZEN_DEFERRED`. Any C3 gap-closing experiment is deferred to X6.5 and requires X5.5 approval.
