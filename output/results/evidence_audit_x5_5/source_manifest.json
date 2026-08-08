@@ -6,22 +6,10 @@
     "sha256": "93dc4b0b6c363bc98e266449010436528c701988caaf5b6e3437255a407cb7a6"
   },
   {
-    "bytes": 835,
+    "bytes": 14045,
     "exists": true,
-    "path": "output/results/c1_r1_combined_rerun/analysis/paired_metrics.csv",
-    "sha256": "2ceb2fd7cc42ebb2d16800faf477a15dffc02ec8d35a7ce3f54c70095530647e"
-  },
-  {
-    "bytes": 6909,
-    "exists": true,
-    "path": "output/results/c1_r1_combined_rerun/analysis/summary.json",
-    "sha256": "1f1c52e84626757d2d0a69eeddf20d2afcaa755e4c3b8ee1d5b68bb22d9dda1e"
-  },
-  {
-    "bytes": 5187,
-    "exists": true,
-    "path": "output/results/evidence_audit_x1_5/x1_5_freeze_manifest.json",
-    "sha256": "38417a64d3d5dbc6087e9d14612a05cd33ed5e456006ca558741d5ccb708ad87"
+    "path": "docs/phase_x_x0_research_freeze.md",
+    "sha256": "1eec3484f028047d0bcfc4fb3cd5ff332cd084088ef60c7900d7411253291fb7"
   },
   {
     "bytes": 12278,
@@ -30,10 +18,22 @@
     "sha256": "546fa71fb96b9bde7a67933f622298145c984730c6c35f4c00e4afaac8919ea4"
   },
   {
-    "bytes": 29190,
+    "bytes": 5187,
     "exists": true,
-    "path": "scripts/check_x0_5_quarantine.py",
-    "sha256": "c123bf366a3c3ce49c55e810b85fafa96e3ba33a1dd0a6a239618ffa656c35ad"
+    "path": "output/results/evidence_audit_x1_5/x1_5_freeze_manifest.json",
+    "sha256": "38417a64d3d5dbc6087e9d14612a05cd33ed5e456006ca558741d5ccb708ad87"
+  },
+  {
+    "bytes": 448,
+    "exists": true,
+    "path": "output/results/evidence_audit_part6/x6a/statistical_contract.json",
+    "sha256": "362ec78a5b6899626c19377225dd05da3ec275da8fd095705e9c5d128aee8f99"
+  },
+  {
+    "bytes": 27604,
+    "exists": true,
+    "path": "docs/evidence_audit_part2_c1_gpu_runtime.md",
+    "sha256": "25e0706d5f3e9d93bd276c5a2ccfc581d1269b29e7e56319a4d5d5d11f089c6d"
   },
   {
     "bytes": 17145,
@@ -54,22 +54,16 @@
     "sha256": "16d7363c54a9ffd73568af6885c8755a1595e6363405a8e3f84be9540a4e2e17"
   },
   {
-    "bytes": 13361,
+    "bytes": 9683,
     "exists": true,
-    "path": "output/results/evidence_audit_x5_5/contribution_triage.csv",
-    "sha256": "38bd2fb7afd94f11bd6e8d083e6bf7ac7ab39f9ce5b9ab6e9e31d3596e9b0e30"
+    "path": "output/results/evidence_audit_part2/recomputed_metrics.csv",
+    "sha256": "8e0c87a693c8102f791c4692acfd9a06556f8ef7b89af77d210f9471c722f289"
   },
   {
-    "bytes": 1381,
+    "bytes": 3966,
     "exists": true,
-    "path": "output/results/evidence_audit_x5_5/gap_closing_decision.json",
-    "sha256": "099c39a04871fa99015763ede2345954012983667cf2b703a60f7535d7689fd9"
-  },
-  {
-    "bytes": 1460,
-    "exists": true,
-    "path": "output/results/evidence_audit_part3/architecture_mapping.csv",
-    "sha256": "da72c6bc8101181702fc054a7c05b047087cda83fbb7cab537ad63036ccc0e61"
+    "path": "output/results/evidence_audit_part3/recomputed_metrics.csv",
+    "sha256": "2259a3c5da3dfbbf3bda6489578485c335e2d8ba0ddf467461ba5ed39f319e37"
   },
   {
     "bytes": 2491,

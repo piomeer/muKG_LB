@@ -29,6 +29,10 @@ C1_METRICS = "output/results/c1_r1_combined_rerun/analysis/paired_metrics.csv"
 C1_SUMMARY = "output/results/c1_r1_combined_rerun/analysis/summary.json"
 X15_FREEZE = "output/results/evidence_audit_x1_5/x1_5_freeze_manifest.json"
 PART1_SHA256 = "93dc4b0b6c363bc98e266449010436528c701988caaf5b6e3437255a407cb7a6"
+X55_TRIAGE = "output/results/evidence_audit_x5_5/contribution_triage.csv"
+X55_DECISION = "output/results/evidence_audit_x5_5/gap_closing_decision.json"
+X55_REPLACEMENTS = {"C1.2-R1":"C1.2", "C1.3-R1":"C1.3", "C1.7-R1":"C1.7", "C2.1-R1":"C2.1", "C3.1-R1":"C3.1", "C4.1-R1":"C4.1", "C4.3-R1":"C4.3", "C4.7-R1":"C4.7"}
+X55_DECISIONS = {"RETAIN_PRIMARY", "RETAIN_SUPPORTING", "EXPLORATORY", "APPENDIX", "REMOVE"}
 
 
 def sha256(path: Path) -> str:
@@ -119,7 +123,8 @@ def source_manifest(repo: Path):
     paths = [PART1, C1_METRICS, C1_SUMMARY, X15_FREEZE,
              "docs/phase_x_x0_5_legacy_narrative_quarantine.md", "scripts/check_x0_5_quarantine.py",
              "docs/evidence_audit_part3_c2_framework.md", "docs/evidence_audit_part4_c3_cost_model.md",
-             "docs/evidence_audit_part5_c4_cbp.md", "output/results/evidence_audit_part3/architecture_mapping.csv",
+             "docs/evidence_audit_part5_c4_cbp.md", X55_TRIAGE, X55_DECISION,
+             "output/results/evidence_audit_part3/architecture_mapping.csv",
              "output/results/evidence_audit_part4/claim_verdicts.csv", "output/results/evidence_audit_part5/claim_verdicts.csv"]
     rows = []
     for rel in paths:
@@ -128,22 +133,36 @@ def source_manifest(repo: Path):
     return rows
 
 
-def contract_status(repo: Path):
-    triage = repo / "output/results/evidence_audit_x5_5/contribution_triage.csv"
-    decision = repo / "output/results/evidence_audit_x5_5/gap_closing_decision.json"
+def load_x55(repo: Path):
+    triage = repo / X55_TRIAGE
+    decision = repo / X55_DECISION
     reasons = []
     if not triage.exists(): reasons.append("missing contribution_triage.csv")
     if not decision.exists(): reasons.append("missing gap_closing_decision.json")
-    if reasons: return "BLOCKED_X5_5_INPUT", reasons
+    if reasons: return "BLOCKED_X5_5_INPUT", reasons, None, None
     try:
         rows = read_csv(triage)
         d = json.loads(decision.read_text(encoding="utf-8"))
-        if not rows or str(d.get("status", "")).upper() not in {"FINAL", "CLOSED"}:
-            reasons.append("X5.5 inputs are not final")
-        if "claim" not in rows[0] or "decision" not in rows[0]: reasons.append("triage schema incomplete")
+        expected = set(claim_ids(repo)) | set(X55_REPLACEMENTS)
+        actual = [r.get("claim", "") for r in rows]
+        if str(d.get("status", "")).upper() != "FINAL": reasons.append("X5.5 decision status is not FINAL")
+        if not rows or "claim" not in rows[0] or "decision" not in rows[0]: reasons.append("triage schema incomplete")
+        if len(actual) != len(expected) or len(set(actual)) != len(actual) or set(actual) != expected: reasons.append("X5.5 Claim coverage is incomplete or duplicated")
+        if any(r.get("decision") not in X55_DECISIONS for r in rows): reasons.append("X5.5 contains an invalid decision enum")
+        if {r["claim"] for r in rows if r.get("decision") == "RETAIN_PRIMARY"} != {"C1.2-R1", "C1.3-R1"}: reasons.append("X5.5 primary set drift")
+        if any(r.get("decision") in {"RETAIN_PRIMARY", "RETAIN_SUPPORTING", "EXPLORATORY"} for r in rows if r.get("claim", "").startswith(("C3", "C4"))): reasons.append("C3/C4 promotion or active exploration was not waived")
+        for child, parent in X55_REPLACEMENTS.items():
+            if next((r for r in rows if r["claim"] == child), {}).get("decision") in {"RETAIN_PRIMARY", "RETAIN_SUPPORTING"} and next((r for r in rows if r["claim"] == parent), {}).get("decision") != "REMOVE":
+                reasons.append(f"replacement parent {parent} is not removed")
+        if str(d.get("x6_5_status", "")).upper() not in {"WAIVED", "APPROVED", "EXECUTED"}: reasons.append("X5.5 x6_5_status is missing or invalid")
+        return ("READY" if not reasons else "BLOCKED_X5_5_INPUT"), reasons, rows, d
     except Exception as exc:
-        reasons.append(f"invalid X5.5 input: {type(exc).__name__}")
-    return ("READY", []) if not reasons else ("BLOCKED_X5_5_INPUT", reasons)
+        return "BLOCKED_X5_5_INPUT", [f"invalid X5.5 input: {type(exc).__name__}"], None, None
+
+
+def contract_status(repo: Path):
+    status, reasons, _, _ = load_x55(repo)
+    return status, reasons
 
 
 def original_grade_map(repo: Path):
@@ -159,8 +178,9 @@ def original_grade_map(repo: Path):
     return grades
 
 
-def registry_rows(ids, repo: Path):
+def registry_rows(ids, repo: Path, triage_rows=None):
     grades = original_grade_map(repo)
+    triage_map = {r["claim"]: r for r in (triage_rows or [])}
     primary = {"C1.2", "C1.3"}
     rows = []
     for cid in ids:
@@ -176,13 +196,22 @@ def registry_rows(ids, repo: Path):
             kind, family, eligibility, scope = "exploratory", "none", "NOT_ELIGIBLE", "historical or conditional; no predictive/causal extrapolation"
         else:
             kind, family, eligibility, scope = "confirmatory", "none", "NOT_ELIGIBLE", "C1 audit scope only"
-        rows.append({"claim_id": cid, "replacement_of": "", "claim_type": kind, "protocol": "Part 2/3/4/5 audit protocol", "treatment": "as frozen", "comparator": "as frozen", "effect_direction": "ratio > 1 or descriptive", "unit": "claim-specific", "independent_unit": "seed/run/batch or implementation artifact", "nested_unit": "batch within epoch within run where applicable", "n": "see source artifact", "filtering": "claim-specific frozen filters", "summary": "claim-specific", "ci_method": "log-t 95% only for C1 E1/E2", "statistical_family": family, "multiplicity": "Bonferroni 97.5% for joint E1/E2" if family != "none" else "excluded", "original_grade": grades.get(cid, "UNMAPPED"), "x5_5_decision": "pending", "paper_eligibility": eligibility, "inference_scope": scope})
+        row = {"claim_id": cid, "replacement_of": "", "claim_type": kind, "protocol": "Part 2/3/4/5 audit protocol", "treatment": "as frozen", "comparator": "as frozen", "effect_direction": "ratio > 1 or descriptive", "unit": "claim-specific", "independent_unit": "seed/run/batch or implementation artifact", "nested_unit": "batch within epoch within run where applicable", "n": "see source artifact", "filtering": "claim-specific frozen filters", "summary": "claim-specific", "ci_method": "log-t 95% only for C1 E1/E2", "statistical_family": family, "multiplicity": "Bonferroni 97.5% for joint E1/E2" if family != "none" else "excluded", "original_grade": grades.get(cid, "UNMAPPED"), "x5_5_decision": "pending", "paper_eligibility": eligibility, "inference_scope": scope}
+        if cid in triage_map:
+            decision = triage_map[cid].get("decision", "")
+            row["x5_5_decision"] = decision
+            row["paper_eligibility"] = {"RETAIN_PRIMARY":"ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS", "RETAIN_SUPPORTING":"ELIGIBLE_SUPPORTING", "APPENDIX":"APPENDIX_ONLY", "EXPLORATORY":"EXPLORATORY_ONLY", "REMOVE":"NOT_ELIGIBLE"}.get(decision, "NOT_ELIGIBLE")
+        rows.append(row)
     replacements = [("C1.2-R1", "C1.2"), ("C1.3-R1", "C1.3"), ("C1.7-R1", "C1.7"), ("C2.1-R1", "C2.1"), ("C3.1-R1", "C3.1"), ("C4.1-R1", "C4.1"), ("C4.3-R1", "C4.3"), ("C4.7-R1", "C4.7")]
     for rid, original in replacements:
         base = next(r for r in rows if r["claim_id"] == original).copy()
         base["claim_id"], base["replacement_of"] = rid, original
         base["original_grade"] = {"C1.2-R1":"A", "C1.3-R1":"A", "C1.7-R1":"A", "C2.1-R1":"A", "C3.1-R1":"C", "C4.1-R1":"B", "C4.3-R1":"B", "C4.7-R1":"A"}.get(rid, base["original_grade"])
         base["paper_eligibility"] = {"C1.2-R1":"ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS", "C1.3-R1":"ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS", "C1.7-R1":"ELIGIBLE_SECONDARY_DESCRIPTIVE"}.get(rid, base["paper_eligibility"])
+        if rid in triage_map:
+            decision = triage_map[rid].get("decision", "")
+            base["x5_5_decision"] = decision
+            base["paper_eligibility"] = {"RETAIN_PRIMARY":"ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS", "RETAIN_SUPPORTING":"ELIGIBLE_SUPPORTING", "APPENDIX":"APPENDIX_ONLY", "EXPLORATORY":"EXPLORATORY_ONLY", "REMOVE":"NOT_ELIGIBLE"}.get(decision, "NOT_ELIGIBLE")
         rows.append(base)
     return rows
 
@@ -198,7 +227,10 @@ def dependency_rows():
     ]
 
 
-def eligibility_rows():
+def eligibility_rows(triage_rows=None):
+    if triage_rows:
+        status_map = {"RETAIN_PRIMARY":"ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS", "RETAIN_SUPPORTING":"ELIGIBLE_SUPPORTING", "APPENDIX":"APPENDIX_ONLY", "EXPLORATORY":"EXPLORATORY_ONLY", "REMOVE":"NOT_ELIGIBLE"}
+        return [{"claim": r["claim"], "paper_eligibility": status_map[r["decision"]], "statistical_integrity": "PASS_WITH_SCOPE_LIMITS" if r["decision"] == "RETAIN_PRIMARY" else "NOT_TESTED_OR_EXCLUDED", "reason": r.get("decision_rationale", "")} for r in triage_rows]
     rows = []
     for claim, status, reason in [
         ("C1.2-R1", "ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS", "simultaneous lower bound > 1; one GPU/model/dataset scope"),
@@ -233,7 +265,7 @@ def fallacy_rows():
 def build(repo: Path):
     rows = read_csv(repo / C1_METRICS)
     metrics = metrics_from_pairs(rows)
-    status, reasons = contract_status(repo)
+    status, reasons, triage_rows, x55_decision = load_x55(repo)
     freeze_ok = False
     freeze_path = repo / X15_FREEZE
     if freeze_path.exists():
@@ -249,8 +281,10 @@ def build(repo: Path):
         except Exception: quarantine_ok = False
     checks = {
         "script_version": SCRIPT_VERSION,
-        "x6a_status": status,
+        "x6a_status": "X6A_COMPLETE_X6B_PENDING" if status == "READY" else status,
         "x5_5_input_reasons": reasons,
+        "x5_5_decision_status": x55_decision.get("status") if x55_decision else "",
+        "x5_5_x6_5_status": x55_decision.get("x6_5_status") if x55_decision else "",
         "part1_claim_count": len(claim_ids(repo)),
         "part1_claim_count_expected": 28,
         "replacement_count": 8,
@@ -264,7 +298,7 @@ def build(repo: Path):
         "nested_units_not_independent": True,
         "material_passport": "ANALYZED",
     }
-    return {"metrics":metrics,"claims":registry_rows(claim_ids(repo), repo),"dependencies":dependency_rows(),"eligibility":eligibility_rows(),"fallacies":fallacy_rows(),"manifest":source_manifest(repo),"checks":checks,"status":status}
+    return {"metrics":metrics,"claims":registry_rows(claim_ids(repo), repo, triage_rows),"dependencies":dependency_rows(),"eligibility":eligibility_rows(triage_rows),"fallacies":fallacy_rows(),"manifest":source_manifest(repo),"checks":checks,"status":status,"x55_decision":x55_decision}
 
 
 def write_x6a(repo: Path, out: Path):
@@ -278,10 +312,12 @@ def write_x6a(repo: Path, out: Path):
     write_csv(out / "assumption_robustness.csv", ["assumption","status","detail"], [{"assumption":"log-effect t interval","status":"PASS","detail":"six paired seed effects; df=5"},{"assumption":"n=6 normality diagnostic","status":"LIMITED","detail":"Shapiro is low power and non-decisive"},{"assumption":"nested epoch/batch units","status":"PASS","detail":"seed is independent unit"}])
     write_csv(out / "paper_eligibility.csv", ["claim","paper_eligibility","statistical_integrity","reason"], data["eligibility"])
     write_csv(out / "statistical_fallacy_scan.csv", ["check","status","reason"], data["fallacies"])
-    contract = {"contract_version":"x6-1.0","status":"FROZEN_PENDING_X5_5" if data["status"] != "READY" else "FROZEN","primary_family":"C1_joint_primary","rules":["one primary promotion estimand per gap-closing branch","Bonferroni across any-success branches","secondary analyses exploratory","protocol hash required before X6.5 results"],"source_metrics_sha256":sha256(repo/C1_METRICS)}
+    contract = {"contract_version":"x6-1.0","status":"FROZEN_PENDING_X5_5" if data["status"] != "READY" else "FROZEN","x6a_status":"X6A_COMPLETE_X6B_PENDING" if data["status"] == "READY" else "BLOCKED_X5_5_INPUT","primary_family":"C1_joint_primary","rules":["one primary promotion estimand per gap-closing branch","Bonferroni across any-success branches","secondary analyses exploratory","protocol hash required before X6.5 results"],"source_metrics_sha256":sha256(repo/C1_METRICS),"x5_5_triage_sha256":sha256(repo/X55_TRIAGE) if (repo/X55_TRIAGE).exists() else "","x5_5_decision_sha256":sha256(repo/X55_DECISION) if (repo/X55_DECISION).exists() else ""}
     dump_json(out / "statistical_contract.json", contract)
     dump_json(out / "audit_checks.json", data["checks"])
-    report = f"""# Phase X X6 — Cross-Claim Statistical Integrity Audit\n\n## Material Passport\n\nVerification Status: **ANALYZED** (no independent clean-room rerun)\n\nOverall X6a status: **{data['status']}**.\n\nX6a is fail-closed until X5.5 provides finalized `contribution_triage.csv` and `gap_closing_decision.json`; no contribution promotion or novelty decision is made here. The available C1-R1 paired artifacts were re-computed read-only.\n\n## C1 joint statistical layer\n\nE1 (end-to-end epoch speedup) and E2 (full-batch negative-sampling dispersion compression) remain distinct estimands sharing six seed-level paired jobs. The frozen 95% intervals are retained. A Bonferroni 97.5% simultaneous interval gives E1 approximately 5.9276–6.1004× and E2 approximately 69.8452–110.5642×; both lower bounds exceed 1, so the joint statistical gate is `PASS_WITH_SCOPE_LIMITS`. This does not establish quality equivalence, variance of training quality, cross-model generality, or hardware portability.\n\nThe six paired effects are directionally consistent (6/6 > 1 for each); leave-one-seed-out geometric means and the log-effect correlation are diagnostics, not independent replication. BL-first/GPU-first strata have n=3 and are descriptive only. The seed-45 thermal attempt is retained in lineage and excluded according to the frozen protocol.\n\n## Cross-claim dependence and eligibility\n\nE1/E2 share seeds, split, environment, and code lineage despite distinct passes. E3 is derived from the E2 trace; C2 scheduler overhead reuses throughput epochs; C3.2/C4.1 share Phase 6 attribution rows; C3.6/C4.7 share a cost table; C4.4–C4.6 share a single-process quality protocol. These edges are not independent corroboration. Implementation facts are excluded from statistical multiplicity families.\n\nCurrent paper eligibility is an overlay only: C1.2-R1 and C1.3-R1 are eligible primary claims with scope limits; C1.7-R1 is secondary descriptive; passed C2 and C3.3/C3.6 entries are implementation facts. Predictive C3, composite CBP/FFD, quality equivalence, VRAM, DDP, and generalization remain not eligible.\n\n## X6.5 contract\n\nEach future gap-closing branch must declare one primary promotion estimand before execution, independent units, filters, effect direction, missing-job rules, and a protocol SHA-256. Secondary outcomes cannot rescue a failed primary.\n\n## Closure\n\nX6 does not run GPU, training, network, runtime changes, paper-body edits, or Part 1 edits. X6b must be run after X5.5 and either an executed, hash-matching X6.5 artifact or a formal waiver.\n"""
+    x55_sentence = "X5.5 is finalized and consumed; X6a is complete as a statistical overlay and does not make novelty or editorial decisions." if data["status"] == "READY" else "X6a is fail-closed until X5.5 provides finalized `contribution_triage.csv` and `gap_closing_decision.json`; no contribution promotion or novelty decision is made here."
+    eligibility_sentence = "The X5.5 overlay retains only C1 primary/supporting claims and audited C2 boundaries; C3/C4 promotion branches are formally waived." if data["status"] == "READY" else "Before X5.5, eligibility remains provisional and predictive C3/composite CBP-FFD are not eligible."
+    report = f"""# Phase X X6 — Cross-Claim Statistical Integrity Audit\n\n## Material Passport\n\nVerification Status: **ANALYZED** (no independent clean-room rerun)\n\nOverall X6a status: **{data['status']}**.\n\n{x55_sentence} The available C1-R1 paired artifacts were re-computed read-only.\n\n## C1 joint statistical layer\n\nE1 (end-to-end epoch speedup) and E2 (full-batch negative-sampling dispersion compression) remain distinct estimands sharing six seed-level paired jobs. The frozen 95% intervals are retained. A Bonferroni 97.5% simultaneous interval gives E1 approximately 5.9276–6.1004× and E2 approximately 69.8452–110.5642×; both lower bounds exceed 1, so the joint statistical gate is `PASS_WITH_SCOPE_LIMITS`. This does not establish quality equivalence, variance of training quality, cross-model generality, or hardware portability.\n\nThe six paired effects are directionally consistent (6/6 > 1 for each); leave-one-seed-out geometric means and the log-effect correlation are diagnostics, not independent replication. BL-first/GPU-first strata have n=3 and are descriptive only. The seed-45 thermal attempt is retained in lineage and excluded according to the frozen protocol.\n\n## Cross-claim dependence and eligibility\n\nE1/E2 share seeds, split, environment, and code lineage despite distinct passes. E3 is derived from the E2 trace; C2 scheduler overhead reuses throughput epochs; C3.2/C4.1 share Phase 6 attribution rows; C3.6/C4.7 share a cost table; C4.4–C4.6 share a single-process quality protocol. These edges are not independent corroboration. Implementation facts are excluded from statistical multiplicity families.\n\n{eligibility_sentence}\n\n## X6.5 contract\n\nEach future gap-closing branch must declare one primary promotion estimand before execution, independent units, filters, effect direction, missing-job rules, and a protocol SHA-256. Secondary outcomes cannot rescue a failed primary. X5.5 currently declares C3 and C4 waived, with no promotion estimand.\n\n## Closure\n\nX6 does not run GPU, training, network, runtime changes, paper-body edits, or Part 1 edits. X6b consumes the final X5.5 waiver and closes without new values; X1.5 remains frozen and is not automatically resumed.\n"""
     (repo / "docs/evidence_audit_part6_cross_claim_statistics.md").write_text(report, encoding="utf-8")
 
 
@@ -295,7 +331,7 @@ def write_x6b(repo: Path, out: Path):
     if found:
         try:
             obj = json.loads(found.read_text(encoding="utf-8"))
-            if str(obj.get("status", "")).upper() in {"WAIVED", "X6_5_WAIVED"}:
+            if str(obj.get("status", "")).upper() in {"WAIVED", "X6_5_WAIVED"} or (str(obj.get("status", "")).upper() == "FINAL" and str(obj.get("x6_5_status", "")).upper() == "WAIVED"):
                 status, reason = "COMPLETE_X6B_WAIVED", "formal X6.5 waiver verified; no new values created"
             elif str(obj.get("status", "")).upper() in {"EXECUTED", "COMPLETE"}:
                 status, reason = "COMPLETE_X6B_EXECUTED", "closure artifact present; detailed raw validation remains required"

@@ -1,8 +1,37 @@
 claim,paper_eligibility,statistical_integrity,reason
-C1.2-R1,ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS,PASS_WITH_SCOPE_LIMITS,simultaneous lower bound > 1; one GPU/model/dataset scope
-C1.3-R1,ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS,PASS_WITH_SCOPE_LIMITS,simultaneous lower bound > 1; dispersion estimand only
-C1.7-R1,ELIGIBLE_SECONDARY_DESCRIPTIVE,NOT_TESTED_OR_EXCLUDED,component timing; not end-to-end or independent replication
-C2.1-R1/C2.2/C2.3/C2.4/C2.5,ELIGIBLE_IMPLEMENTATION_FACT,NOT_TESTED_OR_EXCLUDED,source/interface facts only
-C3.3/C3.6,ELIGIBLE_IMPLEMENTATION_FACT,NOT_TESTED_OR_EXCLUDED,deterministic construction/indexing only
-C3 predictive/C4 composite/FFD/quality/VRAM/DDP/generalization,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"failed, retracted, or out of scope"
-X5.5 approved branch,CONDITIONAL_X6_5,NOT_TESTED_OR_EXCLUDED,requires frozen contract and independent outcome
+C1.1,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Superseded, invalid, out of scope, or explicitly excluded by the C1 audit."
+C1.2,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Superseded, invalid, out of scope, or explicitly excluded by the C1 audit."
+C1.3,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Superseded, invalid, out of scope, or explicitly excluded by the C1 audit."
+C1.4,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Superseded, invalid, out of scope, or explicitly excluded by the C1 audit."
+C1.5,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Superseded, invalid, out of scope, or explicitly excluded by the C1 audit."
+C1.6,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Superseded, invalid, out of scope, or explicitly excluded by the C1 audit."
+C1.7,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Superseded, invalid, out of scope, or explicitly excluded by the C1 audit."
+C1.8,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Superseded, invalid, out of scope, or explicitly excluded by the C1 audit."
+C1.9,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Superseded, invalid, out of scope, or explicitly excluded by the C1 audit."
+C2.1,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Superseded, invalid, out of scope, or explicitly excluded by the C1 audit."
+C2.2,APPENDIX_ONLY,NOT_TESTED_OR_EXCLUDED,Traceable implementation fact or negative/historical reanalysis retained for transparency without promotion.
+C2.3,ELIGIBLE_SUPPORTING,NOT_TESTED_OR_EXCLUDED,Audited implementation/supporting fact; not an independent empirical contribution.
+C2.4,APPENDIX_ONLY,NOT_TESTED_OR_EXCLUDED,Traceable implementation fact or negative/historical reanalysis retained for transparency without promotion.
+C2.5,APPENDIX_ONLY,NOT_TESTED_OR_EXCLUDED,Traceable implementation fact or negative/historical reanalysis retained for transparency without promotion.
+C2.6,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Superseded, invalid, out of scope, or explicitly excluded by the C1 audit."
+C3.1,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Predictive cost-model evidence is synthetic, descriptive, circular, or lacks provenance/held-out uncertainty; C3 rescue is waived."
+C3.2,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Predictive cost-model evidence is synthetic, descriptive, circular, or lacks provenance/held-out uncertainty; C3 rescue is waived."
+C3.3,APPENDIX_ONLY,NOT_TESTED_OR_EXCLUDED,Traceable implementation fact or negative/historical reanalysis retained for transparency without promotion.
+C3.4,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Predictive cost-model evidence is synthetic, descriptive, circular, or lacks provenance/held-out uncertainty; C3 rescue is waived."
+C3.5,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Predictive cost-model evidence is synthetic, descriptive, circular, or lacks provenance/held-out uncertainty; C3 rescue is waived."
+C3.6,APPENDIX_ONLY,NOT_TESTED_OR_EXCLUDED,Traceable implementation fact or negative/historical reanalysis retained for transparency without promotion.
+C4.1,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,Composite CBP/FFD effect is not identified because FFDPacker equals ChunkPacker and historical traces lack qualified factorial repeats; C4 rescue is waived.
+C4.2,APPENDIX_ONLY,NOT_TESTED_OR_EXCLUDED,Traceable implementation fact or negative/historical reanalysis retained for transparency without promotion.
+C4.3,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,Composite CBP/FFD effect is not identified because FFDPacker equals ChunkPacker and historical traces lack qualified factorial repeats; C4 rescue is waived.
+C4.4,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,Composite CBP/FFD effect is not identified because FFDPacker equals ChunkPacker and historical traces lack qualified factorial repeats; C4 rescue is waived.
+C4.5,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,Composite CBP/FFD effect is not identified because FFDPacker equals ChunkPacker and historical traces lack qualified factorial repeats; C4 rescue is waived.
+C4.6,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,Composite CBP/FFD effect is not identified because FFDPacker equals ChunkPacker and historical traces lack qualified factorial repeats; C4 rescue is waived.
+C4.7,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,Composite CBP/FFD effect is not identified because FFDPacker equals ChunkPacker and historical traces lack qualified factorial repeats; C4 rescue is waived.
+C1.2-R1,ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS,PASS_WITH_SCOPE_LIMITS,C1-R1 replacement has paired seed-level raw observations and simultaneous statistical support; original inventory entry is superseded.
+C1.3-R1,ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS,PASS_WITH_SCOPE_LIMITS,C1-R1 replacement has paired seed-level raw observations and simultaneous statistical support; original inventory entry is superseded.
+C1.7-R1,ELIGIBLE_SUPPORTING,NOT_TESTED_OR_EXCLUDED,Audited implementation/supporting fact; not an independent empirical contribution.
+C2.1-R1,ELIGIBLE_SUPPORTING,NOT_TESTED_OR_EXCLUDED,Audited implementation/supporting fact; not an independent empirical contribution.
+C3.1-R1,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"Predictive cost-model evidence is synthetic, descriptive, circular, or lacks provenance/held-out uncertainty; C3 rescue is waived."
+C4.1-R1,APPENDIX_ONLY,NOT_TESTED_OR_EXCLUDED,Traceable implementation fact or negative/historical reanalysis retained for transparency without promotion.
+C4.3-R1,APPENDIX_ONLY,NOT_TESTED_OR_EXCLUDED,Traceable implementation fact or negative/historical reanalysis retained for transparency without promotion.
+C4.7-R1,APPENDIX_ONLY,NOT_TESTED_OR_EXCLUDED,Traceable implementation fact or negative/historical reanalysis retained for transparency without promotion.

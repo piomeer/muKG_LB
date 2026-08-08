@@ -1,0 +1,55 @@
+{
+  "branches": {
+    "C3": {
+      "decision": "WAIVED",
+      "primary_promotion_estimand": null,
+      "reason": "No provenance-complete held-out predictive target and uncertainty; minimum manuscript does not depend on C3."
+    },
+    "C4": {
+      "decision": "WAIVED",
+      "primary_promotion_estimand": null,
+      "reason": "FFDPacker equals ChunkPacker and historical effect is not factorially identified; minimum manuscript does not depend on C4."
+    }
+  },
+  "decision_version": "x5.5-1.0",
+  "final_contribution_set": {
+    "appendix": [
+      "C2.2",
+      "C2.4",
+      "C2.5",
+      "C3.3",
+      "C3.6",
+      "C4.1-R1",
+      "C4.2",
+      "C4.3-R1",
+      "C4.7-R1"
+    ],
+    "exploratory": [],
+    "primary": [
+      "C1.2-R1",
+      "C1.3-R1"
+    ],
+    "supporting": [
+      "C1.7-R1",
+      "C2.1-R1",
+      "C2.3"
+    ]
+  },
+  "paper_boundary": "C1 is the sole empirical contribution; C2 is an implementation/supporting boundary; C3/C4 are not contributions.",
+  "status": "FINAL",
+  "waiver_scope": {
+    "covered": [
+      "C3 predictive rescue",
+      "C4 CBP/sorter/packer promotion rescue"
+    ],
+    "not_covered": [
+      "C1 sensitivity",
+      "official quality evaluation",
+      "C1.6 VRAM isolation",
+      "C1.9 unified profiling",
+      "cross-model/dataset studies",
+      "X8 clean-room reproduction"
+    ]
+  },
+  "x6_5_status": "WAIVED"
+}

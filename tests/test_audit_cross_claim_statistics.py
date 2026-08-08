@@ -1,6 +1,7 @@
 import csv
 import json
 import tempfile
+import shutil
 import unittest
 from pathlib import Path
 
@@ -44,10 +45,19 @@ class CrossClaimStatisticsTests(unittest.TestCase):
         self.assertEqual(len([r for r in rows if r["replacement_of"]]), 8)
         self.assertEqual({r["claim_id"] for r in rows if r["replacement_of"]}, {"C1.2-R1", "C1.3-R1", "C1.7-R1", "C2.1-R1", "C3.1-R1", "C4.1-R1", "C4.3-R1", "C4.7-R1"})
 
-    def test_missing_x5_5_fails_closed(self):
+    def test_final_x5_5_is_consumed(self):
         status, reasons = contract_status(ROOT)
-        self.assertEqual(status, "BLOCKED_X5_5_INPUT")
-        self.assertTrue(reasons)
+        self.assertEqual(status, "READY")
+        self.assertEqual(reasons, [])
+
+    def test_missing_x5_5_fails_closed(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "docs").mkdir()
+            shutil.copy2(ROOT / "docs/evidence_audit_part1_claim_inventory.md", root / "docs/evidence_audit_part1_claim_inventory.md")
+            status, reasons = contract_status(root)
+            self.assertEqual(status, "BLOCKED_X5_5_INPUT")
+            self.assertTrue(reasons)
 
     def test_self_test(self):
         self_test()

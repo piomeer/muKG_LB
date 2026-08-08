@@ -1,5 +1,5 @@
 {
-  "reason": "missing X6.5 execution or formal waiver artifact",
-  "status": "BLOCKED_INCOMPLETE_EVIDENCE",
-  "x6a_contract_sha256": "bd265f1d7c86a8bc4c822e7bd2876c9a00f3493a3eff74dc5b39028b14aa5b4c"
+  "reason": "formal X6.5 waiver verified; no new values created",
+  "status": "COMPLETE_X6B_WAIVED",
+  "x6a_contract_sha256": "71d3158163378d83e0d3f0cdf6a880a659c3b1a074e5226aaaaa7ff0bb5d1ef6"
 }

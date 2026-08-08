@@ -12,9 +12,8 @@
   "source_paths_exist": true,
   "x0_5_quarantine_pass": true,
   "x1_5_freeze_hashes_unchanged": true,
-  "x5_5_input_reasons": [
-    "missing contribution_triage.csv",
-    "missing gap_closing_decision.json"
-  ],
-  "x6a_status": "BLOCKED_X5_5_INPUT"
+  "x5_5_decision_status": "FINAL",
+  "x5_5_input_reasons": [],
+  "x5_5_x6_5_status": "WAIVED",
+  "x6a_status": "X6A_COMPLETE_X6B_PENDING"
 }

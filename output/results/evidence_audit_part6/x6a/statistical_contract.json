@@ -8,5 +8,8 @@
     "protocol hash required before X6.5 results"
   ],
   "source_metrics_sha256": "2ceb2fd7cc42ebb2d16800faf477a15dffc02ec8d35a7ce3f54c70095530647e",
-  "status": "FROZEN_PENDING_X5_5"
+  "status": "FROZEN",
+  "x5_5_decision_sha256": "099c39a04871fa99015763ede2345954012983667cf2b703a60f7535d7689fd9",
+  "x5_5_triage_sha256": "38bd2fb7afd94f11bd6e8d083e6bf7ac7ab39f9ce5b9ab6e9e31d3596e9b0e30",
+  "x6a_status": "X6A_COMPLETE_X6B_PENDING"
 }

@@ -20,6 +20,12 @@ the Claim Propagation Matrix before reuse.
 - docs/evidence_audit_part5_c4_cbp.md and
   output/results/evidence_audit_part5/ — Part 5 C4 audit and its derived
   artifacts.
+- docs/phase_x_x5_5_contribution_triage.md and
+  output/results/evidence_audit_x5_5/ — final contribution triage and C3/C4
+  waiver decision.
+- docs/evidence_audit_part6_cross_claim_statistics.md and
+  output/results/evidence_audit_part6/ — cross-Claim statistical overlay and
+  final paper-eligibility propagation.
 - docs/unified_runtime_architecture_freeze.md — canonical
   figure/interface boundary for the implemented framework.
 - output/results/c1_r1_combined_rerun/ — C1-R1 source for unrounded
@@ -68,6 +74,8 @@ Use these columns so the supersession lineage is explicit:
 | output/results/integration_validation | LEGACY-DATA / AUDIT-ONLY | C2.3, C2.5, C4.7 | Part 3/5 historical auditing only | Part 3 and Part 5 audits |
 | output/results/evidence_audit_part4 | CURRENT-EVIDENCE | C3.1-C3.6 | Audited C3 wording and derived artifacts | Part 4 C3 audit |
 | output/results/evidence_audit_part5 | CURRENT-EVIDENCE | C4.1-C4.7 | Audited C4 wording and derived artifacts | Part 5 C4 audit |
+| output/results/evidence_audit_x5_5 | CURRENT-EVIDENCE | C1-C4 triage | Final contribution disposition and X6.5 waiver | X5.5 triage |
+| output/results/evidence_audit_part6 | CURRENT-EVIDENCE | Cross-Claim overlay | Statistical integrity and paper eligibility | X6 audit |
 
 New C1 manuscript analysis must read from output/results/c1_r1_combined_rerun/
 or output/results/evidence_audit_part2/. Legacy data may be used only for
