@@ -1,0 +1,8 @@
+claim,paper_eligibility,statistical_integrity,reason
+C1.2-R1,ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS,PASS_WITH_SCOPE_LIMITS,simultaneous lower bound > 1; one GPU/model/dataset scope
+C1.3-R1,ELIGIBLE_PRIMARY_WITH_SCOPE_LIMITS,PASS_WITH_SCOPE_LIMITS,simultaneous lower bound > 1; dispersion estimand only
+C1.7-R1,ELIGIBLE_SECONDARY_DESCRIPTIVE,NOT_TESTED_OR_EXCLUDED,component timing; not end-to-end or independent replication
+C2.1-R1/C2.2/C2.3/C2.4/C2.5,ELIGIBLE_IMPLEMENTATION_FACT,NOT_TESTED_OR_EXCLUDED,source/interface facts only
+C3.3/C3.6,ELIGIBLE_IMPLEMENTATION_FACT,NOT_TESTED_OR_EXCLUDED,deterministic construction/indexing only
+C3 predictive/C4 composite/FFD/quality/VRAM/DDP/generalization,NOT_ELIGIBLE,NOT_TESTED_OR_EXCLUDED,"failed, retracted, or out of scope"
+X5.5 approved branch,CONDITIONAL_X6_5,NOT_TESTED_OR_EXCLUDED,requires frozen contract and independent outcome

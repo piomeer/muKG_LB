@@ -1,5 +1,7 @@
 # 3. Method
 
+<!-- LEGACY-NON-AUTHORITATIVE: Phase X X0.5 -->
+
 This section presents our cost-aware unified runtime framework for efficient KGE training. We first profile the standard training pipeline to identify the dominant bottleneck (Section 3.1). Motivated by the profiling results, we introduce an offline cost model that predicts per-triple negative sampling cost from static knowledge graph statistics (Section 3.2). We then describe Cost-aware Batch Packing (CBP), a pluggable sort-and-pack scheduling layer that leverages the cost model to reduce inter-batch variance on CPU (Section 3.3). Observing that CPU-side overheads limit the benefit of scheduling alone, we propose a fully vectorized GPU-native negative sampling kernel (Section 3.4). Finally, we unify these components into a modular runtime framework that enables transparent CPU-to-GPU migration while preserving extensibility (Section 3.5).
 
 ---

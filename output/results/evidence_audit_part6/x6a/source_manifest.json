@@ -1,0 +1,74 @@
+[
+  {
+    "bytes": 29822,
+    "exists": true,
+    "path": "docs/evidence_audit_part1_claim_inventory.md",
+    "sha256": "93dc4b0b6c363bc98e266449010436528c701988caaf5b6e3437255a407cb7a6"
+  },
+  {
+    "bytes": 835,
+    "exists": true,
+    "path": "output/results/c1_r1_combined_rerun/analysis/paired_metrics.csv",
+    "sha256": "2ceb2fd7cc42ebb2d16800faf477a15dffc02ec8d35a7ce3f54c70095530647e"
+  },
+  {
+    "bytes": 6909,
+    "exists": true,
+    "path": "output/results/c1_r1_combined_rerun/analysis/summary.json",
+    "sha256": "1f1c52e84626757d2d0a69eeddf20d2afcaa755e4c3b8ee1d5b68bb22d9dda1e"
+  },
+  {
+    "bytes": 5187,
+    "exists": true,
+    "path": "output/results/evidence_audit_x1_5/x1_5_freeze_manifest.json",
+    "sha256": "38417a64d3d5dbc6087e9d14612a05cd33ed5e456006ca558741d5ccb708ad87"
+  },
+  {
+    "bytes": 11684,
+    "exists": true,
+    "path": "docs/phase_x_x0_5_legacy_narrative_quarantine.md",
+    "sha256": "aedf1fa9c17d8c108e0f9cec7571984d9a60cda5f1d546ea3c00692648a4af7a"
+  },
+  {
+    "bytes": 28351,
+    "exists": true,
+    "path": "scripts/check_x0_5_quarantine.py",
+    "sha256": "08d4837ffbb90d9e07ec0e0f42dbaea5051223d09eb5fd05eb8e990cc31a9e41"
+  },
+  {
+    "bytes": 17145,
+    "exists": true,
+    "path": "docs/evidence_audit_part3_c2_framework.md",
+    "sha256": "fb8eaddbcf9da26968a9a2468f956777fd6fa1101a5bb0d6e05b9fa53dd6071b"
+  },
+  {
+    "bytes": 4668,
+    "exists": true,
+    "path": "docs/evidence_audit_part4_c3_cost_model.md",
+    "sha256": "67cd93af0b6b32fb56f67ad29022ed4eb43e2728b49fe3a2d6895ddbef3747c9"
+  },
+  {
+    "bytes": 9993,
+    "exists": true,
+    "path": "docs/evidence_audit_part5_c4_cbp.md",
+    "sha256": "16d7363c54a9ffd73568af6885c8755a1595e6363405a8e3f84be9540a4e2e17"
+  },
+  {
+    "bytes": 1460,
+    "exists": true,
+    "path": "output/results/evidence_audit_part3/architecture_mapping.csv",
+    "sha256": "da72c6bc8101181702fc054a7c05b047087cda83fbb7cab537ad63036ccc0e61"
+  },
+  {
+    "bytes": 2491,
+    "exists": true,
+    "path": "output/results/evidence_audit_part4/claim_verdicts.csv",
+    "sha256": "ed4895058e564b55f0b523aaa300ab883410c4f5d980a1b63b22501815d05677"
+  },
+  {
+    "bytes": 5546,
+    "exists": true,
+    "path": "output/results/evidence_audit_part5/claim_verdicts.csv",
+    "sha256": "db287edda2a8e0b7410225917effec16a4e1f990152d35913169c5d25ae7bcef"
+  }
+]

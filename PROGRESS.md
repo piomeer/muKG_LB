@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase X X5 — C4 CBP evidence audit; X1.5 is governance-frozen and deferred
+Phase X X6 — cross-Claim statistical integrity audit; X1.5 is governance-frozen and deferred
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：batch_size=10000、neg_num=150 在 RTX 3070 8GB 上仍为已知 OOM 配置。C1-R1 preflight 证明 batch_size=5000、neg_num=150 的完整 BL/GPU step 在当前环境峰值 reserved 约 44%，但其他代码路径仍须独立预检。
@@ -58,7 +58,9 @@ Phase X X5 — C4 CBP evidence audit; X1.5 is governance-frozen and deferred
 - **X6.5 C4 candidate:** only after X5.5 approval; CPU-sampler full-training context, 2×2 sorter×distinct GreedyLeastLoad packer, seeds 42–47, five measured epochs, 10%+CI+≤5% mean-time gate.
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-X1.5 retry/fallback machinery is implemented and its snapshot is frozen for governance. Round 1 next batch executed exactly once for 3 queries; all failed with temporary DNS resolution errors, while the prior 3 recovered pages remain recovered. Current state is retry universe 14, recovered 3, pending 11, completed rounds 0, retrieval OPEN. Part 2-4 artifacts were regenerated; C1 remains UNRESOLVED due retrieval_channel_open, peer-review uncertainty, and human adjudication queue. X5 C4 audit is complete with deterministic outputs and a frozen composite gate failure.
+X0.5 legacy-narrative quarantine has been replayed on production: the register, reverse Claim mapping, historical-data policies, Safe Writing Sources, and five document headers pass the quarantine checker. X1.5 retry/fallback machinery is implemented and its snapshot is frozen for governance; retrieval remains OPEN and C1 remains UNRESOLVED. X4 C3 and X5 C4 audits are complete with deterministic outputs; predictive C3 is not eligible and the composite CBP gate is FAIL.
+
+X6a is implemented as a read-only cross-Claim statistical overlay. It recomputes the six-seed C1 E1/E2 effects, frozen 95% intervals, Bonferroni 97.5% simultaneous intervals, leave-one-seed-out ranges, direction consistency, dependence diagnostics, Claim/replacement coverage, dependency edges, eligibility overlay, and 11 fallacy checks. Material Passport is ANALYZED (no clean-room rerun). The current execution is intentionally `BLOCKED_X5_5_INPUT` because the finalized X5.5 triage and gap-closing decision artifacts do not yet exist; X6b is `BLOCKED_INCOMPLETE_EVIDENCE` until a formal X6.5 execution or waiver is supplied.
 
 ## 4. 下一步计划 (Next Steps)
-Proceed to X5.5 contribution triage using the C1–C4 audit verdicts. Do not run `--retry-dblp-next`, Snowball, or any external retrieval while X1.5 is `FROZEN_DEFERRED`. Any C3/C4 gap-closing experiment is deferred to X6.5 and requires X5.5 approval.
+Complete X5.5 contribution triage and emit its machine-readable input contract, then rerun X6a. Do not run `--retry-dblp-next`, Snowball, or any external retrieval while X1.5 is `FROZEN_DEFERRED`. Any C3/C4 gap-closing experiment remains deferred to X6.5 and requires X5.5 approval; after execution or formal waiver, run X6b.

@@ -1,5 +1,7 @@
 # Paper Outline: A Cost-aware Runtime Framework for Efficient Knowledge Graph Embedding Training
 
+<!-- LEGACY-NON-AUTHORITATIVE: Phase X X0.5 -->
+
 **Date**: 2026-07-31  
 **Status**: Draft (based on frozen story line `docs/paper_story_freeze.md`)  
 **Target Venue**: KDD / VLDB / NeurIPS (systems + ML track)

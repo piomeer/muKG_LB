@@ -1,0 +1,12 @@
+check,status,reason
+aggregation_reversal,CAUTION,pooled and per-epoch estimands are both retained; not interchangeable
+pseudoreplication_nested_units,PASS,seed is independent unit; batch/epoch are nested
+selection_or_collider,CAUTION,seed45 thermal attempt is explicitly traced/excluded
+base_rate,NOT_APPLICABLE,no prevalence claim
+regression_to_mean,NOT_APPLICABLE,no adaptive selection on outcome
+survivorship,CAUTION,failed attempt provenance retained
+look_elsewhere,PASS,two co-primary E1/E2 family has simultaneous correction
+forking_paths,CAUTION,historical C3/C4 analyses are excluded from primary family
+correlation_not_causation,PASS,E1/E2 correlation is dependency diagnostic only
+reverse_causality,NOT_APPLICABLE,runtime treatment precedes measured outcome
+causal_overreach,PASS,scope forbids quality/generalization/non-inferiority inference

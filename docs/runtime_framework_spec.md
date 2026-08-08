@@ -1,5 +1,7 @@
 # Cost-aware Runtime Framework Specification
 
+<!-- LEGACY-NON-AUTHORITATIVE: Phase X X0.5 -->
+
 **Date**: 2026-07-21  
 **Phase**: 7 Step 5  
 **Status**: Draft  

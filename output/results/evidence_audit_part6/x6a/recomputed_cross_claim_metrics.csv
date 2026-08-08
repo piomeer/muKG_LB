@@ -1,0 +1,24 @@
+metric,statistic,value,unit,scope
+E1,geometric_mean,6.01338973995914,ratio,six paired seeds
+E1,ci95_lower,5.94356783514629,ratio,log-t df=5
+E1,ci95_upper,6.08403187573881,ratio,log-t df=5
+E1,simultaneous_ci97_5_lower,5.927581646641,ratio,Bonferroni two-family
+E1,simultaneous_ci97_5_upper,6.1004399973364,ratio,Bonferroni two-family
+E1,leave_one_seed_out_min,5.99564251778558,ratio,six leave-one-out GMs
+E1,leave_one_seed_out_max,6.03175730660038,ratio,six leave-one-out GMs
+E1,direction_count,6,of 6,paired ratios > 1
+E1,log_shapiro_p,0.842812586835431,p (diagnostic),n=6; low power
+E2,geometric_mean,87.8770568321815,ratio,six paired seeds
+E2,ci95_lower,72.9166768045892,ratio,log-t df=5
+E2,ci95_upper,105.906871457977,ratio,log-t df=5
+E2,simultaneous_ci97_5_lower,69.845159396064,ratio,Bonferroni two-family
+E2,simultaneous_ci97_5_upper,110.564242164528,ratio,Bonferroni two-family
+E2,leave_one_seed_out_min,84.998169166848,ratio,six leave-one-out GMs
+E2,leave_one_seed_out_max,93.5122009186885,ratio,six leave-one-out GMs
+E2,direction_count,6,of 6,paired ratios > 1
+E2,log_shapiro_p,0.303758133981089,p (diagnostic),n=6; low power
+E1_E2,log_effect_pearson_r,0.679234161100591,correlation,paired dependence diagnostic; not independent replication
+E1,BL_first_geometric_mean,5.95786370321009,ratio,descriptive n=3; not order effect
+E2,BL_first_geometric_mean,78.1932176413004,ratio,descriptive n=3; not order effect
+E1,GPU_first_geometric_mean,6.06943326769333,ratio,descriptive n=3; not order effect
+E2,GPU_first_geometric_mean,98.7601911064933,ratio,descriptive n=3; not order effect

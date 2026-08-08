@@ -1,0 +1,12 @@
+{
+  "contract_version": "x6-1.0",
+  "primary_family": "C1_joint_primary",
+  "rules": [
+    "one primary promotion estimand per gap-closing branch",
+    "Bonferroni across any-success branches",
+    "secondary analyses exploratory",
+    "protocol hash required before X6.5 results"
+  ],
+  "source_metrics_sha256": "2ceb2fd7cc42ebb2d16800faf477a15dffc02ec8d35a7ce3f54c70095530647e",
+  "status": "FROZEN_PENDING_X5_5"
+}
