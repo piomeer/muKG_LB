@@ -1,0 +1,12 @@
+check_id,category,status,evidence,consequence,mitigation
+F01,aggregation/Simpson,CAUTION,all-batch and complete-batch results differ,pooled headline reverses under fixed filter,report complete-batch primary estimand and sensitivity
+F02,ecological inference,CAUTION,batch CV and epoch summaries,batch patterns cannot establish run effects,seed-level unit for X6.5
+F03,selection/Berkson,CAUTION,partial batches and sampled holdout,selected subsets may distort effects,pre-register complete-batch filter and official quality protocol
+F04,collider,NOT_APPLICABLE,no collider adjustment identified,none established,monitor in future factorial analysis
+F05,base-rate neglect,NOT_APPLICABLE,not a prevalence claim,none established,none
+F06,regression to mean,NOT_APPLICABLE,no before/after selection design,none established,paired seeds in X6.5
+F07,survivorship,CAUTION,only available historical artifacts are analyzed,missing raw repeats are invisible,source manifest and explicit missingness
+F08,look-elsewhere,CAUTION,"multiple phases, batch filters and metrics",selected favorable statistic may inflate effect,label historical and primary estimands separately
+F09,forking paths,CAUTION,post-hoc warm-up/partial sensitivity,researcher degrees of freedom,freeze X6.5 filters before data
+F10,correlation/causation,FAIL,sorter and packer changed together; static CV only,cannot attribute effect to FFD or packing,2x2 factorial with distinct packer
+F11,reverse causality,NOT_APPLICABLE,layout is chosen before measured time,reverse direction not established,retain timing boundary and seed provenance

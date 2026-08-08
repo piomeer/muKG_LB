@@ -1,0 +1,61 @@
+{
+  "audit_version": "1.0",
+  "checks": {
+    "claim_verdict_count": true,
+    "cost_table_data_bytes": true,
+    "cost_table_dominant_value": true,
+    "cost_table_dtype": true,
+    "cost_table_entries": true,
+    "fallacy_check_count": true,
+    "integration_row_count": true,
+    "legacy_ffd_equals_chunk": true,
+    "no_gpu_or_training_execution": true,
+    "no_network_access": true,
+    "no_paper_body_modified": true,
+    "no_part1_modified": true,
+    "no_runtime_code_modified": true,
+    "phase6_row_count": true,
+    "phase9_step45_row_count": true,
+    "scheduler_ast_detected": true,
+    "source_paths_exist": true
+  },
+  "cpu_fixtures": {
+    "cv": 0.5443310539518174,
+    "empty_chunk": [],
+    "greedy_coverage": true,
+    "greedy_distinct": true,
+    "greedy_lengths": [
+      5,
+      5,
+      5,
+      5,
+      3
+    ],
+    "legacy_equivalence": true,
+    "population_sd": 1.632993161855452
+  },
+  "estimand": {
+    "current_gate": "COMPOSITE_CBP_CONTRIBUTION_FAIL",
+    "historical": "batch-level negative-sampling dispersion under stored Phase6/Phase9 protocols",
+    "primary_candidate": "mean of five epoch ddof=0 SDs over 53 complete batches, with seed as uncertainty unit"
+  },
+  "facts": {
+    "cost_table_data_bytes": 58020,
+    "cost_table_dominant_count": 14303,
+    "cost_table_dominant_fraction": 0.9860737676663219,
+    "cost_table_dominant_value": 518.0,
+    "cost_table_dtype": "float32",
+    "cost_table_entries": 14505,
+    "cost_table_unique_values": 166,
+    "integration_full_rows": 216,
+    "integration_partial_rows": 4,
+    "integration_rows": 220,
+    "legacy_ffd_equals_chunk": true,
+    "phase6_baseline_rows": 273,
+    "phase6_cbp_rows": 273,
+    "phase6_rows": 546,
+    "phase9_step45_batches_per_epoch": 54,
+    "phase9_step45_epochs": 3,
+    "phase9_step45_rows": 324
+  }
+}

@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase X X4 — C3 cost-model evidence audit; X1.5 is governance-frozen and deferred
+Phase X X5 — C4 CBP evidence audit; X1.5 is governance-frozen and deferred
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：batch_size=10000、neg_num=150 在 RTX 3070 8GB 上仍为已知 OOM 配置。C1-R1 preflight 证明 batch_size=5000、neg_num=150 的完整 BL/GPU step 在当前环境峰值 reserved 约 44%，但其他代码路径仍须独立预检。
@@ -53,9 +53,12 @@ Phase X X4 — C3 cost-model evidence audit; X1.5 is governance-frozen and defer
 - **The next DBLP batch is not due before 2026-08-08T06:50:59Z; preserve the 600-second gate even when the prior transport failed.**  *(自动映射自 L1 宪法)*
 - **X1.5 governance freeze:** retrieval remains `OPEN`, C1 closure remains `UNRESOLVED`, and the 14-query retry universe (3 recovered, 11 pending, 0 completed rounds) is preserved without further network calls until X5.5/X6 and X6.5 completion or waiver.
 - **X4 C3 audit:** strict read-only audit; no GPU, training, network, runtime-code, paper-body, or Part 1 changes. The primary rescue estimand is held-out complete-batch CPU negative-sampling time.
+- **X5 C4 audit:** strict read-only audit; current FFDPacker is behaviorally equivalent to ChunkPacker, so historical CBP effects cannot be attributed to packing. Composite CBP contribution gate is FAIL; sorter-only rescue is forwarded to X5.5.
+- **C4 historical reanalysis:** Phase6 all-row SD 15.5295→3.4086 ms is warm-up/partial-sensitive; complete interior SD is 1.0509→1.1285 ms. Phase9 Step4.5 complete-batch per-epoch SD mean is 9.2381→2.4537 ms, descriptive only.
+- **X6.5 C4 candidate:** only after X5.5 approval; CPU-sampler full-training context, 2×2 sorter×distinct GreedyLeastLoad packer, seeds 42–47, five measured epochs, 10%+CI+≤5% mean-time gate.
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-X1.5 retry/fallback machinery is implemented and its snapshot is frozen for governance. Round 1 next batch executed exactly once for 3 queries; all failed with temporary DNS resolution errors, while the prior 3 recovered pages remain recovered. Current state is retry universe 14, recovered 3, pending 11, completed rounds 0, retrieval OPEN. Part 2-4 artifacts were regenerated; C1 remains UNRESOLVED due retrieval_channel_open, peer-review uncertainty, and human adjudication queue. X4 C3 audit implementation is now in progress.
+X1.5 retry/fallback machinery is implemented and its snapshot is frozen for governance. Round 1 next batch executed exactly once for 3 queries; all failed with temporary DNS resolution errors, while the prior 3 recovered pages remain recovered. Current state is retry universe 14, recovered 3, pending 11, completed rounds 0, retrieval OPEN. Part 2-4 artifacts were regenerated; C1 remains UNRESOLVED due retrieval_channel_open, peer-review uncertainty, and human adjudication queue. X5 C4 audit is complete with deterministic outputs and a frozen composite gate failure.
 
 ## 4. 下一步计划 (Next Steps)
-Complete X4 C3 source/variable/artifact audit and deterministic verification. Do not run `--retry-dblp-next`, Snowball, or any external retrieval while X1.5 is `FROZEN_DEFERRED`. Any C3 gap-closing experiment is deferred to X6.5 and requires X5.5 approval.
+Proceed to X5.5 contribution triage using the C1–C4 audit verdicts. Do not run `--retry-dblp-next`, Snowball, or any external retrieval while X1.5 is `FROZEN_DEFERRED`. Any C3/C4 gap-closing experiment is deferred to X6.5 and requires X5.5 approval.
