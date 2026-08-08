@@ -1,0 +1,26 @@
+{
+  "group_by": [],
+  "meta": {
+    "cost_usd": 0.0001,
+    "count": 0,
+    "db_response_time_ms": 17,
+    "groups_count": null,
+    "next_cursor": null,
+    "page": null,
+    "per_page": 200,
+    "x_query": {
+      "oql": "works where it cites (W3176260632)",
+      "oqo": {
+        "filter_rows": [
+          {
+            "column_id": "referenced_works",
+            "value": "W3176260632"
+          }
+        ],
+        "get_rows": "works"
+      },
+      "url": "/works?filter=referenced_works:W3176260632&per_page=200&cursor=%2A"
+    }
+  },
+  "results": []
+}

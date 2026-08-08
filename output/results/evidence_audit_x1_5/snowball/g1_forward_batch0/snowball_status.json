@@ -1,0 +1,15 @@
+{
+  "edge_count": 209,
+  "expected_forward_task_count": 18,
+  "failed_page_count": 0,
+  "fetched_forward_task_count": 1,
+  "forward_page_count": 1,
+  "g1_seed_work_count": 12,
+  "g2_component_work_count": 6,
+  "record_count": 36,
+  "selected_forward_task_count": 1,
+  "selected_fetched_forward_task_count": 1,
+  "status": "PARTIAL",
+  "task_count": 191,
+  "truncated_task_count": 0
+}

@@ -1,0 +1,24 @@
+{
+  "c1_gate_blockers": [
+    "human_adjudication_pending",
+    "peer_review_status_unverified",
+    "retrieval_channel_open"
+  ],
+  "c1_gate_verdict": "UNRESOLVED",
+  "evidence_locator_rows": 8,
+  "mapping_record_count": 8,
+  "mq_counts": {
+    "mq1_gpu_negative_sampling": 5,
+    "mq2_runtime_integration": 7,
+    "mq3_cost_scheduling_packing": 1,
+    "mq4_evidence_reproducibility": 8
+  },
+  "novelty_candidate_count": 7,
+  "novelty_rows_with_blockers": 7,
+  "overlap_counts": {
+    "ADJACENT-SYSTEM": 1,
+    "DIRECT-FUNCTIONAL": 3,
+    "STRONG-COMPONENT": 4
+  },
+  "study_family_count": 8
+}

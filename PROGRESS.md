@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase X X0（RQ、scope、contribution 与 estimand freeze）已完成。论文采用方案 A：C1 是唯一主实证贡献，C2 是支持性实现架构，C3/C4 在 Part 4/5 通过前保持条件性或探索性。下一步进入 X1.5 文献与新颖性审计。
+X1.5 DBLP retry state machine and fallback closure implementation
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：batch_size=10000、neg_num=150 在 RTX 3070 8GB 上仍为已知 OOM 配置。C1-R1 preflight 证明 batch_size=5000、neg_num=150 的完整 BL/GPU step 在当前环境峰值 reserved 约 44%，但其他代码路径仍须独立预检。
@@ -34,14 +34,26 @@ Phase X X0（RQ、scope、contribution 与 estimand freeze）已完成。论文�
 - **外部有效性边界：现有性能证据仅覆盖 muKG、SimpleTransE、FB15k-237、RTX 3070、batch_size=5000、neg_num=150**  *(自动映射自 L1 宪法)*
 - **当前无论文级 batch-size/neg-num sensitivity；Phase 10 舍入数据不得替代；跨模型、跨数据集、跨 GPU 型号单卡复现与多 GPU scaling 必须分别注册新 Claim/协议**  *(自动映射自 L1 宪法)*
 - **RQ1/RQ2 是 post-result paper-level formalization 下的 primary RQ/estimand；C1-R1-v1.1 replacement protocol 在补跑前冻结，不得把 X0 称为前瞻性预注册**  *(自动映射自 L1 宪法)*
+- **X1.5 人工裁决必须通过 output/results/evidence_audit_x1_5/manual_adjudications.json 可重放；未知 record_id/DOI/标题目标必须形成 blocker。**  *(自动映射自 L1 宪法)*
+- **REMOTE_LOCATED 仅表示已验证远程全文入口，不得伪造本地 SHA-256；C1 在剩余人工队列或检索不完整时保持 UNRESOLVED。**  *(自动映射自 L1 宪法)*
+- **自动主题筛选只能排除无 KGE/runtime 信号的明显无关元数据；UNKNOWN/UNCERTAIN 不得静默排除。**  *(自动映射自 L1 宪法)*
+- **X1.5 Part 3 的 MQ facet 是基于显式编码和保守元数据信号的 mapping，不是对论文结论或新颖性的自动推断。**  *(自动映射自 L1 宪法)*
+- **Part 3 只读 overlay manual_adjudications.json 中 Part 2 records.csv 未保存的机制字段；不得把缺失字段当作 false。**  *(自动映射自 L1 宪法)*
+- **novelty_evidence_matrix.csv 只能继承 C1 gate 的 UNRESOLVED/阻塞状态，不能单独释放 RETAIN、NARROW、REFRAME 或 DROP。**  *(自动映射自 L1 宪法)*
+- **Part 4 closure audit 只判断是否满足最终人工 novelty decision 的前置条件，不自动选择 RETAIN/NARROW/REFRAME/DROP。**  *(自动映射自 L1 宪法)*
+- **Part 3 matrix 的全局 blocker 不得复制为已核验候选的字段错误；closure audit 必须按当前 candidate status 重新计算 peer-review、全文、locator 和检索阻塞。**  *(自动映射自 L1 宪法)*
+- **C1 gate 只有在人工队列清空、检索完成/关闭、直接候选证据完整后才能进入 READY_FOR_HUMAN_DECISION。**  *(自动映射自 L1 宪法)*
+- **DBLP 重试必须按每批不超过 3 条、单查询 3–5 秒抖动和后续 batch 600 秒等待标记执行；本轮只完成 round 1 batch 0，剩余批次不得绕过等待直接运行。**  *(自动映射自 L1 宪法)*
+- **G1/G2 snowball 记录必须与主 C1 corpus 隔离，先去重、自动筛选和人工裁决，未完成前不得写入 novelty verdict。**  *(自动映射自 L1 宪法)*
+- **OpenAlex forward 结果存在 5 个 parent 的分页截断；聚合 snowball status 必须保持 PARTIAL，不得将第一页返回当作完整 citation coverage。**  *(自动映射自 L1 宪法)*
+- **DBLP retries use persistent query identity, at most one request per query per round, batches of at most three, deterministic 3-5 second jitter, and a minimum 600-second inter-batch interval.**  *(自动映射自 L1 宪法)*
+- **retrieval_cutoff.json uses OPEN, COMPLETE, CLOSED_WITH_FALLBACK, or CLOSED_BLOCKED; qualified fallback is advisory for C1, while uncovered gaps remain hard blockers.**  *(自动映射自 L1 宪法)*
+- **NOT_DUE retry checks are read-only: no network request and no artifact mutation before the 600-second interval elapses.**  *(自动映射自 L1 宪法)*
+- **The first persistent next batch was attempted once for KBGAN, LibKGE, and Marius; all three recorded DNS transport failures and must not receive an immediate same-round retry.**  *(自动映射自 L1 宪法)*
+- **The next DBLP batch is not due before 2026-08-08T06:50:59Z; preserve the 600-second gate even when the prior transport failed.**  *(自动映射自 L1 宪法)*
 
 ## 3. 当前进度与卡点 (Current Progress & Blockers)
-已批准并冻结 docs/phase_x_x0_research_freeze.md。RQ1 对应 E1 六 paired seeds 的 epoch speedup 6.013× [5.944, 6.084]；RQ2 对应 E2 full-batch within-epoch SD compression 87.88× [72.92, 105.91]；E3 为 GPU full-batch neg time 3.0026ms [2.9786, 3.0266]；RQ3/E4 限于实现事实。C3 需 Part 4 恢复 target provenance、排除 leakage 并建立 out-of-sample estimand；C4 受 FFDPacker==ChunkPacker 阻塞。三单外部有效性仍是投稿风险，但不通过无证据措辞扩张 scope。
-
-当前卡点：X1.5 文献与新颖性审计尚未执行；C3/C4 尚未完成 Part 4/5 裁决；跨模型、跨数据集、跨 GPU 型号单卡复现与多 GPU scaling 仍是可选 gap-closing 分支。
+Persistent retry ledger and fallback closure are implemented and validated. Round 1 next batch executed exactly once for 3 queries; all failed with temporary DNS resolution errors, while the prior 3 recovered pages remain recovered. Current state is retry universe 14, recovered 3, pending 11, completed rounds 0, retrieval OPEN. Part 2-4 artifacts were regenerated; C1 remains UNRESOLVED due retrieval_channel_open, peer-review uncertainty, and human adjudication queue.
 
 ## 4. 下一步计划 (Next Steps)
-1. 执行 X1.5 文献与新颖性审计，建立 KGE runtime systems / GPU negative sampling / modular reproducibility 的 systematic mapping 与 novelty matrix。
-2. Part 4 审计 C3，决定 CostModel 是贡献、实现细节还是撤回。
-3. Part 5 审计 C4，并按最坏情况骨架决定 CBP 进入正文、附录或删除。
-4. 只有完成前三项贡献裁决后，才设计可选的跨模型、跨数据集、跨 GPU 型号或多 GPU gap-closing experiments。
+After the recorded next_eligible_at time, run only --retry-dblp-next for the stable next batch. Continue up to three rounds with post-batch manifest/state/raw-hash checks and manual overlay replay; then qualify fallback closure and rerun Part 2-4. Do not treat DNS failure as a reason to bypass the scheduler.

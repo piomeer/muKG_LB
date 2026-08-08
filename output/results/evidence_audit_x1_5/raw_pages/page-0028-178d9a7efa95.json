@@ -1,0 +1,73 @@
+{
+  "result": {
+    "completions": {
+      "@computed": "1",
+      "@sent": "1",
+      "@total": "1",
+      "c": {
+        "@dc": "1",
+        "@id": "69823635",
+        "@oc": "1",
+        "@sc": "1",
+        "text": "data"
+      }
+    },
+    "hits": {
+      "@computed": "1",
+      "@first": "0",
+      "@sent": "1",
+      "@total": "1",
+      "hit": [
+        {
+          "@id": "5716730",
+          "@score": "7",
+          "info": {
+            "access": "open",
+            "authors": {
+              "author": [
+                {
+                  "@pid": "49/4572",
+                  "text": "Antoine Bordes"
+                },
+                {
+                  "@pid": "79/3983",
+                  "text": "Nicolas Usunier"
+                },
+                {
+                  "@pid": "53/11261",
+                  "text": "Alberto García-Durán"
+                },
+                {
+                  "@pid": "29/6977",
+                  "text": "Jason Weston"
+                },
+                {
+                  "@pid": "35/182",
+                  "text": "Oksana Yakhnenko"
+                }
+              ]
+            },
+            "ee": "https://proceedings.neurips.cc/paper/2013/hash/1cecc7a77928ca8133fa24680a88d2f9-Abstract.html",
+            "key": "conf/nips/BordesUGWY13",
+            "pages": "2787-2795",
+            "title": "Translating Embeddings for Modeling Multi-relational Data.",
+            "type": "Conference and Workshop Papers",
+            "url": "https://dblp.org/rec/conf/nips/BordesUGWY13",
+            "venue": "NIPS",
+            "year": "2013"
+          },
+          "url": "URL#5716730"
+        }
+      ]
+    },
+    "query": "Translating* Embeddings* for* Modeling* Multi* relational* Data*",
+    "status": {
+      "@code": "200",
+      "text": "OK"
+    },
+    "time": {
+      "@unit": "msecs",
+      "text": "73.74"
+    }
+  }
+}

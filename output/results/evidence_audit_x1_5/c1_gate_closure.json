@@ -1,0 +1,16 @@
+{
+  "blockers": [
+    "human_adjudication_pending",
+    "peer_review_status_unverified",
+    "retrieval_channel_open"
+  ],
+  "c1_verdict": "UNRESOLVED",
+  "candidate_count": 7,
+  "claim_id": "C1",
+  "closure_status": "UNRESOLVED",
+  "failed_retrieval_page_count": 11,
+  "note": "Closure readiness is mechanical; it never issues a substantive novelty verdict.",
+  "pending_adjudication_count": 1682,
+  "retrieval_advisories": [],
+  "retrieval_status": "OPEN"
+}

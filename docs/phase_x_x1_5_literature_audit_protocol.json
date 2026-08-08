@@ -1,0 +1,147 @@
+{
+  "protocol_id": "phase-x-x1-5-literature-audit-v1",
+  "protocol_version": "1.0",
+  "status": "FROZEN_FOR_EXECUTION",
+  "freeze_date": "2026-08-07",
+  "purpose": "Paper-grade internal systematic mapping and C1 novelty audit for the muKG GPU runtime paper.",
+  "publication_window": [2013, "2026-08-07"],
+  "language_scope": ["English"],
+  "evidence_stratum": "PEER_REVIEWED_ONLY",
+  "databases": ["DBLP", "OpenAlex", "Crossref"],
+  "excluded_indexes": ["Google Scholar"],
+  "official_source_policy": "Official documentation, repositories, and preprints may inform discovery but are excluded from the prior-art corpus and cannot support a peer-reviewed novelty verdict.",
+  "confidence_ceiling": "MODERATE",
+  "hard_novelty_claim": "C1",
+  "soft_tracks": ["C2", "C3", "C4"],
+  "addendum_gate": "If C3 or C4 is promoted to a contribution after Part 4 or Part 5, an X1.5 addendum must be completed before the promotion is propagated.",
+  "research_questions": {
+    "MQ1": "What peer-reviewed systems generate, filter, or place GPU negative samples for knowledge-graph embedding training?",
+    "MQ2": "How do peer-reviewed KGE systems integrate sampling with training loops, schedulers, batching, or distributed execution?",
+    "MQ3": "What peer-reviewed cost models, scheduling strategies, or batch-packing mechanisms target KGE runtime variability or throughput?",
+    "MQ4": "What evidence, repetition, uncertainty, and reproducibility practices are reported by comparable KGE runtime systems?",
+    "NQ1": "Does the declared C1 contribution overlap with an existing peer-reviewed mechanism and evidence protocol strongly enough to require retaining, narrowing, reframing, or dropping the novelty claim?"
+  },
+  "contribution_scope": {
+    "C1": "Hard verdict: auditable GPU-native negative-sampling runtime-path redesign under the frozen muKG protocol.",
+    "C2": "Background overlap risk only: implemented two-stage runtime organization and shared Scheduler/BatchProvider boundary.",
+    "C3": "Background overlap risk only until Part 4 promotes it.",
+    "C4": "Background overlap risk only until Part 5 promotes it."
+  },
+  "retrieval": {
+    "strategy": "SEED_AND_SNOWBALL_WITH_WIDE_SENTINEL",
+    "channels": ["G0_SEEDS", "G1_BACKWARD_AND_FORWARD", "G2_COMPONENT_ONLY", "WIDE_SENTINEL"],
+    "max_snowball_generation": 2,
+    "g0_seeds": [
+      {"citation_key": "bordes2013transe", "title": "Translating Embeddings for Modeling Multi-relational Data", "year": 2013, "venue": "NeurIPS"},
+      {"citation_key": "han2018openke", "title": "OpenKE: An Open Toolkit for Knowledge Embedding", "year": 2018, "venue": "EMNLP Demonstration"},
+      {"citation_key": "lengerich2019pytorchbiggraph", "title": "Pytorch-BigGraph: A Large-scale Graph Embedding System", "year": 2019, "venue": "MLSys"},
+      {"citation_key": "zheng2020dglke", "title": "DGL-KE: Training Knowledge Graph Embeddings at Scale", "year": 2020, "venue": "CIKM"},
+      {"citation_key": "broscheit2020libkge", "title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research", "year": 2020, "venue": "EMNLP Demonstration"},
+      {"citation_key": "ali2021pykeen", "title": "PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph Embeddings", "year": 2021, "venue": "JMLR"},
+      {"citation_key": "murugesan2021pykg2vec", "title": "pykg2vec: A Python Library for Knowledge Graph Embedding", "year": 2021, "venue": "JMLR"},
+      {"citation_key": "mohoney2021marius", "title": "Marius: Learning Massive Graph Embeddings on a Single Machine", "year": 2021, "venue": "OSDI"},
+      {"citation_key": "cai2018kbgan", "title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings", "year": 2018, "venue": "NAACL"},
+      {"citation_key": "wang2018gannegative", "title": "Incorporating GAN for Negative Sampling in Knowledge Representation Learning", "year": 2018, "venue": "AAAI"},
+      {"citation_key": "sun2019rotate", "title": "RotatE: Knowledge Graph Embedding by Relational Rotation in Complex Space", "year": 2019, "venue": "ICLR"},
+      {"citation_key": "zhang2019nscaching", "title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding", "year": 2019, "venue": "ICDE"},
+      {"citation_key": "kamigaito2022negative", "title": "A Comprehensive Analysis of Negative Sampling in Knowledge Graph Embedding", "year": 2022, "venue": "ICML"}
+    ],
+    "wide_sentinel_queries": [
+      "knowledge graph embedding negative sampling GPU CUDA accelerator",
+      "knowledge graph embedding runtime system framework GPU parallel distributed",
+      "knowledge graph embedding cost model scheduling batch packing load balancing",
+      "knowledge graph embedding reproducibility modularity artifact framework library"
+    ],
+    "query_logging": ["database", "exact_query", "pagination", "retrieved_at", "hit_count", "raw_response_sha256"],
+    "forward_citation_source": "OpenAlex",
+    "deduplication_precedence": ["DOI", "DBLP_KEY", "NORMALIZED_TITLE_YEAR"],
+    "study_family_rule": "Formal conference, journal, or extended versions are grouped as one study family while retaining each manifestation as a record."
+  },
+  "screening": {
+    "channels": ["NEUTRAL_ELIGIBILITY", "ADVERSARIAL_PRIOR_ART"],
+    "conflict_policy": "Human confirmation is required for conflicts, uncertain boundaries, and direct C1 candidates.",
+    "eligibility": [
+      "Publication year is within the frozen window.",
+      "The publication is in English.",
+      "The publication is formally peer reviewed.",
+      "The work concerns KGE training, negative sampling, runtime integration, scheduling, or reproducibility relevant to MQ1-MQ4."
+    ],
+    "exclude_reason_codes": {
+      "E01": "OUTSIDE_YEAR_WINDOW",
+      "E02": "NOT_FORMALLY_PEER_REVIEWED",
+      "E03": "NON_ENGLISH",
+      "E04": "OUT_OF_TOPIC",
+      "E05": "DUPLICATE_OR_STUDY_FAMILY_DUPLICATE",
+      "E06": "METADATA_INSUFFICIENT"
+    },
+    "adversarial_reason_codes": {
+      "A01": "DIRECT_C1_CANDIDATE_REQUIRES_FULL_TEXT_ADJUDICATION"
+    },
+    "full_text_rule": "Missing full text for a suspected direct C1 prior-art candidate blocks the verdict and yields UNRESOLVED; it is not silently excluded.",
+    "automatic_topic_gate": "Exclude only records with no KGE or runtime signal in title/abstract; flag potential direct C1 records for high-priority human review without assigning a novelty verdict."
+  },
+  "extraction_facets": [
+    "identity_and_provenance",
+    "KGE_model_dataset_hardware_scope",
+    "negative_operation_generation_filtering_corruption_retry",
+    "device_placement_and_transfer",
+    "runtime_integration_and_scheduler_boundary",
+    "comparator_evidence_repeats_uncertainty_artifacts",
+    "C2_role_and_interface",
+    "C3_cost_target_features_out_of_sample_protocol",
+    "C4_sorter_packer_factorial_protocol"
+  ],
+  "overlap_classes": [
+    "DIRECT-EXACT",
+    "DIRECT-FUNCTIONAL",
+    "STRONG-COMPONENT",
+    "ADJACENT-SYSTEM",
+    "SEMANTIC-BACKGROUND",
+    "NO-OVERLAP"
+  ],
+  "c1_verdicts": ["RETAIN", "NARROW", "REFRAME", "DROP", "UNRESOLVED"],
+  "c1_verdict_precedence": [
+    "Any incomplete search, unresolved conflict, or missing full text for a suspected direct candidate yields UNRESOLVED.",
+    "An exact prior with matching integration and evidence yields DROP.",
+    "An exact mechanism with a distinct audit or evidence contribution yields REFRAME.",
+    "A functional prior yields NARROW.",
+    "Only strong component or weaker overlap permits RETAIN."
+  ],
+  "artifacts": {
+    "protocol": "docs/phase_x_x1_5_literature_audit_protocol.json",
+    "human_protocol": "docs/phase_x_x1_5_literature_audit_protocol.md",
+    "script": "scripts/audit_x1_5_literature.py",
+    "output_directory": "output/results/evidence_audit_x1_5",
+    "files": [
+      "retrieval_manifest.json",
+      "retrieval_records.json",
+      "retry_schedule.json",
+      "retrieval_cutoff.json",
+      "fallback_coverage.csv",
+      "screening_summary.json",
+      "records.csv",
+      "screening_decisions.csv",
+      "human_adjudication.csv",
+      "fulltext_manifest.csv",
+      "evidence_extraction.csv",
+      "novelty_matrix.csv",
+      "novelty_decision.json",
+      "audit_checks.json"
+    ],
+    "pdf_policy": "PDFs are not committed; the full-text manifest records path, availability, and SHA-256 when present."
+  },
+  "determinism": {
+    "raw_snapshot_rule": "Given the same raw snapshot and protocol, normalization, derivation, and output serialization must be byte-identical.",
+    "ordering": "Sort records by canonical dedup key, then record ID; sort CSV columns by the declared schema.",
+    "dynamic_fields_forbidden": ["wall_clock_time", "temporary_path", "random_uuid"]
+  },
+  "acceptance_gates": [
+    "All three open indexes are queried for the frozen query set and G0/G1/G2 retrieval is complete.",
+    "All conflicts, direct candidates, and missing-full-text blockers are adjudicated.",
+    "Every C1 facet has a located full text or an explicit UNRESOLVED blocker.",
+    "Exactly one C1 verdict is emitted; C2-C4 cannot emit contribution verdicts.",
+    "Every reported value traces to a derived row and an original source record.",
+    "Derivation from one raw snapshot is byte-deterministic across two runs.",
+    "No GPU process, training run, runtime-code change, or paper-body change is required by this audit."
+  ]
+}

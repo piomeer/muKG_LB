@@ -1,0 +1,1724 @@
+{
+  "max_generation": 2,
+  "tasks": [
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W1533230146"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W205829674"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2070232376"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2081580037"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2094728533"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2127795553"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2138243089"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2184957013"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2186615578"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2432356473"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2612872092"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2748668722"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2759136286"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2889583850"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2899771611"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2926442184"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W2971933740"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W3016358231",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3016358231",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "work_id": "W3016358231"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W2788170399",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2788170399",
+      "seed_title": "Incorporating GAN for Negative Sampling in Knowledge Representation Learning",
+      "work_id": "W2788170399"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W1522301498"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W1529533208"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W1533230146"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2016753842"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2022166150"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W205829674"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2094728533"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2099471712"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2119717200"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2125389028"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2127795553"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2145544171"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2155027007"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2184957013"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2226877337"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2250184916"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2250342289"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2283196293"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2432356473"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2607491080"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2619206542"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2728059831"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2949972983"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2963432357"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2963534707"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2964116313"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2964121744"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2964268978"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W3101023724"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W4300824819"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W4320013936"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W2963485453",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2963485453",
+      "seed_title": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "work_id": "W2963485453"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W1529533208"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2127795553"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2250184916"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2432356473"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2728059831"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2759136286"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2763058042"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2889583850"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2909137510"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2912516411"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2924557457"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2926442184"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2949434543"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2963432357"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2963450615"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2963606508"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2964116313"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2970986510"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2983102021"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W2995925258"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W3016358231"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W3023009950"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W3034374701"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W3035134435"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W3035168168"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W3035403290"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W3151929433"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W3208785685"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W3106378800",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3106378800",
+      "seed_title": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "work_id": "W3106378800"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W3176260632",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3176260632",
+      "seed_title": "Marius: Learning Massive Graph Embeddings on a Single Machine",
+      "work_id": "W3176260632"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W102708294"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W1522301498"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W1529533208"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W1533230146"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W1533861849"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W1585529040"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W1756422141"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W1801721664"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W1894439495"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2022166150"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2055317074"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W205829674"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2081580037"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2094728533"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2099471712"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2119717200"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2125027602"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2125891623"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2127795553"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2131571251"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2132984949"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2141599568"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2145544171"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2152790380"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2172684358"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2184957013"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2250184916"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2250342289"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2283196293"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2296073425"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2432356473"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2433281745"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2487770199"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2759136286"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2788170399"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2804078698"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2809001617"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2896255488"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2899771611"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2962756421"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2962793481"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2962879692"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2963485453"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2963534707"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2964140943"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W68132019"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W2950352605",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2950352605",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2950352605"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W1533230146"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W1596986901"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2016753842"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W205829674"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2080133951"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2081580037"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2094728533"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2099752825"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2101802482"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2123228027"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2127426251"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2127795553"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2145544171"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2184957013"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2247119764"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2250342289"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2283196293"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2402144811"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2432356473"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2612900438"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2949972983"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2953384591"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2963432357"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2964140943"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W4300062145"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W4386506836"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W68132019"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W2889583850",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2889583850",
+      "seed_title": "OpenKE: An Open Toolkit for Knowledge Embedding",
+      "work_id": "W2889583850"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W3159319500",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3159319500",
+      "seed_title": "PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph Embeddings",
+      "work_id": "W3159319500"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W3038082146",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3038082146",
+      "seed_title": "Pytorch-BigGraph: A Large-scale Graph Embedding System",
+      "work_id": "W3038082146"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W2909137510",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2909137510",
+      "seed_title": "RotatE: Knowledge Graph Embedding by Relational Rotation in Complex Space",
+      "work_id": "W2909137510"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W1533861849"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W1771625187"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W1974403130"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W205829674"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2081580037"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2094728533"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2097266862"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2099752825"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2101802482"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2117420919"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2123228027"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2153579005"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2158535911"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2247119764"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2951131188"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2951723246"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2962814162"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W68132019"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W2127795553",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2127795553",
+      "seed_title": "Translating Embeddings for Modeling Multi-relational Data",
+      "work_id": "W2127795553"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2952737206",
+      "seed_title": "pykg2vec: A Python Library for Knowledge Graph Embedding",
+      "work_id": "W102708294"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2952737206",
+      "seed_title": "pykg2vec: A Python Library for Knowledge Graph Embedding",
+      "work_id": "W2073587810"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2952737206",
+      "seed_title": "pykg2vec: A Python Library for Knowledge Graph Embedding",
+      "work_id": "W2094728533"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2952737206",
+      "seed_title": "pykg2vec: A Python Library for Knowledge Graph Embedding",
+      "work_id": "W2127795553"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2952737206",
+      "seed_title": "pykg2vec: A Python Library for Knowledge Graph Embedding",
+      "work_id": "W2889583850"
+    },
+    {
+      "direction": "BACKWARD",
+      "filter": "",
+      "generation": "G1_BACKWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2952737206",
+      "seed_title": "pykg2vec: A Python Library for Knowledge Graph Embedding",
+      "work_id": "W2963432357"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W2952737206",
+      "generation": "G1_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2952737206",
+      "seed_title": "pykg2vec: A Python Library for Knowledge Graph Embedding",
+      "work_id": "W2952737206"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W2905267911",
+      "generation": "G2_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2905267911",
+      "seed_title": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "work_id": "W2905267911"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W2926442184",
+      "generation": "G2_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W2926442184",
+      "seed_title": "PyTorch-BigGraph: A Large-scale Graph Embedding System",
+      "work_id": "W2926442184"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W3035403290",
+      "generation": "G2_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3035403290",
+      "seed_title": "DGL-KE: Training Knowledge Graph Embeddings at Scale.",
+      "work_id": "W3035403290"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W3164760399",
+      "generation": "G2_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W3164760399",
+      "seed_title": "Marius: Learning Massive Graph Embeddings on a Single Machine",
+      "work_id": "W3164760399"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W4290948420",
+      "generation": "G2_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W4290948420",
+      "seed_title": "SMORE",
+      "work_id": "W4290948420"
+    },
+    {
+      "direction": "FORWARD",
+      "filter": "cites:W4372267520",
+      "generation": "G2_FORWARD",
+      "page_limit": 0,
+      "parent_work_id": "W4372267520",
+      "seed_title": "MariusGNN: Resource-Efficient Out-of-Core Training of Graph Neural Networks",
+      "work_id": "W4372267520"
+    }
+  ]
+}

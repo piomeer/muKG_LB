@@ -1,0 +1,340 @@
+{
+  "batch_size": 3,
+  "batches": [
+    {
+      "batch_sequence": 1,
+      "completed_at": "2026-08-08T06:40:59Z",
+      "query_keys": [
+        "27bdc280cca2bdf27d9d8dc1",
+        "604e55ef94e8d670c17b602a",
+        "3349ce98b79a55debb54c8b8"
+      ],
+      "round_number": 1
+    }
+  ],
+  "closure": {
+    "advisories": [],
+    "blocking_conditions": [
+      "retrieval_channel_open"
+    ],
+    "status": "OPEN"
+  },
+  "completed_rounds": 0,
+  "current_round": 1,
+  "fallback_rows": [
+    {
+      "disposition": "ADVISORY_ONLY",
+      "failed_index": "DBLP",
+      "fallback_indexes": "Crossref;OpenAlex",
+      "fallback_status": "AVAILABLE",
+      "matched_record_ids": "https://doi.org/10.18653/v1/n18-1133;https://openalex.org/W2768762802;https://openalex.org/W2963485453",
+      "qualification": "QUALIFIED",
+      "query": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "raw_evidence": "Crossref:fbac4c84433271072a9d7a30c75a21b95c6e2fe2eabdc2c488ed143ead440850;OpenAlex:4c2324c27c9c54b758e0a311c367134d1145a755d64b9c5f39adeffdb91bc273",
+      "retrieval_stage": "G0_SEEDS"
+    },
+    {
+      "disposition": "ADVISORY_ONLY",
+      "failed_index": "DBLP",
+      "fallback_indexes": "Crossref;OpenAlex",
+      "fallback_status": "AVAILABLE",
+      "matched_record_ids": "https://doi.org/10.18653/v1/2020.emnlp-demos.22;https://openalex.org/W3106378800",
+      "qualification": "QUALIFIED",
+      "query": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "raw_evidence": "Crossref:935c42df08e7e9645087d0ccfcc0aba74f42b1102a8e3e39bd6d3ef7b8749f0a;OpenAlex:b8b043e3ef1f2368cecf5315fae037340a74c0665ef2d94cb19b77a6184e29f4",
+      "retrieval_stage": "G0_SEEDS"
+    },
+    {
+      "disposition": "ADVISORY_ONLY",
+      "failed_index": "DBLP",
+      "fallback_indexes": "OpenAlex",
+      "fallback_status": "AVAILABLE",
+      "matched_record_ids": "https://openalex.org/W3164760399;https://openalex.org/W3176260632",
+      "qualification": "QUALIFIED",
+      "query": "Marius: Learning Massive Graph Embeddings on a Single Machine",
+      "raw_evidence": "OpenAlex:21ef14965b8312ee6a167b0fe6a668b0773873c683629cc0ff9ad45a3355c914",
+      "retrieval_stage": "G0_SEEDS"
+    },
+    {
+      "disposition": "ADVISORY_ONLY",
+      "failed_index": "DBLP",
+      "fallback_indexes": "Crossref;OpenAlex",
+      "fallback_status": "AVAILABLE",
+      "matched_record_ids": "https://doi.org/10.1109/icde.2019.00061;https://openalex.org/W2905267911;https://openalex.org/W2950352605",
+      "qualification": "QUALIFIED",
+      "query": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "raw_evidence": "Crossref:b5489c1b1bdb1e86f73a820f5018e99ca467fc43b5a3c95f400184c0ae9656b7;OpenAlex:7cfd8d54a770fb37b78ee061895ed48a4320201d2cd67a6733c4c4949138d731",
+      "retrieval_stage": "G0_SEEDS"
+    },
+    {
+      "disposition": "ADVISORY_ONLY",
+      "failed_index": "DBLP",
+      "fallback_indexes": "OpenAlex",
+      "fallback_status": "AVAILABLE",
+      "matched_record_ids": "https://openalex.org/W3046075728;https://openalex.org/W3159319500",
+      "qualification": "QUALIFIED",
+      "query": "PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph Embeddings",
+      "raw_evidence": "OpenAlex:39477776ecef9570dfaa44a60fc0bcb215fc89d546b9bed0f104635f8b9f3472",
+      "retrieval_stage": "G0_SEEDS"
+    },
+    {
+      "disposition": "ADVISORY_ONLY",
+      "failed_index": "DBLP",
+      "fallback_indexes": "OpenAlex",
+      "fallback_status": "AVAILABLE",
+      "matched_record_ids": "https://openalex.org/W2909137510",
+      "qualification": "QUALIFIED",
+      "query": "RotatE: Knowledge Graph Embedding by Relational Rotation in Complex Space",
+      "raw_evidence": "OpenAlex:63286a184a588dac1906c113035ef37c3876a64e28e423187451a5233e786620",
+      "retrieval_stage": "G0_SEEDS"
+    },
+    {
+      "disposition": "ADVISORY_ONLY",
+      "failed_index": "DBLP",
+      "fallback_indexes": "Crossref;OpenAlex",
+      "fallback_status": "AVAILABLE",
+      "matched_record_ids": "https://doi.org/10.1007/s10115-025-02347-z;https://doi.org/10.1007/s11227-020-03305-y;https://doi.org/10.1007/s42979-024-03085-9;https://doi.org/10.1016/j.bdr.2020.100160;https://doi.org/10.1016/j.bdr.2022.100351;https://doi.org/10.1016/j.datak.2022.102138;https://doi.org/10.1016/j.ins.2023.119225;https://doi.org/10.1016/j.ipm.2019.102093;https://doi.org/10.1016/j.knosys.2018.10.008;https://doi.org/10.1016/j.knosys.2021.107558;https://doi.org/10.1016/j.knosys.2023.110968;https://doi.org/10.1016/j.knosys.2024.112183;https://doi.org/10.1016/j.knosys.2024.112290;https://doi.org/10.1016/j.knosys.2025.114331;https://doi.org/10.1016/j.knosys.2025.114507;https://doi.org/10.1016/j.neucom.2024.127680;https://doi.org/10.1016/j.neucom.2026.132821;https://doi.org/10.1016/j.neunet.2026.108630;https://doi.org/10.1017/9781108233217.029;https://doi.org/10.1038/s41598-023-38857-5;https://doi.org/10.1038/s41598-025-95372-5;https://doi.org/10.1038/s41598-025-97494-2;https://doi.org/10.1049/cp.2013.2333;https://doi.org/10.1101/2022.10.03.22280657;https://doi.org/10.1109/access.2020.3047086;https://doi.org/10.1109/cac63892.2024.10865723;https://doi.org/10.1109/cacml55074.2022.00077;https://doi.org/10.1109/ccdc52312.2021.9602345;https://doi.org/10.1109/ccdc62350.2024.10587420;https://doi.org/10.1109/ciapp.2017.8167191;https://doi.org/10.1109/cluster.2013.6702637;https://doi.org/10.1109/cyberscitech68397.2025.00047;https://doi.org/10.1109/eit63098.2024.10762128;https://doi.org/10.1109/esci68015.2026.11493303;https://doi.org/10.1109/hpcs48598.2019.9188134;https://doi.org/10.1109/icbk50248.2020.00015;https://doi.org/10.1109/icbk50248.2020.00048;https://doi.org/10.1109/icbk50248.2020.00056;https://doi.org/10.1109/icbk50248.2020.00082;https://doi.org/10.1109/icccs61882.2024.10603073;https://doi.org/10.1109/iccke48569.2019.8964946;https://doi.org/10.1109/iccpeic.2014.6915334;https://doi.org/10.1109/icde55515.2023.00379;https://doi.org/10.1109/icicct.2018.8473062;https://doi.org/10.1109/ickg55886.2022.00054;https://doi.org/10.1109/icodt252288.2021.9441513;https://doi.org/10.1109/icpr.2018.8545570;https://doi.org/10.1109/icsec.2013.6694757;https://doi.org/10.1109/icsp62122.2024.10743380;https://doi.org/10.1109/ijcnn55064.2022.9892213;https://doi.org/10.1109/ijcnn60899.2024.10650666;https://doi.org/10.1109/isceic67854.2025.11405470;https://doi.org/10.1109/iske47853.2019.9170315;https://doi.org/10.1109/punecon58714.2023.10450135;https://doi.org/10.1109/tc.2025.3603725;https://doi.org/10.1109/tc.2025.3642832;https://doi.org/10.1109/tpds.2023.3334519;https://doi.org/10.1145/3447654.3447664;https://doi.org/10.1145/3502223.3502248;https://doi.org/10.1145/3641584.3641803;https://doi.org/10.1155/2013/439362;https://doi.org/10.12792/icisip2019.011;https://doi.org/10.14327/iscm.17.171;https://doi.org/10.15680/ijircce.2015.0306026;https://doi.org/10.21203/rs.3.rs-2178549/v1;https://doi.org/10.21203/rs.3.rs-2304993/v1;https://doi.org/10.21203/rs.3.rs-2689875/v1;https://doi.org/10.21203/rs.3.rs-2699542/v1;https://doi.org/10.21203/rs.3.rs-2761260/v1;https://doi.org/10.21203/rs.3.rs-3481444/v1;https://doi.org/10.21203/rs.3.rs-4916145/v1;https://doi.org/10.21275/art20164341;https://doi.org/10.2139/ssrn.4455886;https://doi.org/10.2139/ssrn.4663975;https://doi.org/10.2139/ssrn.4714938;https://doi.org/10.2139/ssrn.4879905;https://doi.org/10.2139/ssrn.4989464;https://doi.org/10.2139/ssrn.5108777;https://doi.org/10.2139/ssrn.6736045;https://doi.org/10.2139/ssrn.6889577;https://doi.org/10.22214/ijraset.2017.4274;https://doi.org/10.2514/6.2016-1713;https://doi.org/10.26434/chemrxiv.15004946/v1;https://doi.org/10.31577/cai_2023_1_37;https://doi.org/10.3233/jifs-210982;https://doi.org/10.3390/app13105876;https://doi.org/10.3390/electronics12102315;https://doi.org/10.3390/electronics12204238;https://doi.org/10.3390/engproc2023029001;https://doi.org/10.3390/su141912299;https://doi.org/10.3390/wevj16010046;https://doi.org/10.4018/ijaec.2017070104;https://doi.org/10.4324/9781003050803-12;https://doi.org/10.5120/ijca2016912563;https://doi.org/10.5220/0006240304890495;https://doi.org/10.52845/cs/2025-5-2-38;https://doi.org/10.56726/irjmets61521;https://doi.org/10.66135/ijdsai0305p005;https://doi.org/10.70729/j201391;https://doi.org/10.7717/peerj-cs.1808;https://openalex.org/W1532597266;https://openalex.org/W1562757257;https://openalex.org/W1572526674;https://openalex.org/W1971414972;https://openalex.org/W2019183416;https://openalex.org/W2054820097;https://openalex.org/W2111129781;https://openalex.org/W2119242743;https://openalex.org/W2224359430;https://openalex.org/W2266336423;https://openalex.org/W2276351112;https://openalex.org/W2295808894;https://openalex.org/W2335814492;https://openalex.org/W2335895301;https://openalex.org/W2608738900;https://openalex.org/W2613618711;https://openalex.org/W2769008494;https://openalex.org/W2778334231;https://openalex.org/W2785271814;https://openalex.org/W2791165324;https://openalex.org/W2888048300;https://openalex.org/W2894677423;https://openalex.org/W2907463061;https://openalex.org/W2943512158;https://openalex.org/W2949251082;https://openalex.org/W2962711501;https://openalex.org/W2962814013;https://openalex.org/W2963283923;https://openalex.org/W2968986602;https://openalex.org/W2982206554;https://openalex.org/W2982505181;https://openalex.org/W2986934259;https://openalex.org/W2990632447;https://openalex.org/W3015125458;https://openalex.org/W3037631006;https://openalex.org/W3047477704;https://openalex.org/W3088367914;https://openalex.org/W3091309232;https://openalex.org/W3095776306;https://openalex.org/W3125055412;https://openalex.org/W3133357162;https://openalex.org/W3153701385;https://openalex.org/W3161374268;https://openalex.org/W3174394491;https://openalex.org/W3194015442;https://openalex.org/W3201460299;https://openalex.org/W3203923637;https://openalex.org/W3206457735;https://openalex.org/W3212779344;https://openalex.org/W4200634477;https://openalex.org/W4205601070;https://openalex.org/W4205627906;https://openalex.org/W4206111419;https://openalex.org/W4206303881;https://openalex.org/W4210559098;https://openalex.org/W4223975181;https://openalex.org/W4281676310;https://openalex.org/W4281785343;https://openalex.org/W4285282448;https://openalex.org/W4287282215;https://openalex.org/W4296079434;https://openalex.org/W4307818375;https://openalex.org/W4308946283;https://openalex.org/W4312910656;https://openalex.org/W4320351318;https://openalex.org/W4322718253;https://openalex.org/W4361984681;https://openalex.org/W4362515116;https://openalex.org/W4364382874;https://openalex.org/W4378588840;https://openalex.org/W4378895334;https://openalex.org/W4380445896;https://openalex.org/W4381328668;https://openalex.org/W4385737998;https://openalex.org/W4386161648;https://openalex.org/W4386246465;https://openalex.org/W4386699411;https://openalex.org/W4387503568;https://openalex.org/W4388286362;https://openalex.org/W4388662057;https://openalex.org/W4389491850;https://openalex.org/W4389949927;https://openalex.org/W4391697139;https://openalex.org/W4399657463;https://openalex.org/W4400430295;https://openalex.org/W4401989829;https://openalex.org/W4402054386;https://openalex.org/W4402137675;https://openalex.org/W4402830235;https://openalex.org/W4403883004;https://openalex.org/W4409189639;https://openalex.org/W4409350029;https://openalex.org/W4409350934;https://openalex.org/W4409767172;https://openalex.org/W4411624362;https://openalex.org/W4412056540;https://openalex.org/W4412740775;https://openalex.org/W4412769416;https://openalex.org/W4416299331;https://openalex.org/W4417070545",
+      "qualification": "QUALIFIED",
+      "query": "knowledge graph embedding cost model scheduling batch packing load balancing",
+      "raw_evidence": "Crossref:306ce5c96acb1313ab19b4a465ecbffbf0e4e10a2d3e949f4ff891f61a2f80b0;OpenAlex:64d677140dbf00ad17ff7b11b77ea7920652795e20f139f4fb0e52e16df0ae93",
+      "retrieval_stage": "WIDE_SENTINEL"
+    },
+    {
+      "disposition": "ADVISORY_ONLY",
+      "failed_index": "DBLP",
+      "fallback_indexes": "Crossref;OpenAlex",
+      "fallback_status": "AVAILABLE",
+      "matched_record_ids": "https://doi.org/10.1007/978-1-4842-6698-4_4;https://doi.org/10.1007/978-3-031-20865-2_6;https://doi.org/10.1007/978-3-031-47240-4_13;https://doi.org/10.1007/978-3-031-47240-4_14;https://doi.org/10.1007/978-3-319-17885-1_1606;https://doi.org/10.1007/978-3-319-23519-6_1606-1;https://doi.org/10.1007/978-981-15-0118-0_42;https://doi.org/10.1007/978-981-96-2468-3_84;https://doi.org/10.1007/978-981-97-2421-5_29;https://doi.org/10.1007/978-981-97-5562-2_23;https://doi.org/10.1007/s00521-020-04940-5;https://doi.org/10.1007/s00521-020-05040-0;https://doi.org/10.1007/s00778-020-00640-7;https://doi.org/10.1007/s10489-023-04901-0;https://doi.org/10.1007/s10618-024-01052-9;https://doi.org/10.1007/s11280-023-01167-x;https://doi.org/10.1016/b978-0-12-415933-4.00011-9;https://doi.org/10.1016/b978-0-12-417137-4.09985-8;https://doi.org/10.1016/b978-0-12-814120-5.00015-9;https://doi.org/10.1016/b978-0-12-814120-5.00027-5;https://doi.org/10.1016/j.array.2025.100404;https://doi.org/10.1016/j.knosys.2018.10.008;https://doi.org/10.1016/j.knosys.2022.108157;https://doi.org/10.1016/j.knosys.2022.109758;https://doi.org/10.1016/j.knosys.2025.113063;https://doi.org/10.1016/j.knosys.2025.113258;https://doi.org/10.1016/j.knosys.2025.114133;https://doi.org/10.1016/j.knosys.2026.116025;https://doi.org/10.1016/j.neucom.2025.131751;https://doi.org/10.1016/j.neucom.2026.132821;https://doi.org/10.1038/s41598-025-98550-7;https://doi.org/10.1080/02522667.2022.2133215;https://doi.org/10.1088/1742-6596/513/5/052021;https://doi.org/10.1109/bigdata66926.2025.11401546;https://doi.org/10.1109/cei66465.2025.11398520;https://doi.org/10.1109/dsc59305.2023.00016;https://doi.org/10.1109/icaibd64986.2025.11082092;https://doi.org/10.1109/icbk.2018.00013;https://doi.org/10.1109/icbk50248.2020.00015;https://doi.org/10.1109/icbk50248.2020.00048;https://doi.org/10.1109/icbk50248.2020.00082;https://doi.org/10.1109/icccs61882.2024.10603073;https://doi.org/10.1109/iccnse66404.2025.11144059;https://doi.org/10.1109/iccubea58933.2023.10391964;https://doi.org/10.1109/icde.2019.00061;https://doi.org/10.1109/icde55515.2023.00379;https://doi.org/10.1109/ickg55886.2022.00054;https://doi.org/10.1109/icmla52953.2021.00155;https://doi.org/10.1109/ictc66702.2025.11389098;https://doi.org/10.1109/ijcnn54540.2023.10191314;https://doi.org/10.1109/kbei.2017.8324916;https://doi.org/10.1109/qce57702.2023.10242;https://doi.org/10.1109/spic62469.2024.10691626;https://doi.org/10.1109/swc62898.2024.00272;https://doi.org/10.1109/ubmk50275.2020.9219377;https://doi.org/10.1111/exsy.70377;https://doi.org/10.1145/3041021.3054238;https://doi.org/10.1145/3300053.3319416;https://doi.org/10.1145/3366423.3380098;https://doi.org/10.1145/3442381.3449859;https://doi.org/10.1145/3503161.3548388;https://doi.org/10.1145/3534678.3539327;https://doi.org/10.1145/3539618.3591996;https://doi.org/10.1145/3696410.3714650;https://doi.org/10.1201/9781315368290;https://doi.org/10.1201/9781315368290-10;https://doi.org/10.1201/9781315368290-11;https://doi.org/10.1201/9781315368290-12;https://doi.org/10.1201/9781315368290-14;https://doi.org/10.1201/9781315368290-15;https://doi.org/10.1201/9781315368290-6;https://doi.org/10.1201/9781315368290-7;https://doi.org/10.1201/9781315368290-8;https://doi.org/10.1201/9781315368290-9;https://doi.org/10.12792/icisip2019.011;https://doi.org/10.1299/jsmecmd.2025.38.os17-12;https://doi.org/10.13052/jwe1540-9589.2068;https://doi.org/10.14257/astl.2014.58.18;https://doi.org/10.1609/aaai.v40i27.39455;https://doi.org/10.18653/v1/2021.acl-long.429;https://doi.org/10.18653/v1/2024.repl4nlp-1.8;https://doi.org/10.21203/rs.3.rs-2188328/v1;https://doi.org/10.21203/rs.3.rs-2304993/v1;https://doi.org/10.21203/rs.3.rs-2689875/v1;https://doi.org/10.2139/ssrn.4961873;https://doi.org/10.2139/ssrn.5320566;https://doi.org/10.2172/1341833;https://doi.org/10.2172/2574870;https://doi.org/10.26434/chemrxiv.15004946/v1;https://doi.org/10.32614/rj-2016-053;https://doi.org/10.3390/app13052817;https://doi.org/10.3390/info14080450;https://doi.org/10.3390/math12223489;https://doi.org/10.3390/su141912299;https://doi.org/10.36910/6775-2524-0560-2026-62-10;https://doi.org/10.3846/mla.2014.16;https://doi.org/10.5121/ijaia.2021.12105;https://doi.org/10.5220/0011142000003277;https://doi.org/10.5626/ktcp.2024.30.10.543;https://doi.org/10.5715/jnlp.28.1336;https://openalex.org/W105594637;https://openalex.org/W1916916424;https://openalex.org/W1995301561;https://openalex.org/W2061619357;https://openalex.org/W2226815576;https://openalex.org/W2234512370;https://openalex.org/W2289330178;https://openalex.org/W2333787883;https://openalex.org/W2520385176;https://openalex.org/W2539975594;https://openalex.org/W2616543068;https://openalex.org/W2766890412;https://openalex.org/W2767272762;https://openalex.org/W2768363900;https://openalex.org/W2772457693;https://openalex.org/W2883309756;https://openalex.org/W2885591122;https://openalex.org/W2891818448;https://openalex.org/W2898197178;https://openalex.org/W2898889885;https://openalex.org/W2903212338;https://openalex.org/W2907463061;https://openalex.org/W2908711120;https://openalex.org/W2937093449;https://openalex.org/W2946072469;https://openalex.org/W2948127674;https://openalex.org/W2950636659;https://openalex.org/W2951275974;https://openalex.org/W2954234675;https://openalex.org/W2966177220;https://openalex.org/W2979645155;https://openalex.org/W2989916540;https://openalex.org/W3000086329;https://openalex.org/W3000310304;https://openalex.org/W3006150655;https://openalex.org/W3034590782;https://openalex.org/W3040573126;https://openalex.org/W3048086351;https://openalex.org/W3090326207;https://openalex.org/W3096566397;https://openalex.org/W3102836279;https://openalex.org/W3108426037;https://openalex.org/W3115999170;https://openalex.org/W3126307664;https://openalex.org/W3137147200;https://openalex.org/W3168173119;https://openalex.org/W3209449653;https://openalex.org/W3212697684;https://openalex.org/W4200604594;https://openalex.org/W4206137952;https://openalex.org/W4206914990;https://openalex.org/W4211055935;https://openalex.org/W4213453694;https://openalex.org/W4214843102;https://openalex.org/W4220848320;https://openalex.org/W4221146360;https://openalex.org/W4226401363;https://openalex.org/W4239514724;https://openalex.org/W4282965709;https://openalex.org/W4292794775;https://openalex.org/W4295122555;https://openalex.org/W4302306191;https://openalex.org/W4309575388;https://openalex.org/W4312406906;https://openalex.org/W4312705522;https://openalex.org/W4316020004;https://openalex.org/W4321445982;https://openalex.org/W4362468559;https://openalex.org/W4382492052;https://openalex.org/W4384920109;https://openalex.org/W4386191499;https://openalex.org/W4386461213;https://openalex.org/W4386542982;https://openalex.org/W4386592248;https://openalex.org/W4387321503;https://openalex.org/W4388031336;https://openalex.org/W4388581275;https://openalex.org/W4388662070;https://openalex.org/W4389445919;https://openalex.org/W4389524555;https://openalex.org/W4389609877;https://openalex.org/W4390872229;https://openalex.org/W4391514496;https://openalex.org/W4392543828;https://openalex.org/W4396669427;https://openalex.org/W4399359666;https://openalex.org/W4400119358;https://openalex.org/W4400425628;https://openalex.org/W4400748401;https://openalex.org/W4401307108;https://openalex.org/W4401397240;https://openalex.org/W4404171898;https://openalex.org/W4405494723;https://openalex.org/W4405955007;https://openalex.org/W4406488955;https://openalex.org/W4410082226;https://openalex.org/W4411453131;https://openalex.org/W4414332261;https://openalex.org/W4415319299;https://openalex.org/W4417070391",
+      "qualification": "QUALIFIED",
+      "query": "knowledge graph embedding negative sampling GPU CUDA accelerator",
+      "raw_evidence": "Crossref:a269f10171c8c0918b4e5edb07560412efc7ec0b51056773e84114840cb0faea;OpenAlex:406956fc7b9c6c372664c2e405b7fcc0149dcd9185b921a45f468d66b95b0496",
+      "retrieval_stage": "WIDE_SENTINEL"
+    },
+    {
+      "disposition": "ADVISORY_ONLY",
+      "failed_index": "DBLP",
+      "fallback_indexes": "Crossref;OpenAlex",
+      "fallback_status": "AVAILABLE",
+      "matched_record_ids": "https://doi.org/10.1007/s10115-025-02346-0;https://doi.org/10.1007/s10489-023-04723-0;https://doi.org/10.1007/s10489-023-04896-8;https://doi.org/10.1007/s11227-025-08166-x;https://doi.org/10.1007/s11280-024-01320-0;https://doi.org/10.1007/s12539-026-00821-y;https://doi.org/10.1016/j.csi.2025.104113;https://doi.org/10.1016/j.datak.2025.102414;https://doi.org/10.1016/j.datak.2026.102607;https://doi.org/10.1016/j.engappai.2024.109891;https://doi.org/10.1016/j.inffus.2022.09.012;https://doi.org/10.1016/j.ins.2022.11.042;https://doi.org/10.1016/j.knosys.2016.07.002;https://doi.org/10.1016/j.knosys.2018.03.020;https://doi.org/10.1016/j.knosys.2018.10.008;https://doi.org/10.1016/j.knosys.2019.105029;https://doi.org/10.1016/j.knosys.2021.107861;https://doi.org/10.1016/j.knosys.2022.109002;https://doi.org/10.1016/j.knosys.2024.111468;https://doi.org/10.1016/j.knosys.2024.111505;https://doi.org/10.1016/j.knosys.2024.112730;https://doi.org/10.1016/j.knosys.2025.113258;https://doi.org/10.1016/j.knosys.2025.113541;https://doi.org/10.1016/j.neucom.2022.12.010;https://doi.org/10.1016/j.neucom.2023.126261;https://doi.org/10.1016/j.neucom.2025.129743;https://doi.org/10.1016/j.neucom.2026.132821;https://doi.org/10.1016/j.neunet.2025.107494;https://doi.org/10.1016/j.procs.2024.09.509;https://doi.org/10.1038/s41598-023-38857-5;https://doi.org/10.1038/s41598-025-98550-7;https://doi.org/10.1039/d5dd00070j/v1/review1;https://doi.org/10.1039/d5dd00070j/v1/review2;https://doi.org/10.1039/d5dd00070j/v1/review3;https://doi.org/10.1039/d5dd00070j/v2/review1;https://doi.org/10.1108/lht-05-2022-0265;https://doi.org/10.1109/access.2022.3227714;https://doi.org/10.1109/access.2023.3276319;https://doi.org/10.1109/access.2024.3502450;https://doi.org/10.1109/access.2025.3648755;https://doi.org/10.1109/fasta65681.2025.11138823;https://doi.org/10.1109/icac3n56670.2022.10074567;https://doi.org/10.1109/icaibd55127.2022.9820258;https://doi.org/10.1109/icbk50248.2020.00015;https://doi.org/10.1109/icbk50248.2020.00048;https://doi.org/10.1109/icbk50248.2020.00056;https://doi.org/10.1109/icbk50248.2020.00082;https://doi.org/10.1109/icccs61882.2024.10603073;https://doi.org/10.1109/icde55515.2023.00379;https://doi.org/10.1109/ickg55886.2022.00037;https://doi.org/10.1109/ickg55886.2022.00043;https://doi.org/10.1109/ickg55886.2022.00054;https://doi.org/10.1109/ickg66886.2025.00013;https://doi.org/10.1109/ictai56018.2022.00060;https://doi.org/10.1109/ijcnn64981.2025.11228572;https://doi.org/10.1109/isceic67854.2025.11405470;https://doi.org/10.1109/smc58881.2025.11342577;https://doi.org/10.1109/spcnc68200.2025.11406677;https://doi.org/10.1109/tkde.2019.2931548;https://doi.org/10.1109/tkde.2024.3486747;https://doi.org/10.1109/tse.2024.3393504;https://doi.org/10.1117/12.3068448;https://doi.org/10.1145/3321408.3321604;https://doi.org/10.1145/3459637.3482224;https://doi.org/10.1145/3502223.3502224;https://doi.org/10.1145/3502223.3502248;https://doi.org/10.1145/3508546.3508613;https://doi.org/10.1145/3773966.3777936;https://doi.org/10.1145/3774905.3793120;https://doi.org/10.12792/icisip2019.011;https://doi.org/10.18653/v1/2020.emnlp-demos.22;https://doi.org/10.18653/v1/2024.findings-acl.171;https://doi.org/10.21203/rs.3.rs-2128629/v1;https://doi.org/10.21203/rs.3.rs-2178549/v1;https://doi.org/10.21203/rs.3.rs-2304993/v1;https://doi.org/10.21203/rs.3.rs-2605517/v1;https://doi.org/10.21203/rs.3.rs-2689875/v1;https://doi.org/10.21203/rs.3.rs-2699542/v1;https://doi.org/10.21203/rs.3.rs-453545/v1;https://doi.org/10.2139/ssrn.4616283;https://doi.org/10.2139/ssrn.5084904;https://doi.org/10.2139/ssrn.5288410;https://doi.org/10.2139/ssrn.5467516;https://doi.org/10.2139/ssrn.6672679;https://doi.org/10.26434/chemrxiv.15004946/v1;https://doi.org/10.26599/tst.2021.9010067;https://doi.org/10.31219/osf.io/nce4y_v3;https://doi.org/10.31219/osf.io/nce4y_v4;https://doi.org/10.3233/faia200184;https://doi.org/10.3389/fdata.2022.965619;https://doi.org/10.3390/app13052817;https://doi.org/10.3390/electronics13224486;https://doi.org/10.3390/electronics14081656;https://doi.org/10.3390/make1030055;https://doi.org/10.3390/math12223489;https://doi.org/10.3390/su141912299;https://doi.org/10.34133/icomputing.0021;https://doi.org/10.3724/2096-7004.di.2026.0124;https://doi.org/10.55277/researchhub.v1fuuc8t.1;https://doi.org/10.5958/2456-9399.2025.00006.x;https://openalex.org/W1159006237;https://openalex.org/W1573007641;https://openalex.org/W1852728451;https://openalex.org/W1879820513;https://openalex.org/W2042253916;https://openalex.org/W2049130783;https://openalex.org/W2075571135;https://openalex.org/W2128886782;https://openalex.org/W2167398464;https://openalex.org/W2179425537;https://openalex.org/W2192583762;https://openalex.org/W2211041313;https://openalex.org/W2265858291;https://openalex.org/W2271206385;https://openalex.org/W2398005666;https://openalex.org/W2490812900;https://openalex.org/W2504150216;https://openalex.org/W2519717859;https://openalex.org/W2557746235;https://openalex.org/W2571489439;https://openalex.org/W2572857085;https://openalex.org/W2754110830;https://openalex.org/W2791956678;https://openalex.org/W2807774947;https://openalex.org/W2808317661;https://openalex.org/W2883359218;https://openalex.org/W2883445328;https://openalex.org/W2884769489;https://openalex.org/W2887673454;https://openalex.org/W2909386985;https://openalex.org/W2929928372;https://openalex.org/W2930019028;https://openalex.org/W2933602294;https://openalex.org/W2947040663;https://openalex.org/W2947090253;https://openalex.org/W2953176058;https://openalex.org/W2980908323;https://openalex.org/W2994830123;https://openalex.org/W2995022099;https://openalex.org/W2995755016;https://openalex.org/W3003667836;https://openalex.org/W3033835801;https://openalex.org/W3034076549;https://openalex.org/W3034429939;https://openalex.org/W3035809474;https://openalex.org/W3041129226;https://openalex.org/W3045745713;https://openalex.org/W3081063723;https://openalex.org/W3092452957;https://openalex.org/W3093681468;https://openalex.org/W3118628401;https://openalex.org/W3121927947;https://openalex.org/W3123733941;https://openalex.org/W3163972593;https://openalex.org/W3172130030;https://openalex.org/W3177288692;https://openalex.org/W3184917240;https://openalex.org/W3208687975;https://openalex.org/W4206484811;https://openalex.org/W4210253752;https://openalex.org/W4210783895;https://openalex.org/W4224985506;https://openalex.org/W4226076355;https://openalex.org/W4291745514;https://openalex.org/W4293582143;https://openalex.org/W4293812554;https://openalex.org/W4295880122;https://openalex.org/W4307847583;https://openalex.org/W4321650106;https://openalex.org/W4366208220;https://openalex.org/W4381848566;https://openalex.org/W4382599418;https://openalex.org/W4385299001;https://openalex.org/W4385688053;https://openalex.org/W4386005156;https://openalex.org/W4386081573;https://openalex.org/W4386193073;https://openalex.org/W4386879232;https://openalex.org/W4388530027;https://openalex.org/W4389004870;https://openalex.org/W4389894195;https://openalex.org/W4390618519;https://openalex.org/W4391251713;https://openalex.org/W4391376895;https://openalex.org/W4393087172;https://openalex.org/W4394577481;https://openalex.org/W4398762215;https://openalex.org/W4399045253;https://openalex.org/W4400529131;https://openalex.org/W4401807469;https://openalex.org/W4404214208;https://openalex.org/W4406145277;https://openalex.org/W4407593558;https://openalex.org/W4410499730;https://openalex.org/W4412505619;https://openalex.org/W4414615216;https://openalex.org/W4416149993;https://openalex.org/W4416151835;https://openalex.org/W4416309983;https://openalex.org/W975671844",
+      "qualification": "QUALIFIED",
+      "query": "knowledge graph embedding reproducibility modularity artifact framework library",
+      "raw_evidence": "Crossref:0558ebb4386f7a40491624b7d261c3b48800193bdf45fdf3de2748118be17652;OpenAlex:a11e65f2e8212921e66bd68ca4c5afa94a3aadb8793e40290e87c61e978a5dc7",
+      "retrieval_stage": "WIDE_SENTINEL"
+    },
+    {
+      "disposition": "ADVISORY_ONLY",
+      "failed_index": "DBLP",
+      "fallback_indexes": "Crossref;OpenAlex",
+      "fallback_status": "AVAILABLE",
+      "matched_record_ids": "https://doi.org/10.1002/cpe.70021;https://doi.org/10.1007/978-3-031-69583-4_16;https://doi.org/10.1007/s10766-022-00743-4;https://doi.org/10.1007/s10766-025-00792-5;https://doi.org/10.1007/s11227-025-08166-x;https://doi.org/10.1016/j.jpdc.2013.03.002;https://doi.org/10.1016/j.jpdc.2013.03.007;https://doi.org/10.1016/j.jpdc.2015.05.002;https://doi.org/10.1016/j.jpdc.2015.06.008;https://doi.org/10.1016/j.jpdc.2016.04.014;https://doi.org/10.1016/j.jpdc.2017.06.011;https://doi.org/10.1016/j.jpdc.2019.04.008;https://doi.org/10.1016/j.jpdc.2019.05.014;https://doi.org/10.1016/j.jpdc.2020.10.011;https://doi.org/10.1016/j.jpdc.2021.05.010;https://doi.org/10.1016/j.jpdc.2022.01.027;https://doi.org/10.1016/j.jpdc.2022.10.009;https://doi.org/10.1016/j.jpdc.2023.104780;https://doi.org/10.1016/j.jpdc.2023.104796;https://doi.org/10.1016/j.jpdc.2024.104885;https://doi.org/10.1016/j.jpdc.2026.105264;https://doi.org/10.1016/j.knosys.2017.08.001;https://doi.org/10.1016/j.knosys.2024.111468;https://doi.org/10.1016/j.knosys.2025.113258;https://doi.org/10.1016/j.knosys.2025.113541;https://doi.org/10.1016/j.parco.2021.102769;https://doi.org/10.1016/j.parco.2022.102896;https://doi.org/10.1016/j.procs.2024.09.509;https://doi.org/10.1038/s41598-023-38857-5;https://doi.org/10.1109/access.2023.3276319;https://doi.org/10.1109/aiccsa63423.2024.10912552;https://doi.org/10.1109/fasta65681.2025.11138823;https://doi.org/10.1109/icdscnc62492.2024.10939463;https://doi.org/10.1109/ickg66886.2025.00013;https://doi.org/10.1109/icpads60453.2023.00240;https://doi.org/10.1109/icpads60453.2023.00314;https://doi.org/10.1109/icpp.2013.16;https://doi.org/10.1109/ipdps.2013.105;https://doi.org/10.1109/ipdps.2014.58;https://doi.org/10.1109/ipdps.2015.12;https://doi.org/10.1109/ipdps.2016.106;https://doi.org/10.1109/ipdps.2017.117;https://doi.org/10.1109/ipdps.2018.00073;https://doi.org/10.1109/ipdps.2018.00107;https://doi.org/10.1109/ipdps.2019.00032;https://doi.org/10.1109/ipdps.2019.00056;https://doi.org/10.1109/ipdps47924.2020.00080;https://doi.org/10.1109/ipdps49936.2021.00020;https://doi.org/10.1109/ipdps49936.2021.00023;https://doi.org/10.1109/ipdps49936.2021.00024;https://doi.org/10.1109/ipdps49936.2021.00032;https://doi.org/10.1109/ipdps49936.2021.00034;https://doi.org/10.1109/ipdps53621.2022.00055;https://doi.org/10.1109/ipdps54959.2023.00057;https://doi.org/10.1109/ipdps57955.2024.00085;https://doi.org/10.1109/ipdps64566.2025.00013;https://doi.org/10.1109/ipdps64566.2025.00071;https://doi.org/10.1109/ipdps65963.2026.00020;https://doi.org/10.1109/ipdps65963.2026.00068;https://doi.org/10.1109/ipdpsw.2013.144;https://doi.org/10.1109/ipdpsw.2014.157;https://doi.org/10.1109/ipdpsw.2015.74;https://doi.org/10.1109/ipdpsw.2016.105;https://doi.org/10.1109/ipdpsw.2016.16;https://doi.org/10.1109/ipdpsw.2017.116;https://doi.org/10.1109/ipdpsw.2017.19;https://doi.org/10.1109/ipdpsw.2018.00082;https://doi.org/10.1109/ipdpsw.2018.00182;https://doi.org/10.1109/ipdpsw.2019.00041;https://doi.org/10.1109/ipdpsw.2019.00046;https://doi.org/10.1109/ipdpsw52791.2021.00086;https://doi.org/10.1109/ipdpsw59300.2023.00150;https://doi.org/10.1109/ipdpsw63119.2024.00040;https://doi.org/10.1109/ipdpsw63119.2024.00100;https://doi.org/10.1109/ispa-bdcloud-sustaincom-socialcom48970.2019.00083;https://doi.org/10.1109/ispa63168.2024.00080;https://doi.org/10.1109/ispdc.2015.20;https://doi.org/10.1109/ispdc.2017.20;https://doi.org/10.1109/ispds58840.2023.10235418;https://doi.org/10.1109/ispds67367.2025.11390883;https://doi.org/10.1109/padsw.2014.7097806;https://doi.org/10.1109/padsw.2018.8644624;https://doi.org/10.1109/pdgc56933.2022.10053216;https://doi.org/10.1109/rtsi50628.2021.9597228;https://doi.org/10.1109/snpd.2013.58;https://doi.org/10.1109/tpds.2016.2616314;https://doi.org/10.1109/tpds.2018.2814567;https://doi.org/10.1109/tpds.2020.3041219;https://doi.org/10.1109/tpds.2021.3066442;https://doi.org/10.1109/tpds.2021.3129617;https://doi.org/10.1109/tpds.2021.3138856;https://doi.org/10.1145/2967938.2974055;https://doi.org/10.1145/3365657;https://doi.org/10.1145/3431379.3464454;https://doi.org/10.1145/3502223.3502248;https://doi.org/10.1145/3589188;https://doi.org/10.1145/3806645.3807576;https://doi.org/10.21203/rs.3.rs-2045925/v1;https://doi.org/10.21203/rs.3.rs-2605517/v1;https://doi.org/10.2139/ssrn.4616283;https://openalex.org/W1168671556;https://openalex.org/W2019183416;https://openalex.org/W2021501122;https://openalex.org/W2038153718;https://openalex.org/W2040429262;https://openalex.org/W2043007983;https://openalex.org/W2061619357;https://openalex.org/W2077143534;https://openalex.org/W2088092680;https://openalex.org/W2138709799;https://openalex.org/W2148896444;https://openalex.org/W2168522485;https://openalex.org/W2229595996;https://openalex.org/W2267638272;https://openalex.org/W2287429606;https://openalex.org/W2318810549;https://openalex.org/W2335814492;https://openalex.org/W2396339611;https://openalex.org/W2473394283;https://openalex.org/W2522820499;https://openalex.org/W2530314904;https://openalex.org/W2561911856;https://openalex.org/W2576683119;https://openalex.org/W2608738900;https://openalex.org/W2611626712;https://openalex.org/W2737889100;https://openalex.org/W2767239597;https://openalex.org/W2780624097;https://openalex.org/W2782087530;https://openalex.org/W2785852717;https://openalex.org/W2810884085;https://openalex.org/W2884894912;https://openalex.org/W2891946740;https://openalex.org/W2896457183;https://openalex.org/W2901994046;https://openalex.org/W2904797948;https://openalex.org/W2910096450;https://openalex.org/W2946408574;https://openalex.org/W2948742909;https://openalex.org/W2949251082;https://openalex.org/W2950865323;https://openalex.org/W2951275974;https://openalex.org/W2962814013;https://openalex.org/W2981117684;https://openalex.org/W2985361718;https://openalex.org/W2986445670;https://openalex.org/W2986486878;https://openalex.org/W2989747508;https://openalex.org/W2995022099;https://openalex.org/W2995329413;https://openalex.org/W2997375145;https://openalex.org/W3010243192;https://openalex.org/W3039500550;https://openalex.org/W3090369187;https://openalex.org/W3092545670;https://openalex.org/W3093166425;https://openalex.org/W3096566397;https://openalex.org/W3106378800;https://openalex.org/W3107418514;https://openalex.org/W3120139205;https://openalex.org/W3132191748;https://openalex.org/W3132353198;https://openalex.org/W3139657805;https://openalex.org/W3148609646;https://openalex.org/W3167254314;https://openalex.org/W3174756006;https://openalex.org/W3175498521;https://openalex.org/W3175618977;https://openalex.org/W3186150174;https://openalex.org/W3196320218;https://openalex.org/W3209449653;https://openalex.org/W3210510236;https://openalex.org/W3216221236;https://openalex.org/W4200300530;https://openalex.org/W4213308398;https://openalex.org/W4225598893;https://openalex.org/W4226076355;https://openalex.org/W4226353404;https://openalex.org/W4226479682;https://openalex.org/W4240382083;https://openalex.org/W4281249911;https://openalex.org/W4282963011;https://openalex.org/W4283332944;https://openalex.org/W4285121610;https://openalex.org/W4286220308;https://openalex.org/W4362515116;https://openalex.org/W4366975778;https://openalex.org/W4372267520;https://openalex.org/W4377099260;https://openalex.org/W4380433106;https://openalex.org/W4380986083;https://openalex.org/W4381328668;https://openalex.org/W4387321090;https://openalex.org/W4387321131;https://openalex.org/W4391971774;https://openalex.org/W4394577481;https://openalex.org/W4399469388;https://openalex.org/W4404401018;https://openalex.org/W4406170795;https://openalex.org/W4417228807",
+      "qualification": "QUALIFIED",
+      "query": "knowledge graph embedding runtime system framework GPU parallel distributed",
+      "raw_evidence": "Crossref:157e53423a2d519af17ab57ada7b1a0464f1a0b45a82c3a9a1c220bdb85f56a4;OpenAlex:5dfe08b515be308ef037deaca59c96e93af830f932f3c960cca89b5a0112e3d7",
+      "retrieval_stage": "WIDE_SENTINEL"
+    },
+    {
+      "disposition": "ADVISORY_ONLY",
+      "failed_index": "DBLP",
+      "fallback_indexes": "OpenAlex",
+      "fallback_status": "AVAILABLE",
+      "matched_record_ids": "https://openalex.org/W2952737206",
+      "qualification": "QUALIFIED",
+      "query": "pykg2vec: A Python Library for Knowledge Graph Embedding",
+      "raw_evidence": "OpenAlex:8fd7261ada57ceac30a7e49916380f1d46b494c6e0e7c32ca1eb39070a9612ab",
+      "retrieval_stage": "G0_SEEDS"
+    }
+  ],
+  "initial_query_count": 14,
+  "last_batch_completed_at": "2026-08-08T06:40:59Z",
+  "max_rounds": 3,
+  "min_batch_interval_seconds": 600,
+  "next_eligible_at": "2026-08-08T06:50:59Z",
+  "pending_query_count": 11,
+  "protocol_id": "phase-x-x1-5-literature-audit-v1",
+  "queries": [
+    {
+      "attempts": [
+        {
+          "error": "",
+          "hit_count": 0,
+          "raw_payload_sha256": "992bb3dbf4cfa91f0e638d5fee07547333f218fb961dfb039618315e9d825c4c",
+          "retrieved_at": "",
+          "round": 1,
+          "status": "OK"
+        }
+      ],
+      "fallback": {},
+      "next_round": null,
+      "query": "A Comprehensive Analysis of Negative Sampling in Knowledge Graph Embedding",
+      "query_key": "823745efb9d5d1b08a6d46ff",
+      "retrieval_stage": "G0_SEEDS",
+      "status": "RECOVERED"
+    },
+    {
+      "attempts": [
+        {
+          "error": "",
+          "hit_count": 2,
+          "raw_payload_sha256": "823e3e69164b990fd2077d1a4b3d69b068a5cab7602a55ee3e28240cd62adb4e",
+          "retrieved_at": "",
+          "round": 1,
+          "status": "OK"
+        }
+      ],
+      "fallback": {},
+      "next_round": null,
+      "query": "DGL-KE: Training Knowledge Graph Embeddings at Scale",
+      "query_key": "b22baea028910ef71b412b5e",
+      "retrieval_stage": "G0_SEEDS",
+      "status": "RECOVERED"
+    },
+    {
+      "attempts": [
+        {
+          "error": "",
+          "hit_count": 2,
+          "raw_payload_sha256": "aba40d1b7695006e2653baea633399dc37a35f09170a126f88295de484f37f5b",
+          "retrieved_at": "",
+          "round": 1,
+          "status": "OK"
+        }
+      ],
+      "fallback": {},
+      "next_round": null,
+      "query": "Incorporating GAN for Negative Sampling in Knowledge Representation Learning",
+      "query_key": "d4bf1f3e33107092472fe5f5",
+      "retrieval_stage": "G0_SEEDS",
+      "status": "RECOVERED"
+    },
+    {
+      "attempts": [
+        {
+          "error": "URLError: <urlopen error [Errno -3] Temporary failure in name resolution>",
+          "hit_count": 0,
+          "raw_payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "retrieved_at": "2026-08-08T06:40:59Z",
+          "round": 1,
+          "status": "FAILED"
+        }
+      ],
+      "fallback": {},
+      "next_round": 2,
+      "query": "KBGAN: Adversarial Learning for Knowledge Graph Embeddings",
+      "query_key": "27bdc280cca2bdf27d9d8dc1",
+      "retrieval_stage": "G0_SEEDS",
+      "status": "PENDING"
+    },
+    {
+      "attempts": [
+        {
+          "error": "URLError: <urlopen error [Errno -3] Temporary failure in name resolution>",
+          "hit_count": 0,
+          "raw_payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "retrieved_at": "2026-08-08T06:40:59Z",
+          "round": 1,
+          "status": "FAILED"
+        }
+      ],
+      "fallback": {},
+      "next_round": 2,
+      "query": "LibKGE - A Knowledge Graph Embedding Library for Reproducible Research",
+      "query_key": "604e55ef94e8d670c17b602a",
+      "retrieval_stage": "G0_SEEDS",
+      "status": "PENDING"
+    },
+    {
+      "attempts": [
+        {
+          "error": "URLError: <urlopen error [Errno -3] Temporary failure in name resolution>",
+          "hit_count": 0,
+          "raw_payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "retrieved_at": "2026-08-08T06:40:59Z",
+          "round": 1,
+          "status": "FAILED"
+        }
+      ],
+      "fallback": {},
+      "next_round": 2,
+      "query": "Marius: Learning Massive Graph Embeddings on a Single Machine",
+      "query_key": "3349ce98b79a55debb54c8b8",
+      "retrieval_stage": "G0_SEEDS",
+      "status": "PENDING"
+    },
+    {
+      "attempts": [],
+      "fallback": {},
+      "next_round": 1,
+      "query": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "query_key": "3cf9997addcb210d97e9417d",
+      "retrieval_stage": "G0_SEEDS",
+      "status": "PENDING"
+    },
+    {
+      "attempts": [],
+      "fallback": {},
+      "next_round": 1,
+      "query": "PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph Embeddings",
+      "query_key": "ba6ad0ce33af46e200152613",
+      "retrieval_stage": "G0_SEEDS",
+      "status": "PENDING"
+    },
+    {
+      "attempts": [],
+      "fallback": {},
+      "next_round": 1,
+      "query": "RotatE: Knowledge Graph Embedding by Relational Rotation in Complex Space",
+      "query_key": "f13792dccc25aa3386e0c25b",
+      "retrieval_stage": "G0_SEEDS",
+      "status": "PENDING"
+    },
+    {
+      "attempts": [],
+      "fallback": {},
+      "next_round": 1,
+      "query": "knowledge graph embedding cost model scheduling batch packing load balancing",
+      "query_key": "0020c903292abed47a74ae35",
+      "retrieval_stage": "WIDE_SENTINEL",
+      "status": "PENDING"
+    },
+    {
+      "attempts": [],
+      "fallback": {},
+      "next_round": 1,
+      "query": "knowledge graph embedding negative sampling GPU CUDA accelerator",
+      "query_key": "28bb42a263ab24766bcf2d62",
+      "retrieval_stage": "WIDE_SENTINEL",
+      "status": "PENDING"
+    },
+    {
+      "attempts": [],
+      "fallback": {},
+      "next_round": 1,
+      "query": "knowledge graph embedding reproducibility modularity artifact framework library",
+      "query_key": "c3fc9225fde824dadfbe06c8",
+      "retrieval_stage": "WIDE_SENTINEL",
+      "status": "PENDING"
+    },
+    {
+      "attempts": [],
+      "fallback": {},
+      "next_round": 1,
+      "query": "knowledge graph embedding runtime system framework GPU parallel distributed",
+      "query_key": "005edd89ef1771ec8dbd19ec",
+      "retrieval_stage": "WIDE_SENTINEL",
+      "status": "PENDING"
+    },
+    {
+      "attempts": [],
+      "fallback": {},
+      "next_round": 1,
+      "query": "pykg2vec: A Python Library for Knowledge Graph Embedding",
+      "query_key": "0a1a42dbccc1382780b8764b",
+      "retrieval_stage": "G0_SEEDS",
+      "status": "PENDING"
+    }
+  ],
+  "recovered_query_count": 3,
+  "state_version": 1,
+  "status": "OPEN",
+  "unresolved_query_count": 0
+}

@@ -1,0 +1,128 @@
+{
+  "result": {
+    "completions": {
+      "@computed": "1",
+      "@sent": "1",
+      "@total": "1",
+      "c": {
+        "@dc": "2",
+        "@id": "71162327",
+        "@oc": "2",
+        "@sc": "2",
+        "text": "system"
+      }
+    },
+    "hits": {
+      "@computed": "2",
+      "@first": "0",
+      "@sent": "2",
+      "@total": "2",
+      "hit": [
+        {
+          "@id": "3742593",
+          "@score": "9",
+          "info": {
+            "access": "open",
+            "authors": {
+              "author": [
+                {
+                  "@pid": "38/7583",
+                  "text": "Adam Lerer"
+                },
+                {
+                  "@pid": "206/6528",
+                  "text": "Ledell Wu"
+                },
+                {
+                  "@pid": "120/0742",
+                  "text": "Jiajun Shen"
+                },
+                {
+                  "@pid": "190/7096",
+                  "text": "Timothée Lacroix"
+                },
+                {
+                  "@pid": "238/1545",
+                  "text": "Luca Wehrstedt"
+                },
+                {
+                  "@pid": "83/3253",
+                  "text": "Abhijit Bose"
+                },
+                {
+                  "@pid": "147/5920",
+                  "text": "Alex Peysakhovich"
+                }
+              ]
+            },
+            "ee": "https://proceedings.mlsys.org/paper_files/paper/2019/hash/1eb34d662b67a14e3511d0dfd78669be-Abstract.html",
+            "key": "conf/mlsys/LererWSLWBP19",
+            "title": "Pytorch-BigGraph: A Large Scale Graph Embedding System.",
+            "type": "Conference and Workshop Papers",
+            "url": "https://dblp.org/rec/conf/mlsys/LererWSLWBP19",
+            "venue": "SysML",
+            "year": "2019"
+          },
+          "url": "URL#3742593"
+        },
+        {
+          "@id": "3804408",
+          "@score": "9",
+          "info": {
+            "access": "open",
+            "authors": {
+              "author": [
+                {
+                  "@pid": "38/7583",
+                  "text": "Adam Lerer"
+                },
+                {
+                  "@pid": "206/6528",
+                  "text": "Ledell Wu"
+                },
+                {
+                  "@pid": "120/0742",
+                  "text": "Jiajun Shen"
+                },
+                {
+                  "@pid": "190/7096",
+                  "text": "Timothée Lacroix"
+                },
+                {
+                  "@pid": "238/1545",
+                  "text": "Luca Wehrstedt"
+                },
+                {
+                  "@pid": "83/3253",
+                  "text": "Abhijit Bose"
+                },
+                {
+                  "@pid": "147/5920",
+                  "text": "Alexander Peysakhovich"
+                }
+              ]
+            },
+            "ee": "http://arxiv.org/abs/1903.12287",
+            "key": "journals/corr/abs-1903-12287",
+            "title": "PyTorch-BigGraph: A Large-scale Graph Embedding System.",
+            "type": "Informal and Other Publications",
+            "url": "https://dblp.org/rec/journals/corr/abs-1903-12287",
+            "venue": "CoRR",
+            "volume": "abs/1903.12287",
+            "year": "2019"
+          },
+          "url": "URL#3804408"
+        }
+      ]
+    },
+    "query": "Pytorch* BigGraph* A Large* scale* Graph* Embedding* System*",
+    "status": {
+      "@code": "200",
+      "text": "OK"
+    },
+    "time": {
+      "@unit": "msecs",
+      "text": "26.00"
+    }
+  }
+}

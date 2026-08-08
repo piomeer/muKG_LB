@@ -1,0 +1,8 @@
+{
+  "input_records_present": true,
+  "mapping_rows_have_record_ids": true,
+  "no_dynamic_fields_emitted": true,
+  "novelty_rows_have_gate_verdict": true,
+  "one_inherited_c1_verdict": true,
+  "status": "PASS"
+}

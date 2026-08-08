@@ -1,0 +1,170 @@
+[
+  {
+    "record_id": "rec-0be640b2bbd294cd",
+    "doi": "10.1145/3397271.3401172",
+    "peer_reviewed": true,
+    "peer_review_status": "VERIFIED",
+    "language": "English",
+    "topic_relevant": true,
+    "topic_relevance": "IN_SCOPE",
+    "full_text_status": "REMOTE_LOCATED",
+    "full_text_url": "https://assets.amazon.science/e9/c2/045d5d3c45fe92df3d68a92fc2a2/dgl-ke-training-knowledge-graph-embeddings-at-scale.pdf",
+    "c1_relevance": "DIRECT",
+    "overlap_class": "DIRECT-FUNCTIONAL",
+    "mechanism_match": true,
+    "integration_match": true,
+    "evidence_match": false,
+    "study_family_id": "dgl-ke-2020",
+    "evidence": {
+      "peer_review_status": {"value": "SIGIR 2020 publication metadata", "locator": "https://www.sigir.org/sigir2020/schedule/", "source_type": "WEB"},
+      "runtime_integration": {"value": "DGL-KE trains knowledge graph embeddings at scale with GPU-enabled system execution", "locator": "https://www.amazon.science/publications/dgl-ke-training-knowledge-graph-embeddings-at-scale", "source_type": "WEB"}
+    }
+  },
+  {
+    "record_id": "rec-6eb043c469e35a30",
+    "doi": "10.48550/arxiv.1903.12287",
+    "peer_reviewed": true,
+    "peer_review_status": "VERIFIED",
+    "language": "English",
+    "topic_relevant": true,
+    "topic_relevance": "IN_SCOPE",
+    "full_text_status": "REMOTE_LOCATED",
+    "full_text_url": "https://proceedings.mlsys.org/paper_files/paper/2019/file/1eb34d662b67a14e3511d0dfd78669be-Paper.pdf",
+    "c1_relevance": "DIRECT",
+    "overlap_class": "STRONG-COMPONENT",
+    "mechanism_match": true,
+    "integration_match": true,
+    "evidence_match": false,
+    "study_family_id": "pytorch-biggraph-2019",
+    "evidence": {
+      "peer_review_status": {"value": "MLSys 2019 proceedings publication", "locator": "https://proceedings.mlsys.org/paper_files/paper/2019/hash/1eb34d662b67a14e3511d0dfd78669be-Abstract.html", "source_type": "WEB"},
+      "runtime_integration": {"value": "Large-scale graph embedding system with partitioned training", "locator": "https://proceedings.mlsys.org/paper_files/paper/2019/hash/1eb34d662b67a14e3511d0dfd78669be-Abstract.html", "source_type": "WEB"}
+    }
+  },
+  {
+    "record_id": "rec-94cf218c869781d0",
+    "doi": "10.48550/arxiv.2101.08358",
+    "peer_reviewed": true,
+    "peer_review_status": "VERIFIED",
+    "language": "English",
+    "topic_relevant": true,
+    "topic_relevance": "IN_SCOPE",
+    "full_text_status": "REMOTE_LOCATED",
+    "full_text_url": "https://www.usenix.org/system/files/osdi21-mohoney.pdf",
+    "c1_relevance": "DIRECT",
+    "overlap_class": "STRONG-COMPONENT",
+    "mechanism_match": true,
+    "integration_match": true,
+    "evidence_match": false,
+    "study_family_id": "marius-2021",
+    "evidence": {
+      "peer_review_status": {"value": "OSDI 2021 proceedings publication", "locator": "https://www.usenix.org/conference/osdi21/presentation/mohoney", "source_type": "WEB"},
+      "runtime_integration": {"value": "Out-of-core graph embedding training on a single machine", "locator": "https://www.usenix.org/conference/osdi21/presentation/mohoney", "source_type": "WEB"}
+    }
+  },
+  {
+    "record_id": "rec-37283377cfa3766c",
+    "doi": "10.1145/3534678.3539405",
+    "peer_reviewed": true,
+    "peer_review_status": "VERIFIED",
+    "language": "English",
+    "topic_relevant": true,
+    "topic_relevance": "IN_SCOPE",
+    "full_text_status": "REMOTE_LOCATED",
+    "full_text_url": "https://www-cs.stanford.edu/~jure/pubs/smore-kdd22.pdf",
+    "c1_relevance": "DIRECT",
+    "overlap_class": "DIRECT-FUNCTIONAL",
+    "mechanism_match": true,
+    "integration_match": true,
+    "evidence_match": false,
+    "study_family_id": "smore-2022",
+    "evidence": {
+      "peer_review_status": {"value": "KDD 2022 publication", "locator": "https://par.nsf.gov/biblio/10396200-smore-knowledge-graph-completion-multi-hop-reasoning-massive-knowledge-graphs", "source_type": "WEB"},
+      "runtime_integration": {"value": "Scalable knowledge graph completion system for massive graphs", "locator": "https://www-cs.stanford.edu/~jure/pubs/smore-kdd22.pdf", "source_type": "WEB"}
+    }
+  },
+  {
+    "record_id": "rec-4f24693ca07812a8",
+    "doi": "10.1109/icde.2019.00061",
+    "peer_reviewed": true,
+    "peer_review_status": "VERIFIED",
+    "language": "English",
+    "topic_relevant": true,
+    "topic_relevance": "IN_SCOPE",
+    "full_text_status": "REMOTE_LOCATED",
+    "full_text_url": "https://doi.org/10.1109/ICDE.2019.00061",
+    "c1_relevance": "DIRECT",
+    "overlap_class": "STRONG-COMPONENT",
+    "mechanism_match": true,
+    "integration_match": false,
+    "evidence_match": false,
+    "study_family_id": "nscaching-2019",
+    "evidence": {
+      "peer_review_status": {"value": "IEEE ICDE 2019 publication", "locator": "https://researchportal.hkust.edu.hk/en/publications/nscaching-simple-and-efficient-negative-sampling-for-knowledge-gr/", "source_type": "WEB"},
+      "runtime_integration": {"value": "Negative sampling method for knowledge graph embedding", "locator": "https://doi.org/10.1109/ICDE.2019.00061", "source_type": "WEB"}
+    }
+  },
+  {
+    "record_id": "rec-287dd98564698ec3",
+    "doi": "10.26599/tst.2021.9010067",
+    "peer_reviewed": true,
+    "peer_review_status": "VERIFIED",
+    "language": "English",
+    "topic_relevant": true,
+    "topic_relevance": "IN_SCOPE",
+    "full_text_status": "REMOTE_LOCATED",
+    "full_text_url": "https://www.sciopen.com/article/10.26599/TST.2021.9010067",
+    "c1_relevance": "DIRECT",
+    "overlap_class": "DIRECT-FUNCTIONAL",
+    "mechanism_match": true,
+    "integration_match": true,
+    "evidence_match": false,
+    "study_family_id": "efficient-kge-multigpu-2023",
+    "evidence": {
+      "peer_review_status": {"value": "Peer-reviewed journal article metadata", "locator": "https://www.sciopen.com/article/10.26599/TST.2021.9010067", "source_type": "WEB"},
+      "runtime_integration": {"value": "Multiple-GPU knowledge graph embedding training framework", "locator": "https://www.sciopen.com/article/10.26599/TST.2021.9010067", "source_type": "WEB"}
+    }
+  },
+  {
+    "record_id": "rec-1d7e5d1df9000775",
+    "doi": "10.1016/j.jpdc.2024.104885",
+    "peer_reviewed": true,
+    "peer_review_status": "VERIFIED",
+    "language": "English",
+    "topic_relevant": true,
+    "topic_relevance": "IN_SCOPE",
+    "full_text_status": "REMOTE_LOCATED",
+    "full_text_url": "https://doi.org/10.1016/j.jpdc.2024.104885",
+    "c1_relevance": "ADJACENT",
+    "overlap_class": "ADJACENT-SYSTEM",
+    "mechanism_match": false,
+    "integration_match": false,
+    "evidence_match": false,
+    "study_family_id": "fast-kge-gpu-2024",
+    "evidence": {
+      "peer_review_status": {"value": "Journal publication metadata", "locator": "https://research.knu.ac.kr/en/publications/fast-knowledge-graph-completion-using-graphics-processing-units/", "source_type": "WEB"},
+      "runtime_integration": {"value": "GPU knowledge graph completion system, retained as adjacent rather than direct C1 evidence", "locator": "https://doi.org/10.1016/j.jpdc.2024.104885", "source_type": "WEB"}
+    }
+  },
+  {
+    "record_id": "rec-c92dbdfaf6eeb135",
+    "doi": "10.1145/3552326.3567501",
+    "peer_reviewed": true,
+    "peer_review_status": "VERIFIED",
+    "language": "English",
+    "topic_relevant": true,
+    "topic_relevance": "IN_SCOPE",
+    "full_text_status": "REMOTE_LOCATED",
+    "full_text_url": "https://arxiv.org/abs/2202.02365",
+    "c1_relevance": "ADJACENT",
+    "overlap_class": "STRONG-COMPONENT",
+    "mechanism_match": true,
+    "integration_match": true,
+    "evidence_match": false,
+    "study_family_id": "mariusgnn-2022",
+    "evidence": {
+      "peer_review_status": {"value": "Published MariusGNN system record", "locator": "https://doi.org/10.1145/3552326.3567501", "source_type": "WEB"},
+      "runtime_integration": {"value": "Resource-efficient out-of-core graph neural network training", "locator": "https://doi.org/10.1145/3552326.3567501", "source_type": "WEB"}
+    }
+  }
+]

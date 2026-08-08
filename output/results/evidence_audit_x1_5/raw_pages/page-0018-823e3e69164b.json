@@ -1,0 +1,146 @@
+{
+  "result": {
+    "completions": {
+      "@computed": "1",
+      "@sent": "1",
+      "@total": "1",
+      "c": {
+        "@dc": "2",
+        "@id": "71027979",
+        "@oc": "2",
+        "@sc": "2",
+        "text": "scale"
+      }
+    },
+    "hits": {
+      "@computed": "2",
+      "@first": "0",
+      "@sent": "2",
+      "@total": "2",
+      "hit": [
+        {
+          "@id": "3334649",
+          "@score": "8",
+          "info": {
+            "access": "closed",
+            "authors": {
+              "author": [
+                {
+                  "@pid": "116/7577-4",
+                  "text": "Da Zheng 0004"
+                },
+                {
+                  "@pid": "71/6574-3",
+                  "text": "Xiang Song 0003"
+                },
+                {
+                  "@pid": "79/1552-25",
+                  "text": "Chao Ma 0025"
+                },
+                {
+                  "@pid": "247/8284",
+                  "text": "Zeyuan Tan"
+                },
+                {
+                  "@pid": "126/0507-1",
+                  "text": "Zihao Ye 0001"
+                },
+                {
+                  "@pid": "31/507",
+                  "text": "Jin Dong"
+                },
+                {
+                  "@pid": "46/5036",
+                  "text": "Hao Xiong"
+                },
+                {
+                  "@pid": "z/ZhengZhang",
+                  "text": "Zheng Zhang 0001"
+                },
+                {
+                  "@pid": "k/GeorgeKarypis",
+                  "text": "George Karypis"
+                }
+              ]
+            },
+            "doi": "10.1145/3397271.3401172",
+            "ee": "https://doi.org/10.1145/3397271.3401172",
+            "key": "conf/sigir/ZhengSMTYDXZK20",
+            "pages": "739-748",
+            "title": "DGL-KE: Training Knowledge Graph Embeddings at Scale.",
+            "type": "Conference and Workshop Papers",
+            "url": "https://dblp.org/rec/conf/sigir/ZhengSMTYDXZK20",
+            "venue": "SIGIR",
+            "year": "2020"
+          },
+          "url": "URL#3334649"
+        },
+        {
+          "@id": "3377963",
+          "@score": "8",
+          "info": {
+            "access": "open",
+            "authors": {
+              "author": [
+                {
+                  "@pid": "116/7577-4",
+                  "text": "Da Zheng 0004"
+                },
+                {
+                  "@pid": "71/6574-3",
+                  "text": "Xiang Song 0003"
+                },
+                {
+                  "@pid": "79/1552-25",
+                  "text": "Chao Ma 0025"
+                },
+                {
+                  "@pid": "247/8284",
+                  "text": "Zeyuan Tan"
+                },
+                {
+                  "@pid": "126/0507-1",
+                  "text": "Zihao Ye 0001"
+                },
+                {
+                  "@pid": "31/507",
+                  "text": "Jin Dong"
+                },
+                {
+                  "@pid": "46/5036",
+                  "text": "Hao Xiong"
+                },
+                {
+                  "@pid": "z/ZhengZhang",
+                  "text": "Zheng Zhang 0001"
+                },
+                {
+                  "@pid": "k/GeorgeKarypis",
+                  "text": "George Karypis"
+                }
+              ]
+            },
+            "ee": "https://arxiv.org/abs/2004.08532",
+            "key": "journals/corr/abs-2004-08532",
+            "title": "DGL-KE: Training Knowledge Graph Embeddings at Scale.",
+            "type": "Informal and Other Publications",
+            "url": "https://dblp.org/rec/journals/corr/abs-2004-08532",
+            "venue": "CoRR",
+            "volume": "abs/2004.08532",
+            "year": "2020"
+          },
+          "url": "URL#3377963"
+        }
+      ]
+    },
+    "query": "DGL* KE Training* Knowledge* Graph* Embeddings* at Scale*",
+    "status": {
+      "@code": "200",
+      "text": "OK"
+    },
+    "time": {
+      "@unit": "msecs",
+      "text": "36.01"
+    }
+  }
+}
