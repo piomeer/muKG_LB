@@ -29,6 +29,18 @@ class InvalidAttempt(RuntimeError):
         self.reason = reason
 
 
+class PrepareCommandFailure(RuntimeError):
+    """An external prepare command failed after its raw capture was retained."""
+
+    def __init__(self, stage: str, capture: dict[str, Any]):
+        super().__init__(
+            f"external command failed ({capture['returncode']}): "
+            f"{' '.join(capture['command'])}"
+        )
+        self.stage = stage
+        self.capture = capture
+
+
 def load_contract(repo_root: Path) -> dict[str, Any]:
     """Load the frozen X8 contract for a future executor invocation."""
     with (repo_root / CONTRACT_PATH).open(encoding="utf-8") as handle:
@@ -93,6 +105,111 @@ def _offline_environment() -> dict[str, str]:
         }
     )
     return env
+
+
+def _prepare_capture_command(
+    root: Path,
+    attempt: dict[str, Any],
+    stage: str,
+    transport: CommandTransport,
+    command: list[str],
+    *,
+    cwd: Path,
+    env: dict[str, str],
+) -> dict[str, Any]:
+    """Capture every prepare subprocess before allowing a failure to escape."""
+    result = transport(
+        command,
+        cwd=str(cwd),
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    capture = {
+        "stage": stage,
+        "command": command,
+        "returncode": result.returncode,
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+    }
+    attempt["command_captures"].append(capture)
+    _write_json(root / "raw/prepare_attempt.json", attempt)
+    if result.returncode:
+        raise PrepareCommandFailure(stage, capture)
+    return capture
+
+
+def _decode_runtime_probe(capture: dict[str, Any], label: str) -> dict[str, Any]:
+    try:
+        runtime = json.loads(capture["stdout"])
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"{label} runtime probe was not valid JSON") from exc
+    if not isinstance(runtime, dict):
+        raise RuntimeError(f"{label} runtime probe must return a JSON object")
+    return runtime
+
+
+def _historical_prepare_lineage(roots: list[Path]) -> list[dict[str, Any]]:
+    """Describe prior attempts without inventing missing raw captures."""
+    entries: list[dict[str, Any]] = []
+    for historic_root in sorted((path.resolve() for path in roots), key=str):
+        capture_path = historic_root / "raw/prepare_attempt.json"
+        if capture_path.is_file():
+            entries.append(
+                {
+                    "root": str(historic_root),
+                    "state": "RETAINED_CAPTURE",
+                    "prepare_attempt_sha256": _sha256_file(capture_path),
+                }
+            )
+        else:
+            entries.append(
+                {
+                    "root": str(historic_root),
+                    "state": "HISTORICAL_LINEAGE_INCOMPLETE",
+                    "reason": "raw/prepare_attempt.json is absent; capture cannot be reconstructed",
+                }
+            )
+    return entries
+
+
+def _blocked_environment_closure(
+    root: Path, attempt: dict[str, Any]
+) -> dict[str, Any]:
+    """Derive a deterministic blocked closure solely from retained prepare lineage."""
+    if attempt.get("state") != "BLOCKED_ENVIRONMENT" or not isinstance(
+        attempt.get("failure"), dict
+    ):
+        raise RuntimeError("blocked closure requires a retained failed prepare attempt")
+    git_head = attempt.get("git_head")
+    clone_probe = attempt.get("clone_prefix_probe")
+    if not isinstance(git_head, dict) or not isinstance(clone_probe, dict):
+        raise RuntimeError("blocked closure requires retained Git and clone probe lineage")
+    return {
+        "artifact_kind": "blocked_environment_closure",
+        "attempt_id": attempt["attempt_id"],
+        "capsule_manifest_sha256": attempt.get("capsule_manifest_sha256"),
+        "contract_id": attempt["contract_id"],
+        "contract_sha256": attempt["contract_sha256"],
+        "executor_commit": git_head["stdout"].strip(),
+        "failure": attempt["failure"],
+        "historical_prepare_lineage": attempt["historical_prepare_lineage"],
+        "material_passport": None,
+        "prepare_attempt_path": "raw/prepare_attempt.json",
+        "prepare_attempt_sha256": _sha256_file(root / "raw/prepare_attempt.json"),
+        "prepared_manifest": False,
+        "runtime_probe": clone_probe,
+        "verdict": "BLOCKED_ENVIRONMENT",
+    }
+
+
+def regenerate_blocked_environment_closure(root: Path) -> dict[str, Any]:
+    """Regenerate a blocked closure from retained raw prepare capture only."""
+    root = root.resolve()
+    attempt = _read_json(root / "raw/prepare_attempt.json")
+    closure = _blocked_environment_closure(root, attempt)
+    _write_json(root / "blocked_environment_closure.json", closure)
+    return closure
 
 
 def _validate_contract(contract: dict[str, Any]) -> None:
@@ -294,6 +411,7 @@ def prepare(
     *,
     transport: CommandTransport = subprocess.run,
     active_conda_prefix: Path | None = None,
+    historical_incomplete_roots: list[Path] | None = None,
 ) -> dict[str, Any]:
     """Create a new allowlisted capsule and an offline local Conda clone."""
     repo_root = repo_root.resolve()
@@ -326,118 +444,176 @@ def prepare(
         raise FileNotFoundError(f"active Conda environment does not exist: {active_conda_prefix}")
 
     root.mkdir(parents=True)
-    capsule = root / "capsule"
-    capsule_files = []
-    for relative in sorted(source_hashes):
-        source = repo_root / relative
-        destination = capsule / relative
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, destination)
-        actual = _sha256_file(destination)
-        if actual != source_hashes[relative]:
-            raise RuntimeError(f"capsule copy hash mismatch for {relative}")
-        capsule_files.append(
-            {"path": relative, "bytes": destination.stat().st_size, "sha256": actual}
-        )
-    capsule_manifest = {
+    attempt = {
+        "artifact_kind": "prepare_attempt",
+        "attempt_id": f"prepare-{root.name}-{time.time_ns()}",
+        "started_at_ns": time.time_ns(),
+        "state": "RUNNING",
+        "repo_root": str(repo_root),
+        "root": str(root),
+        "active_conda_prefix": str(active_conda_prefix),
         "contract_id": contract["contract_id"],
-        "source_mutation_forbidden": True,
-        "files": capsule_files,
+        "contract_sha256": contract_sha256,
+        "historical_prepare_lineage": _historical_prepare_lineage(
+            historical_incomplete_roots or []
+        ),
+        "command_captures": [],
     }
-    capsule_manifest_path = root / "capsule_manifest.json"
-    _write_json(capsule_manifest_path, capsule_manifest)
-
-    frozen_contract_path = root / "frozen_contract.json"
-    shutil.copyfile(contract_path, frozen_contract_path)
-    if _sha256_file(frozen_contract_path) != contract_sha256:
-        raise RuntimeError("frozen contract copy hash mismatch")
-
-    offline_env = _offline_environment()
-    cloned_prefix = root / "environment/conda"
-    clone_capture = _command_capture(
-        transport,
-        [
-            "conda",
-            "create",
-            "--yes",
-            "--offline",
-            "--prefix",
-            str(cloned_prefix),
-            "--clone",
-            str(active_conda_prefix),
-        ],
-        cwd=repo_root,
-        env=offline_env,
-    )
-    if not (cloned_prefix / "bin/python").is_file():
-        raise RuntimeError("offline Conda clone did not create bin/python")
-
-    conda_capture = _command_capture(
-        transport,
-        ["conda", "list", "--json", "--prefix", str(cloned_prefix)],
-        cwd=repo_root,
-        env=offline_env,
-    )
+    _write_json(root / "raw/prepare_attempt.json", attempt)
+    failure_stage = "capsule"
     try:
-        packages = json.loads(conda_capture["stdout"])
-    except json.JSONDecodeError as exc:
-        raise RuntimeError("Conda package manifest was not valid JSON") from exc
-    probe_code = (
-        "import json,sys,torch; print(json.dumps({"
-        "'protocol_id':'C1-R1-v1.1','python':sys.version,"
-        "'pytorch':torch.__version__,'torch_cuda_runtime':torch.version.cuda,"
-        "'cuda_available':torch.cuda.is_available()}))"
-    )
-    runtime_capture = _command_capture(
-        transport,
-        [str(cloned_prefix / "bin/python"), "-c", probe_code],
-        cwd=capsule,
-        env=offline_env,
-    )
-    try:
-        runtime = json.loads(runtime_capture["stdout"])
-    except json.JSONDecodeError as exc:
-        raise RuntimeError("cloned runtime probe was not valid JSON") from exc
-    gpu_capture = _command_capture(
-        transport,
-        [
-            "nvidia-smi",
-            "--query-gpu=name,memory.total,compute_cap",
-            "--format=csv,noheader,nounits",
-        ],
-        cwd=capsule,
-        env=offline_env,
-    )
-    identity = [part.strip() for part in gpu_capture["stdout"].strip().split(",")]
-    if len(identity) != 3:
-        raise RuntimeError("GPU identity query returned an unexpected shape")
-    gpu = {
-        "name": identity[0],
-        "total_memory_mib": float(identity[1]),
-        "compute_capability": identity[2],
-    }
-    expected_runtime = contract["environment"]["expected_runtime"]
-    if (
-        runtime.get("protocol_id") != contract["protocol"]["protocol_id"]
-        or runtime.get("pytorch") != expected_runtime["pytorch"]
-        or runtime.get("torch_cuda_runtime") != expected_runtime["torch_cuda_runtime"]
-        or not runtime.get("cuda_available")
-    ):
-        raise RuntimeError("cloned runtime does not match the frozen environment contract")
-    expected_gpu = contract["environment"]["expected_gpu"]
-    if (
-        gpu["name"] != expected_gpu["name"]
-        or gpu["compute_capability"] != expected_gpu["compute_capability"]
-        or gpu["total_memory_mib"] != float(expected_gpu["total_memory_mib"])
-    ):
-        raise RuntimeError("GPU identity does not match the frozen environment contract")
+        capsule = root / "capsule"
+        capsule_files = []
+        for relative in sorted(source_hashes):
+            source = repo_root / relative
+            destination = capsule / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, destination)
+            actual = _sha256_file(destination)
+            if actual != source_hashes[relative]:
+                raise RuntimeError(f"capsule copy hash mismatch for {relative}")
+            capsule_files.append(
+                {"path": relative, "bytes": destination.stat().st_size, "sha256": actual}
+            )
+        capsule_manifest = {
+            "contract_id": contract["contract_id"],
+            "source_mutation_forbidden": True,
+            "files": capsule_files,
+        }
+        capsule_manifest_path = root / "capsule_manifest.json"
+        _write_json(capsule_manifest_path, capsule_manifest)
+        attempt["capsule_manifest_sha256"] = _sha256_file(capsule_manifest_path)
 
-    git_capture = _command_capture(
-        transport,
-        ["git", "-C", str(repo_root), "rev-parse", "HEAD"],
-        cwd=repo_root,
-        env=offline_env,
-    )
+        frozen_contract_path = root / "frozen_contract.json"
+        shutil.copyfile(contract_path, frozen_contract_path)
+        if _sha256_file(frozen_contract_path) != contract_sha256:
+            raise RuntimeError("frozen contract copy hash mismatch")
+
+        offline_env = _offline_environment()
+        cloned_prefix = root / "environment/conda"
+        failure_stage = "git_head"
+        git_capture = _prepare_capture_command(
+            root,
+            attempt,
+            failure_stage,
+            transport,
+            ["git", "-C", str(repo_root), "rev-parse", "HEAD"],
+            cwd=repo_root,
+            env=offline_env,
+        )
+        attempt["git_head"] = git_capture
+        failure_stage = "active_prefix_probe"
+        active_probe_capture = _prepare_capture_command(
+            root,
+            attempt,
+            failure_stage,
+            transport,
+            [str(active_conda_prefix / "bin/python"), "-c", _runtime_probe_code()],
+            cwd=repo_root,
+            env=offline_env,
+        )
+        attempt["active_prefix_probe"] = _decode_runtime_probe(
+            active_probe_capture, "active-prefix"
+        )
+        _write_json(root / "raw/prepare_attempt.json", attempt)
+
+        failure_stage = "conda_clone"
+        clone_capture = _prepare_capture_command(
+            root,
+            attempt,
+            failure_stage,
+            transport,
+            [
+                "conda",
+                "create",
+                "--yes",
+                "--offline",
+                "--prefix",
+                str(cloned_prefix),
+                "--clone",
+                str(active_conda_prefix),
+            ],
+            cwd=repo_root,
+            env=offline_env,
+        )
+        if not (cloned_prefix / "bin/python").is_file():
+            raise RuntimeError("offline Conda clone did not create bin/python")
+
+        failure_stage = "conda_list"
+        conda_capture = _prepare_capture_command(
+            root,
+            attempt,
+            failure_stage,
+            transport,
+            ["conda", "list", "--json", "--prefix", str(cloned_prefix)],
+            cwd=repo_root,
+            env=offline_env,
+        )
+        try:
+            packages = json.loads(conda_capture["stdout"])
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("Conda package manifest was not valid JSON") from exc
+        failure_stage = "clone_prefix_probe"
+        runtime_capture = _prepare_capture_command(
+            root,
+            attempt,
+            failure_stage,
+            transport,
+            [str(cloned_prefix / "bin/python"), "-c", _runtime_probe_code()],
+            cwd=capsule,
+            env=offline_env,
+        )
+        runtime = _decode_runtime_probe(runtime_capture, "cloned")
+        attempt["clone_prefix_probe"] = runtime
+        _write_json(root / "raw/prepare_attempt.json", attempt)
+        failure_stage = "gpu_identity"
+        gpu_capture = _prepare_capture_command(
+            root,
+            attempt,
+            failure_stage,
+            transport,
+            [
+                "nvidia-smi",
+                "--query-gpu=name,memory.total,compute_cap",
+                "--format=csv,noheader,nounits",
+            ],
+            cwd=capsule,
+            env=offline_env,
+        )
+        identity = [part.strip() for part in gpu_capture["stdout"].strip().split(",")]
+        if len(identity) != 3:
+            raise RuntimeError("GPU identity query returned an unexpected shape")
+        gpu = {
+            "name": identity[0],
+            "total_memory_mib": float(identity[1]),
+            "compute_capability": identity[2],
+        }
+        expected_runtime = contract["environment"]["expected_runtime"]
+        if (
+            runtime.get("protocol_id") != contract["protocol"]["protocol_id"]
+            or runtime.get("pytorch") != expected_runtime["pytorch"]
+            or runtime.get("torch_cuda_runtime") != expected_runtime["torch_cuda_runtime"]
+            or not runtime.get("cuda_available")
+        ):
+            raise RuntimeError("cloned runtime does not match the frozen environment contract")
+        expected_gpu = contract["environment"]["expected_gpu"]
+        if (
+            gpu["name"] != expected_gpu["name"]
+            or gpu["compute_capability"] != expected_gpu["compute_capability"]
+            or gpu["total_memory_mib"] != float(expected_gpu["total_memory_mib"])
+        ):
+            raise RuntimeError("GPU identity does not match the frozen environment contract")
+    except Exception as exc:
+        attempt["state"] = "BLOCKED_ENVIRONMENT"
+        attempt["failure"] = {
+            "stage": failure_stage,
+            "error_type": type(exc).__name__,
+            "message": str(exc),
+        }
+        _write_json(root / "raw/prepare_attempt.json", attempt)
+        regenerate_blocked_environment_closure(root)
+        raise
+
     environment_document = {
         "protocol_id": contract["protocol"]["protocol_id"],
         **runtime,
@@ -476,6 +652,9 @@ def prepare(
         "remediations": [],
     }
     _write_json(root / "execution_manifest.json", execution_manifest)
+    attempt["state"] = "PREPARED"
+    attempt["environment_manifest_sha256"] = _sha256_file(environment_manifest_path)
+    _write_json(root / "raw/prepare_attempt.json", attempt)
     return execution_manifest
 
 
@@ -1394,6 +1573,13 @@ def _parser() -> argparse.ArgumentParser:
     prepare_parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     prepare_parser.add_argument("--root", type=Path, required=True)
     prepare_parser.add_argument("--active-conda-prefix", type=Path)
+    prepare_parser.add_argument(
+        "--historical-incomplete-root",
+        type=Path,
+        action="append",
+        default=[],
+        help="retain a prior root as incomplete lineage when raw prepare capture is absent",
+    )
     for command in ("status", "preflight", "run", "seal"):
         command_parser = subparsers.add_parser(command)
         command_parser.add_argument("--root", type=Path, required=True)
@@ -1413,6 +1599,7 @@ def main(argv: list[str] | None = None) -> int:
             args.repo_root,
             args.root,
             active_conda_prefix=args.active_conda_prefix,
+            historical_incomplete_roots=args.historical_incomplete_root,
         )
     elif args.command == "status":
         result = status(args.root)

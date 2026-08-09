@@ -126,6 +126,7 @@ class FakeExternalTransport:
         self.interrupt_job_once: tuple[str, str, int] | None = None
         self.malformed_preflight_telemetry = False
         self.wrapper_telemetry_issue = ""
+        self.gpu_identity_failure = False
 
     def __call__(self, command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         self.commands.append(list(command))
@@ -185,6 +186,13 @@ class FakeExternalTransport:
             thermal = "Active" if self.wrapper_telemetry_issue == "thermal_slowdown" else "Not Active"
             return subprocess.CompletedProcess(command, 0, f"fixture-gpu, {thermal}\n", "")
         if command and command[0] == "nvidia-smi":
+            if self.gpu_identity_failure:
+                return subprocess.CompletedProcess(
+                    command,
+                    9,
+                    "",
+                    "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver.\n",
+                )
             return subprocess.CompletedProcess(
                 command, 0, f"{self.gpu_name}, 8192, 8.6\n", ""
             )
@@ -461,6 +469,75 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
             list_command,
             ["conda", "list", "--json", "--prefix", str(self.root / "environment/conda")],
         )
+
+    def test_both_package_list_call_sites_keep_offline_controls_without_unsupported_flag(self):
+        """Catches a later live-environment probe reintroducing unsupported online-prone flags."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo,
+            self.root,
+            transport=transport,
+            active_conda_prefix=self.active_env,
+        )
+        _, contract = executor._load_prepared(self.root)
+        executor._validate_live_environment(self.root, contract, transport)
+
+        list_invocations = [
+            (command, kwargs)
+            for command, kwargs in transport.invocations
+            if command[:2] == ["conda", "list"]
+        ]
+        self.assertEqual(len(list_invocations), 2)
+        for command, kwargs in list_invocations:
+            self.assertNotIn("--offline", command)
+            self.assertEqual(
+                command,
+                ["conda", "list", "--json", "--prefix", str(self.root / "environment/conda")],
+            )
+            environment = kwargs["env"]
+            self.assertEqual(environment["CONDA_OFFLINE"], "true")
+            self.assertEqual(environment["PIP_NO_INDEX"], "1")
+            self.assertEqual(environment["http_proxy"], "")
+            self.assertEqual(environment["https_proxy"], "")
+            self.assertEqual(environment["HTTP_PROXY"], "")
+            self.assertEqual(environment["HTTPS_PROXY"], "")
+            self.assertEqual(environment["ALL_PROXY"], "")
+
+    def test_prepare_gpu_identity_failure_persists_artifact_backed_blocked_closure(self):
+        """Catches loss of command, commit, probe, or stderr lineage before GPU identity fails."""
+        transport = FakeExternalTransport()
+        transport.gpu_identity_failure = True
+
+        with self.assertRaisesRegex(RuntimeError, "nvidia-smi"):
+            executor.prepare(
+                self.repo,
+                self.root,
+                transport=transport,
+                active_conda_prefix=self.active_env,
+            )
+
+        attempt_path = self.root / "raw/prepare_attempt.json"
+        closure_path = self.root / "blocked_environment_closure.json"
+        attempt = json.loads(attempt_path.read_text(encoding="utf-8"))
+        first_closure = closure_path.read_bytes()
+        closure = json.loads(first_closure)
+        self.assertEqual(attempt["state"], "BLOCKED_ENVIRONMENT")
+        self.assertEqual(attempt["failure"]["stage"], "gpu_identity")
+        self.assertEqual(attempt["git_head"]["stdout"].strip(), "a" * 40)
+        self.assertEqual(attempt["active_prefix_probe"]["cuda_available"], True)
+        self.assertEqual(attempt["clone_prefix_probe"]["pytorch"], "2.7.1+cu118")
+        self.assertEqual(
+            attempt["command_captures"][-1]["command"][0], "nvidia-smi"
+        )
+        self.assertEqual(attempt["command_captures"][-1]["returncode"], 9)
+        self.assertIn("couldn't communicate", attempt["command_captures"][-1]["stderr"])
+        self.assertEqual(closure["executor_commit"], "a" * 40)
+        self.assertEqual(closure["runtime_probe"], attempt["clone_prefix_probe"])
+        self.assertEqual(closure["failure"], attempt["failure"])
+
+        regenerated = executor.regenerate_blocked_environment_closure(self.root)
+        self.assertEqual(regenerated, closure)
+        self.assertEqual(closure_path.read_bytes(), first_closure)
 
     def test_frozen_job_descriptors_are_exact_and_truncation_is_rejected(self):
         """Catches a mutable/truncated manifest replacing the frozen 31-job matrix."""
