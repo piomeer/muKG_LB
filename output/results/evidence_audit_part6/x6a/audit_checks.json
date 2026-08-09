@@ -1,0 +1,19 @@
+{
+  "implementation_facts_excluded_from_multiplicity": true,
+  "material_passport": "ANALYZED",
+  "metric_rows": 6,
+  "nested_units_not_independent": true,
+  "part1_claim_count": 28,
+  "part1_claim_count_expected": 28,
+  "part1_hash_unchanged": true,
+  "part1_sha256": "93dc4b0b6c363bc98e266449010436528c701988caaf5b6e3437255a407cb7a6",
+  "replacement_count": 8,
+  "script_version": "x6-1.0",
+  "source_paths_exist": true,
+  "x0_5_quarantine_pass": true,
+  "x1_5_freeze_hashes_unchanged": true,
+  "x5_5_decision_status": "FINAL",
+  "x5_5_input_reasons": [],
+  "x5_5_x6_5_status": "WAIVED",
+  "x6a_status": "X6A_COMPLETE_X6B_PENDING"
+}

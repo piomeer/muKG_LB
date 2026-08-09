@@ -1,0 +1,25 @@
+{
+  "adjudication_errors": [],
+  "c1_exactly_one_verdict": true,
+  "c2_c4_contribution_verdicts_emitted": false,
+  "dedup_decision_count": 848,
+  "dynamic_fields_emitted": false,
+  "evidence_extraction_error_count": 0,
+  "fallback_qualification_checked": true,
+  "human_adjudication_pending_count": 1682,
+  "novelty_blockers": [
+    "human_adjudication_pending",
+    "peer_review_status_unverified",
+    "retrieval_channel_open"
+  ],
+  "protocol_valid": true,
+  "raw_snapshot_record_count": 2455,
+  "retry_attempts_at_most_one_per_round": true,
+  "retry_batch_size_valid": true,
+  "retry_closure_status": "OPEN",
+  "retry_closure_status_valid": true,
+  "retry_latest_hashes_match": true,
+  "retry_raw_paths_valid": true,
+  "retry_state_manifest_consistent": true,
+  "status": "PASS"
+}

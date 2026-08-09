@@ -1,0 +1,24 @@
+{
+  "result": {
+    "completions": {
+      "@computed": "0",
+      "@sent": "0",
+      "@total": "0"
+    },
+    "hits": {
+      "@computed": "0",
+      "@first": "0",
+      "@sent": "0",
+      "@total": "0"
+    },
+    "query": "A Comprehensive* Analysis* of Negative* Sampling* in Knowledge* Graph* Embedding*",
+    "status": {
+      "@code": "200",
+      "text": "OK"
+    },
+    "time": {
+      "@unit": "msecs",
+      "text": "418.01"
+    }
+  }
+}

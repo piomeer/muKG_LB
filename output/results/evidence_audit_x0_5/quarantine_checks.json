@@ -1,0 +1,45 @@
+{
+  "checks": [
+    {
+      "check_id": "controlled_sections",
+      "detail": "OK",
+      "status": "PASS"
+    },
+    {
+      "check_id": "document_status_register",
+      "detail": "OK",
+      "status": "PASS"
+    },
+    {
+      "check_id": "headers",
+      "detail": "OK",
+      "status": "PASS"
+    },
+    {
+      "check_id": "matrix",
+      "detail": "OK",
+      "status": "PASS"
+    },
+    {
+      "check_id": "part1_inventory",
+      "detail": "OK",
+      "status": "PASS"
+    },
+    {
+      "check_id": "paths_and_statuses",
+      "detail": "OK",
+      "status": "PASS"
+    },
+    {
+      "check_id": "reverse_index",
+      "detail": "OK",
+      "status": "PASS"
+    },
+    {
+      "check_id": "safe_writing_sources",
+      "detail": "OK",
+      "status": "PASS"
+    }
+  ],
+  "overall_status": "PASS"
+}

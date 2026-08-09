@@ -1,0 +1,294 @@
+{
+  "sources": [
+    {
+      "bytes": 29822,
+      "exists": true,
+      "path": "docs/evidence_audit_part1_claim_inventory.md",
+      "sha256": "93dc4b0b6c363bc98e266449010436528c701988caaf5b6e3437255a407cb7a6"
+    },
+    {
+      "bytes": 14045,
+      "exists": true,
+      "path": "docs/phase_x_x0_research_freeze.md",
+      "sha256": "1eec3484f028047d0bcfc4fb3cd5ff332cd084088ef60c7900d7411253291fb7"
+    },
+    {
+      "bytes": 17145,
+      "exists": true,
+      "path": "docs/evidence_audit_part3_c2_framework.md",
+      "sha256": "fb8eaddbcf9da26968a9a2468f956777fd6fa1101a5bb0d6e05b9fa53dd6071b"
+    },
+    {
+      "bytes": 6534,
+      "exists": true,
+      "path": "docs/runtime_framework_spec.md",
+      "sha256": "d20cd7d790952004eee52d7502cd96606bdece54f22729fda00fa53432d15dc0"
+    },
+    {
+      "bytes": 7759,
+      "exists": true,
+      "path": "src/py/load/schedulers.py",
+      "sha256": "83088a3ae353d455e8de7bd337605cca38d4fd3fbed360c7f39e1d722e0fb987"
+    },
+    {
+      "bytes": 7535,
+      "exists": true,
+      "path": "src/py/load/batch_provider.py",
+      "sha256": "fb508b1cb5ecb64cb3072cb08359bf3456d894f5a30bf8eb70a8e57d9e18e3d5"
+    },
+    {
+      "bytes": 6017,
+      "exists": true,
+      "path": "src/py/load/features.py",
+      "sha256": "15539dc5e45342eaa687390590bbc42a13a7130eeb76597c290590d0eedb1a73"
+    },
+    {
+      "bytes": 3205,
+      "exists": true,
+      "path": "src/py/load/cost_model.py",
+      "sha256": "b2564329f7ceee4110e628bc0c7508fe661d1a3d2adaee0e4dbc113b2dd82d6a"
+    },
+    {
+      "bytes": 11133,
+      "exists": true,
+      "path": "src/py/experiments/phase9_step2_benchmark.py",
+      "sha256": "dca542d2fd7c4182ef82f74174e7ff874908fa8f777b94b0fddf9609f75ae241"
+    },
+    {
+      "bytes": 11812,
+      "exists": true,
+      "path": "src/py/experiments/phase9_step3_ablation.py",
+      "sha256": "38417ab8cd08b0fbd2b248a9354a3946e7aa850fef6d9b9843242f8d96fc51eb"
+    },
+    {
+      "bytes": 6677,
+      "exists": true,
+      "path": "src/py/experiments/phase9_step4_5_cpu_variance.py",
+      "sha256": "672d528bc03acf273ac3521efc710f1624c93e180318742214cc412fe2a36723"
+    },
+    {
+      "bytes": 15567,
+      "exists": true,
+      "path": "src/py/experiments/runtime_attribution.py",
+      "sha256": "e5176a8314785e9ba68fa6cead7d66dc1fbfddc0111464c00c36feaa5c351dbe"
+    },
+    {
+      "bytes": 18176,
+      "exists": true,
+      "path": "src/py/experiments/validate_cbp_integration.py",
+      "sha256": "d10630efec019f0a3a63e215d8a31569ee291673768aa3bcfeebc62cb8165630"
+    },
+    {
+      "bytes": 28861,
+      "exists": true,
+      "fields": [
+        "config",
+        "batch_idx",
+        "batch_weight",
+        "neg_sampling_time",
+        "tensor_time",
+        "forward_time",
+        "total_time"
+      ],
+      "path": "output/results/runtime_attribution/runtime_attribution.csv",
+      "rows": 546,
+      "sha256": "8c5b3e121b45e76ecdb8400e89347452a0b0ef6eb5b9dd4c55a7aa35952ed3bb"
+    },
+    {
+      "bytes": 5322,
+      "exists": true,
+      "fields": [
+        "config",
+        "epoch",
+        "batch_idx",
+        "neg_time_ms"
+      ],
+      "path": "output/results/phase9_step4_5/neg_sampling_variance.csv",
+      "rows": 324,
+      "sha256": "5fc6914760f15efb311bff8606276112b0ee2c48fcef05a5dcf72f08acf15213"
+    },
+    {
+      "bytes": 98,
+      "exists": true,
+      "fields": [
+        "config",
+        "mean_ms",
+        "std_ms",
+        "epoch_stds_ms"
+      ],
+      "path": "output/results/phase9_step4_5/variance_summary.csv",
+      "rows": 2,
+      "sha256": "c8db9905500b4dd61591a8f15df78284cbab537f133e092371dd391e2f02d3f6"
+    },
+    {
+      "bytes": 20130,
+      "exists": true,
+      "fields": [
+        "epoch",
+        "batch_idx",
+        "config_label",
+        "sorter",
+        "packer",
+        "avg_cost",
+        "max_cost",
+        "std_cost",
+        "cv_cost",
+        "hub_count",
+        "tail_count",
+        "total_samples"
+      ],
+      "path": "output/results/integration_validation/batch_composition.csv",
+      "rows": 220,
+      "sha256": "b2f2f8a863c9889292ebe9dca3feba170c1e1c54d359b1a3602a1ae4abd2c1a1"
+    },
+    {
+      "bytes": 495,
+      "exists": true,
+      "path": "output/results/integration_validation/validation_summary.json",
+      "sha256": "dbd3c1b810629f59b72e0425f4ea5e333b4c8877ce928e45884562502ea9df65"
+    },
+    {
+      "bytes": 219,
+      "exists": true,
+      "fields": [
+        "Epoch",
+        "Loss",
+        "MRR",
+        "Hits@10",
+        "Time (s)",
+        "GPU Mem (MB)"
+      ],
+      "path": "output/results/phase9_step2/BL/summary.csv",
+      "rows": 5,
+      "sha256": "7afbf4582e213da30afa56708fe3da15c91b238ca31d0a487a496d2b08607bc6"
+    },
+    {
+      "bytes": 224,
+      "exists": true,
+      "fields": [
+        "epoch",
+        "avg_loss",
+        "mrr",
+        "hits10",
+        "epoch_time_s",
+        "gpu_mem_mb"
+      ],
+      "path": "output/results/phase9_step2/CBP/summary.csv",
+      "rows": 5,
+      "sha256": "6cf7a1614a923af267ed3ad22bd2a635eec9b72d2878a3c170b9d20d8c4b6eb2"
+    },
+    {
+      "bytes": 219,
+      "exists": true,
+      "fields": [
+        "epoch",
+        "avg_loss",
+        "mrr",
+        "hits10",
+        "epoch_time_s",
+        "gpu_mem_mb"
+      ],
+      "path": "output/results/phase9_step2/GPU/summary.csv",
+      "rows": 5,
+      "sha256": "2fbce46be18db7c61f6ccbd1951a7ab30c28f47444676765b302c282cc268d88"
+    },
+    {
+      "bytes": 219,
+      "exists": true,
+      "fields": [
+        "epoch",
+        "avg_loss",
+        "mrr",
+        "hits10",
+        "epoch_time_s",
+        "gpu_mem_mb"
+      ],
+      "path": "output/results/phase9_step2/CBP+GPU/summary.csv",
+      "rows": 5,
+      "sha256": "d953bc32590197da896201deec88a441e5b909470c7c4641cbf17f2b32f8ad37"
+    },
+    {
+      "bytes": 638,
+      "exists": true,
+      "fields": [
+        "epoch",
+        "avg_loss",
+        "mrr",
+        "hits10",
+        "epoch_time_s",
+        "neg_time_mean_ms",
+        "neg_time_std_ms",
+        "step_time_mean_ms",
+        "step_time_std_ms"
+      ],
+      "path": "output/results/phase9_step3/BL/summary.csv",
+      "rows": 10,
+      "sha256": "88bc967d513f223b0eb133f3701068a0eac9b3f409281e1cb15c94d55a007f73"
+    },
+    {
+      "bytes": 638,
+      "exists": true,
+      "fields": [
+        "epoch",
+        "avg_loss",
+        "mrr",
+        "hits10",
+        "epoch_time_s",
+        "neg_time_mean_ms",
+        "neg_time_std_ms",
+        "step_time_mean_ms",
+        "step_time_std_ms"
+      ],
+      "path": "output/results/phase9_step3/CBP/summary.csv",
+      "rows": 10,
+      "sha256": "001d6b2101d5b396866dd26c5b87f5589d3afc64b3c848cf9a04be1099f747b3"
+    },
+    {
+      "bytes": 578,
+      "exists": true,
+      "fields": [
+        "epoch",
+        "avg_loss",
+        "mrr",
+        "hits10",
+        "epoch_time_s",
+        "neg_time_mean_ms",
+        "neg_time_std_ms",
+        "step_time_mean_ms",
+        "step_time_std_ms"
+      ],
+      "path": "output/results/phase9_step3/GPU/summary.csv",
+      "rows": 10,
+      "sha256": "9b9b573eb693ee2f4972c77b3aa0249716d515d182ed3667aa99124f0e51c9f0"
+    },
+    {
+      "bytes": 579,
+      "exists": true,
+      "fields": [
+        "epoch",
+        "avg_loss",
+        "mrr",
+        "hits10",
+        "epoch_time_s",
+        "neg_time_mean_ms",
+        "neg_time_std_ms",
+        "step_time_mean_ms",
+        "step_time_std_ms"
+      ],
+      "path": "output/results/phase9_step3/CBP+GPU/summary.csv",
+      "rows": 10,
+      "sha256": "33ce5a8a450723a7696b8e6717a204fc40b00ac398b8a251bb7813f550bcd110"
+    },
+    {
+      "bytes": 58148,
+      "data_bytes": 58020,
+      "dtype": "float32",
+      "exists": true,
+      "path": "output/results/cost_table.npy",
+      "sha256": "104041a9de652c1ee024952b0757e97985f64303596731a2637a34bdab88fe52",
+      "shape": [
+        14505
+      ]
+    }
+  ]
+}

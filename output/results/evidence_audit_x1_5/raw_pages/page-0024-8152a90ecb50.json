@@ -1,0 +1,82 @@
+{
+  "result": {
+    "completions": {
+      "@computed": "1",
+      "@sent": "1",
+      "@total": "1",
+      "c": {
+        "@dc": "1",
+        "@id": "69943269",
+        "@oc": "1",
+        "@sc": "1",
+        "text": "embedding"
+      }
+    },
+    "hits": {
+      "@computed": "1",
+      "@first": "0",
+      "@sent": "1",
+      "@total": "1",
+      "hit": [
+        {
+          "@id": "4051295",
+          "@score": "8",
+          "info": {
+            "access": "open",
+            "authors": {
+              "author": [
+                {
+                  "@pid": "19/3011-7",
+                  "text": "Xu Han 0007"
+                },
+                {
+                  "@pid": "229/2976",
+                  "text": "Shulin Cao"
+                },
+                {
+                  "@pid": "52/1775",
+                  "text": "Xin Lv"
+                },
+                {
+                  "@pid": "161/0001-1",
+                  "text": "Yankai Lin 0001"
+                },
+                {
+                  "@pid": "53/3245-1",
+                  "text": "Zhiyuan Liu 0001"
+                },
+                {
+                  "@pid": "95/3291",
+                  "text": "Maosong Sun 0001"
+                },
+                {
+                  "@pid": "l/JuanZiLi",
+                  "text": "Juanzi Li"
+                }
+              ]
+            },
+            "doi": "10.18653/V1/D18-2024",
+            "ee": "https://doi.org/10.18653/v1/d18-2024",
+            "key": "conf/emnlp/HanCLLLSL18",
+            "pages": "139-144",
+            "title": "OpenKE: An Open Toolkit for Knowledge Embedding.",
+            "type": "Conference and Workshop Papers",
+            "url": "https://dblp.org/rec/conf/emnlp/HanCLLLSL18",
+            "venue": "EMNLP",
+            "year": "2018"
+          },
+          "url": "URL#4051295"
+        }
+      ]
+    },
+    "query": "OpenKE* An Open* Toolkit* for* Knowledge* Embedding*",
+    "status": {
+      "@code": "200",
+      "text": "OK"
+    },
+    "time": {
+      "@unit": "msecs",
+      "text": "45.91"
+    }
+  }
+}

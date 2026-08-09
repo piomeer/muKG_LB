@@ -1,0 +1,231 @@
+{
+  "analysis": {
+    "estimands": {
+      "E1": {
+        "definition": "For each seed, BL mean of five throughput epoch_time_ns divided by GPU mean of five throughput epoch_time_ns; summarize six seed-level ratios by geometric mean and log-scale t intervals.",
+        "name": "paired end-to-end throughput epoch speedup",
+        "unit": "seed-level paired run"
+      },
+      "E2": {
+        "definition": "For each config and seed, compute the ddof=0 SD of neg_time_ns within every trace epoch using full 5000-example batches only, mean the five SDs, then divide BL by GPU; summarize six seed-level ratios by geometric mean and log-scale t intervals.",
+        "name": "paired full-batch within-epoch negative-time standard-deviation compression",
+        "unit": "seed-level paired run"
+      },
+      "E3": {
+        "definition": "For each GPU trace run, mean neg_time_ns over full 5000-example batches; summarize six seed-level means by arithmetic mean, sample SD, and t intervals.",
+        "name": "GPU full-batch negative-sampling mean and stability",
+        "unit": "GPU seed-level run"
+      }
+    },
+    "filters": {
+      "E1": {
+        "aggregation": "mean_of_five_throughput_epochs",
+        "pass_name": "throughput"
+      },
+      "E2": {
+        "aggregation": "mean_of_five_epoch_population_sds",
+        "batch_size_actual": 5000,
+        "ddof": 0,
+        "is_partial": false
+      },
+      "E3": {
+        "aggregation": "mean_of_all_full_batch_neg_time_ns",
+        "batch_size_actual": 5000,
+        "is_partial": false
+      }
+    },
+    "independent_analysis": {
+      "must_seal_before_original_comparison": true,
+      "original_result_root_forbidden": true,
+      "raw_timestamps_are_lineage_only": true
+    },
+    "numerical_fidelity_ratios": {
+      "E1": [0.9, 1.1],
+      "E2": [0.75, 1.25],
+      "E3": [0.9, 1.1]
+    },
+    "primary_family": ["E1", "E2"],
+    "primary_gate": {
+      "complete_pairs_required": 6,
+      "direction_consistency_required": true,
+      "raw_data_complete_required": true,
+      "simultaneous_lower_bound_strictly_above": 1.0,
+      "valid_protocol_required": true
+    },
+    "simultaneous_interval": {
+      "confidence_level": 0.975,
+      "lower_bound": 1.0,
+      "method": "Bonferroni"
+    },
+    "t_critical_values": {
+      "df5_ci95": 2.570581835636314,
+      "df5_ci97_5": 3.163381449748624
+    },
+    "verdict_states": [
+      "VERIFIED",
+      "SUPPORTED_WITH_NUMERICAL_DRIFT",
+      "NOT_REPRODUCED",
+      "INCOMPLETE",
+      "BLOCKED_ENVIRONMENT"
+    ]
+  },
+  "analysis_controls": {
+    "pooling_forbidden": true
+  },
+  "capsule": {
+    "allowlisted_paths": [
+      "src/__init__.py",
+      "src/py/__init__.py",
+      "src/py/data/FB15K237/entity2id.txt",
+      "src/py/data/FB15K237/relation2id.txt",
+      "src/py/data/FB15K237/train2id.txt",
+      "src/py/experiments/c1_r1_combined_rerun.py",
+      "src/py/load/batch_provider.py",
+      "src/py/load/cost_model.py",
+      "src/py/load/gpu_sampler.py",
+      "src/py/load/schedulers.py",
+      "output/results/entity_features.npz"
+    ],
+    "excluded_path_prefixes": [
+      "output/results/c1_r1_combined_rerun",
+      "output/results/evidence_audit_x8_c1_r1",
+      "paper_assets",
+      "docs"
+    ],
+    "purpose": "minimal source-and-input capsule required to invoke the unchanged C1-R1-v1.1 runner",
+    "source_mutation_forbidden": true
+  },
+  "contract_id": "X8-C1-R1-clean-room-v1",
+  "contract_version": 1,
+  "environment": {
+    "clone_active_conda_environment_locally": true,
+    "command_isolation": {
+      "environment_inherited_allowlist": [],
+      "network_boundary": "linux_network_namespace",
+      "network_namespace_command": [
+        "unshare",
+        "--user",
+        "--map-root-user",
+        "--net",
+        "--"
+      ]
+    },
+    "cuda_available_required": true,
+    "expected_gpu": {
+      "compute_capability": "8.6",
+      "name": "NVIDIA GeForce RTX 3070",
+      "total_memory_mib": 8192
+    },
+    "expected_runtime": {
+      "pytorch": "2.7.1+cu118",
+      "torch_cuda_runtime": "11.8"
+    },
+    "gpu_contention_forbidden": true,
+    "network_forbidden": true,
+    "preflight": {
+      "checks": [
+        "P1_gpu_sampler_only",
+        "P2_gpu_full_training_step",
+        "P3_bl_full_training_step",
+        "P4_no_other_compute_process"
+      ],
+      "failure_rule": "stop; never reduce batch size",
+      "vram_limit": "peak reserved strictly below 90% of physical VRAM"
+    }
+  },
+  "execution_matrix": {
+    "diagnostic": {
+      "config": "GPU",
+      "jobs_per_seed": 1,
+      "name": "compute_only",
+      "observations_per_seed": 20,
+      "seeds": [42, 43, 44, 45, 46, 47],
+      "warmups_per_seed": 3
+    },
+    "diagnostic_job_count": 6,
+    "preflight_job_count": 1,
+    "primary": {
+      "configs": ["BL", "GPU"],
+      "jobs_per_config_seed": 2,
+      "pass_order": ["throughput", "trace"],
+      "passes": ["throughput", "trace"],
+      "seeds": [42, 43, 44, 45, 46, 47]
+    },
+    "primary_job_count": 24,
+    "serial_order": "preflight; then for each seed in ascending order execute its configured BL/GPU pair in paired_order, completing throughput before trace; then compute_only diagnostics in ascending seed order",
+    "total_initial_job_count": 31
+  },
+  "material_passport": {
+    "artifact_seal": "A deterministic manifest records every sealed raw or derived artifact path, byte count, and SHA-256. The manifest excludes itself and is sealed by its canonical SHA-256.",
+    "lineage": "Raw wall-clock timestamps and command captures are retained as lineage evidence, not as deterministic comparison inputs. Derived JSON and CSV must be byte deterministic for a fixed sealed snapshot.",
+    "required_fields": [
+      "contract_id",
+      "contract_sha256",
+      "capsule_manifest_sha256",
+      "environment_manifest_sha256",
+      "raw_artifact_manifest_sha256",
+      "stage",
+      "sealed_at_ns"
+    ],
+    "semantics": "A Material Passport is a provenance record that binds the frozen contract, allowlisted capsule, cloned environment, command lineage, and sealed artifacts. A consumer must reject a passport if any referenced hash, stage prerequisite, or artifact entry is absent or mismatched."
+  },
+  "protocol": {
+    "batch_size": 5000,
+    "epochs_per_job": 5,
+    "negative_samples_per_positive": 150,
+    "paired_order": {
+      "42": ["BL", "GPU"],
+      "43": ["GPU", "BL"],
+      "44": ["BL", "GPU"],
+      "45": ["GPU", "BL"],
+      "46": ["BL", "GPU"],
+      "47": ["GPU", "BL"]
+    },
+    "protocol_id": "C1-R1-v1.1",
+    "training_examples": 267115,
+    "warmup": "three full training steps on a disposable model/optimizer; discard, clear cache, reseed, then construct measured model"
+  },
+  "raw_artifact_schemas": {
+    "environment.json": {
+      "required_fields": ["protocol_id", "cuda_available", "gpu", "python", "pytorch", "torch_cuda_runtime", "raw_command_captures"]
+    },
+    "gpu_telemetry.csv": {
+      "required_columns": ["protocol_id", "config", "seed", "pass_name", "event", "time_ns", "thermal_slowdown", "other_compute_processes", "raw_gpu_query", "raw_process_query", "query_error"]
+    },
+    "material_passport.json": {
+      "required_fields": ["contract_id", "contract_sha256", "capsule_manifest_sha256", "environment_manifest_sha256", "raw_artifact_manifest_sha256", "stage", "sealed_at_ns"]
+    },
+    "per_epoch.csv": {
+      "required_columns": ["protocol_id", "pass_name", "config", "seed", "epoch", "epoch_time_ns", "num_steps", "full_batch_count", "partial_batch_count", "partial_batch_size", "training_examples", "loss_finite"]
+    },
+    "per_step.csv": {
+      "required_columns": ["protocol_id", "pass_name", "config", "seed", "epoch", "step", "batch_size_actual", "is_partial", "is_first_measured_step", "neg_time_ns", "component_sum_ns", "total_step_ns", "timing_residual_ns"]
+    },
+    "preflight/result.json": {
+      "required_fields": ["protocol_id", "all_passed", "checks", "split"]
+    },
+    "status.json": {
+      "required_fields": ["protocol_id", "pass_name", "config", "seed", "split", "row_counts", "valid", "invalid_reasons", "warnings"]
+    }
+  },
+  "retry_policy": {
+    "eligible_failure_reasons": ["thermal_slowdown", "other_compute_processes", "telemetry_failure", "infrastructure_failure"],
+    "maximum_retries_per_pass_seed_pair": 1,
+    "paired_configs": ["BL", "GPU"],
+    "rule": "A remediation retry is allowed only after an explicit invalid reason. It reruns both BL and GPU for the same pass and seed, preserving the frozen paired order. The invalid attempt is retained and excluded; no selective single-config retry, parameter change, overwrite, or third attempt is permitted."
+  },
+  "source_hashes": {
+    "output/results/entity_features.npz": "bfd6889e070a33037465bd2f53d321b93d256ba8fa85c492dfbc3e3108cdec04",
+    "src/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/py/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/py/data/FB15K237/entity2id.txt": "2df2382d68595f17c638a13557265226d06beaac04b2f4b31c9646d8c3ffe16b",
+    "src/py/data/FB15K237/relation2id.txt": "ecdf2f828ce7ddfdfd4c24d0615638948c28f5f94c3589f33dbf35da762d32f5",
+    "src/py/data/FB15K237/train2id.txt": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2",
+    "src/py/experiments/c1_r1_combined_rerun.py": "2556df6aa6e50d20ae2c188fe987a7694dff1743473aaf0dd62a4e96615710ab",
+    "src/py/load/batch_provider.py": "fb508b1cb5ecb64cb3072cb08359bf3456d894f5a30bf8eb70a8e57d9e18e3d5",
+    "src/py/load/cost_model.py": "b2564329f7ceee4110e628bc0c7508fe661d1a3d2adaee0e4dbc113b2dd82d6a",
+    "src/py/load/gpu_sampler.py": "cf88e9c0d0f6f9c98b0b8685771e651ef3591f72a3d34aec533c8b725a2f5da0",
+    "src/py/load/schedulers.py": "83088a3ae353d455e8de7bd337605cca38d4fd3fbed360c7f39e1d722e0fb987"
+  },
+  "status": "FROZEN"
+}

@@ -1,0 +1,27 @@
+{
+  "batch_size": 3,
+  "next_batch": [
+    {
+      "query": "NSCaching: Simple and Efficient Negative Sampling for Knowledge Graph Embedding",
+      "query_key": "3cf9997addcb210d97e9417d",
+      "retrieval_stage": "G0_SEEDS",
+      "retry_round": 1
+    },
+    {
+      "query": "PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph Embeddings",
+      "query_key": "ba6ad0ce33af46e200152613",
+      "retrieval_stage": "G0_SEEDS",
+      "retry_round": 1
+    },
+    {
+      "query": "RotatE: Knowledge Graph Embedding by Relational Rotation in Complex Space",
+      "query_key": "f13792dccc25aa3386e0c25b",
+      "retrieval_stage": "G0_SEEDS",
+      "retry_round": 1
+    }
+  ],
+  "next_eligible_at": "2026-08-08T06:50:59Z",
+  "pending_count": 11,
+  "round_number": 1,
+  "state_version": 1
+}

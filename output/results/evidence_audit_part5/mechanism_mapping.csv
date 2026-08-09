@@ -1,0 +1,6 @@
+mechanism_id,axis,historical_configuration,source,observed_behavior,causal_interpretation,audit_status,paper_use
+M1,sorter,Baseline=Random+Chunk; CBP=Cost+FFD,schedulers.py; Phase6/Phase9 artifacts,"CostSorter orders descending by max(head_cost, tail_cost)",Sorter and packer labels changed together historically,SORTER_PLAUSIBLE_PACKER_UNIDENTIFIED,conditional only
+M2,packer,ChunkPacker vs FFDPacker,schedulers.py AST + CPU fixtures,"FFDPacker fills batch 0, then batch 1; output equals ChunkPacker",No independent FFD effect is identified,BLOCKED_EQUIVALENCE,implementation correction
+M3,interaction,No complete 2x2 factorial exists,Phase9 driver AST,Only BL/CBP/GPU/CBP+GPU are enumerated,"Sorter, packer and backend effects are confounded in historical results",NOT_IDENTIFIABLE,do not claim
+M4,cost_table,CostSorter layouts,cost_table.npy,98.6074% of entries equal 518.0; 166 unique values,Observed homogeneous batches can arise from score degeneracy,CONFOUNDING_DIAGNOSTIC,limitations
+M5,batch_boundary,Phase6/Phase9 traces,runtime_attribution.csv; neg_sampling_variance.csv,Warm-up and final partial batch change dispersion direction,All-batch headline statistics are estimand-sensitive,CONFIRMED_SENSITIVITY,audit only

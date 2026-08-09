@@ -1,0 +1,41 @@
+{
+  "addendum_id": "phase-x-x1-5-dblp-fallback-closure-v1",
+  "base_protocol": "phase-x-x1-5-literature-audit-v1",
+  "status": "FROZEN_FOR_EXECUTION",
+  "purpose": "Define replayable low-frequency DBLP retry state and conditional fallback closure without rewriting the historical v1.0 protocol.",
+  "retry": {
+    "max_rounds": 3,
+    "requests_per_query_per_round": 1,
+    "batch_size_max": 3,
+    "query_jitter_seconds": [3.0, 5.0],
+    "batch_interval_seconds": 600,
+    "scheduler": "persistent_next_batch_state",
+    "not_due_behavior": "return_NOT_DUE_without_network_or_artifact_mutation"
+  },
+  "fallback_qualification": {
+    "g0_seed": [
+      "successful OpenAlex or Crossref page",
+      "valid raw payload hash",
+      "normalized title exact match or canonical DOI exact match"
+    ],
+    "wide_sentinel": [
+      "successful OpenAlex or Crossref page",
+      "valid raw payload hash",
+      "at least one normalized record"
+    ],
+    "minimum_alternative_indexes": 1
+  },
+  "closure": {
+    "retrieval_cutoff_statuses": ["OPEN", "COMPLETE", "CLOSED_WITH_FALLBACK", "CLOSED_BLOCKED"],
+    "complete": "all retry-universe queries recovered",
+    "closed_with_fallback": "three rounds exhausted and every unresolved query has qualified fallback; advisory only",
+    "closed_blocked": "three rounds exhausted and at least one unresolved query lacks qualified fallback; hard blocker",
+    "unresolved_missing_page": "per-query disposition, not automatically a global C1 blocker"
+  },
+  "c1_gate_propagation": {
+    "OPEN": ["retrieval_channel_open"],
+    "COMPLETE": [],
+    "CLOSED_WITH_FALLBACK": [],
+    "CLOSED_BLOCKED": ["retrieval_gap_uncovered"]
+  }
+}

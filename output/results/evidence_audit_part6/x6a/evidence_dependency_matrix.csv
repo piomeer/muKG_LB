@@ -1,0 +1,7 @@
+left,right,dependency,independence
+E1/C1.2-R1,E2/C1.3-R1,SHARED_SEEDS;SHARED_PROTOCOL;DISTINCT_PASS_SHARED_DESIGN,not independent studies
+E3/C1.7-R1,E2/C1.3-R1,DERIVED_FROM,supporting description
+C2 scheduler overhead,E1/C1.2-R1,SHARED_RAW_DATA,reused throughput epochs
+C3.2,C4.1,SHARED_RAW_DATA,Phase6 runtime-attribution rows
+C3.6,C4.7,SHARED_RAW_DATA;SHARED_PROTOCOL,same cost table; facts do not validate prediction
+C4.4-C4.6,C4.4-C4.6,SHARED_PROTOCOL;SHARED_SEEDS,single-process quality protocol; no corroboration

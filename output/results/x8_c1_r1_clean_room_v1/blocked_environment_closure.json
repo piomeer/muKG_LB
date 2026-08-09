@@ -1,0 +1,23 @@
+{
+  "artifact_kind": "blocked_environment_closure_index",
+  "canonical_status": "BLOCKED_ENVIRONMENT",
+  "current_attempt": {
+    "blocked_closure_path": "output/results/x8_c1_r1_clean_room_v1_attempt3/blocked_environment_closure.json",
+    "blocked_closure_sha256": "af92487f80aa73cb0c1b85644c0b4574a99fa533e898b0b313f5b7be460bdc46",
+    "prepare_attempt_path": "output/results/x8_c1_r1_clean_room_v1_attempt3/raw/prepare_attempt.json",
+    "prepare_attempt_sha256": "6536b020e277dbf31ead888bed54951f0a278a8199bec650410f03e4875857fe",
+    "root": "output/results/x8_c1_r1_clean_room_v1_attempt3"
+  },
+  "historical_prepare_lineage": [
+    {
+      "reason": "raw/prepare_attempt.json is absent; capture cannot be reconstructed",
+      "root": "output/results/x8_c1_r1_clean_room_v1_prepare_defect_attempt1",
+      "state": "HISTORICAL_LINEAGE_INCOMPLETE"
+    },
+    {
+      "reason": "raw/prepare_attempt.json is absent; capture cannot be reconstructed",
+      "root": "output/results/x8_c1_r1_clean_room_v1",
+      "state": "HISTORICAL_LINEAGE_INCOMPLETE"
+    }
+  ]
+}

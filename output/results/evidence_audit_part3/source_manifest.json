@@ -1,0 +1,566 @@
+{
+  "audit": "Phase X Part 3 — C2 Unified Runtime Framework",
+  "audit_version": "1.0",
+  "sources": [
+    {
+      "bytes": 29822,
+      "fields_or_symbols": [],
+      "kind": "text",
+      "path": "docs/evidence_audit_part1_claim_inventory.md",
+      "row_count": 373,
+      "sha256": "93dc4b0b6c363bc98e266449010436528c701988caaf5b6e3437255a407cb7a6"
+    },
+    {
+      "bytes": 4217,
+      "fields_or_symbols": [],
+      "kind": "text",
+      "path": "docs/gpu_runtime_architecture.md",
+      "row_count": 84,
+      "sha256": "9631fede66e7c1b4e518cb1e622e6c487fd71f567d2675672e9c2d4c7e30a592"
+    },
+    {
+      "bytes": 4132,
+      "fields_or_symbols": [],
+      "kind": "text",
+      "path": "docs/phase8_architecture_freeze.md",
+      "row_count": 87,
+      "sha256": "1767a44aec772155126f47d0ea5451023da2a16730865770547a97a7f7b3c7f6"
+    },
+    {
+      "bytes": 6534,
+      "fields_or_symbols": [],
+      "kind": "text",
+      "path": "docs/runtime_framework_spec.md",
+      "row_count": 132,
+      "sha256": "d20cd7d790952004eee52d7502cd96606bdece54f22729fda00fa53432d15dc0"
+    },
+    {
+      "bytes": 915,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_BL_seed42/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "b20b998bb7331966a9e277befd043decb94f5c2d242c5caaba5aa6baf9ae74a2"
+    },
+    {
+      "bytes": 918,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_BL_seed43/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "0143a0c796143b398d590a6208267380a8abfb060bfba8051973c755fa47d99d"
+    },
+    {
+      "bytes": 917,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_BL_seed44/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "04448ef48d35f8cbdbf48e2738c3e497b43a1d91ecb8d942d0724e4e8f6e3a78"
+    },
+    {
+      "bytes": 913,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_BL_seed45/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "c0e0b46f503ca1d8aca707b6b2254cb07e3e4412b2b6e004c471ceb86b3729c0"
+    },
+    {
+      "bytes": 918,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_BL_seed46/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "0c8188d756c112f727893b01ad00c0e50a0651d2e34752be5e2fc08e61ee6023"
+    },
+    {
+      "bytes": 916,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_BL_seed47/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "3cfc663a1e3ffff8bc108bf43fed376ecc867aa1062a6edf03f6febec052ea1e"
+    },
+    {
+      "bytes": 916,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_GPU_seed42/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "e4ebba1572dac12b5eefdf0ab4a90d45041115e19eb96fbe41c5518e7ab4af80"
+    },
+    {
+      "bytes": 916,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_GPU_seed43/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "4c962c749412edc22c5e547990688bba8b40416b0aff45424fd49af28eabc4fe"
+    },
+    {
+      "bytes": 917,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_GPU_seed44/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "cb61e86f6bab81cf183ece0b69ba8bf8b11c81ddf3eb19c0bf11288c27676081"
+    },
+    {
+      "bytes": 915,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_GPU_seed45/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "8209ee2f728afee86709ed230897946c2117b62563c0a7a44a9871cda806e10b"
+    },
+    {
+      "bytes": 917,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_GPU_seed46/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "a7a7e50c4b7f57f28d47ac90e69bff9cd8fd21d58480e37da77d99caa2d69e66"
+    },
+    {
+      "bytes": 918,
+      "fields_or_symbols": [
+        "protocol_id",
+        "pass_name",
+        "config",
+        "seed",
+        "epoch",
+        "epoch_time_ns",
+        "scheduler_overhead_ns",
+        "num_steps",
+        "full_batch_count",
+        "partial_batch_count",
+        "partial_batch_size",
+        "training_examples",
+        "avg_loss",
+        "loss_finite",
+        "loss_change_from_epoch0",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes"
+      ],
+      "kind": "csv",
+      "path": "output/results/c1_r1_combined_rerun/jobs/throughput_GPU_seed47/per_epoch.csv",
+      "row_count": 5,
+      "sha256": "aabb886da3e27e9d6e4c5400ce63764f087d60d6cbde877a0a2be5f597a952f5"
+    },
+    {
+      "bytes": 5873,
+      "fields_or_symbols": [
+        "claims",
+        "configs",
+        "created_at",
+        "dataset",
+        "diagnostics",
+        "model",
+        "partial_batch_assertions",
+        "passes",
+        "preflight",
+        "protocol_id",
+        "source_files",
+        "statistics",
+        "training"
+      ],
+      "kind": "json",
+      "path": "output/results/c1_r1_combined_rerun/protocol.json",
+      "row_count": null,
+      "sha256": "80915afee4ffd01e7595c911e3c47ca58b4d272a33de8417d34851fbe4daf4d9"
+    },
+    {
+      "bytes": 1546,
+      "fields_or_symbols": [],
+      "kind": "text",
+      "path": "output/results/cost_model_summary.md",
+      "row_count": 45,
+      "sha256": "0050f8bc09dfcf36e85fd8f90d0f5fc7127909f9056d048ce2f065518d3628fb"
+    },
+    {
+      "bytes": 58148,
+      "fields_or_symbols": [
+        "dtype=float32",
+        "shape=[14505]"
+      ],
+      "kind": "numpy",
+      "path": "output/results/cost_table.npy",
+      "row_count": 14505,
+      "sha256": "104041a9de652c1ee024952b0757e97985f64303596731a2637a34bdab88fe52"
+    },
+    {
+      "bytes": 35713,
+      "fields_or_symbols": [
+        "candidate_size:dtype=int32:shape=[14505]",
+        "degree:dtype=int32:shape=[14505]",
+        "hub_flag:dtype=bool:shape=[14505]"
+      ],
+      "kind": "numpy_archive",
+      "path": "output/results/entity_features.npz",
+      "row_count": null,
+      "sha256": "bfd6889e070a33037465bd2f53d321b93d256ba8fa85c492dfbc3e3108cdec04"
+    },
+    {
+      "bytes": 27864,
+      "fields_or_symbols": [],
+      "kind": "text",
+      "path": "output/results/exp_Baseline/training.md",
+      "row_count": 490,
+      "sha256": "66ddffe992d6ce8477f8d7ac3d15ee5b99c0bffb880f2c366080d2a2c605c566"
+    },
+    {
+      "bytes": 27805,
+      "fields_or_symbols": [],
+      "kind": "text",
+      "path": "output/results/exp_CBP/training.md",
+      "row_count": 490,
+      "sha256": "a89182855b0f123edf16f75c42277fc40b8f50eef99d401aaf22c22f03e7f7b8"
+    },
+    {
+      "bytes": 495,
+      "fields_or_symbols": [
+        "baseline_avg_hubs_per_batch",
+        "baseline_avgcost_cv",
+        "baseline_hub_cv",
+        "baseline_maxcost_cv",
+        "baseline_n_batches",
+        "cbp_avg_hubs_per_batch",
+        "cbp_avgcost_cv",
+        "cbp_hub_cv",
+        "cbp_maxcost_cv",
+        "cbp_n_batches",
+        "checks_passed",
+        "checks_total",
+        "hub_cv_reduction_pct",
+        "regroup_ratio",
+        "verdict",
+        "within_batch_cv_baseline",
+        "within_batch_cv_cbp"
+      ],
+      "kind": "json",
+      "path": "output/results/integration_validation/validation_summary.json",
+      "row_count": null,
+      "sha256": "dbd3c1b810629f59b72e0425f4ea5e333b4c8877ce928e45884562502ea9df65"
+    },
+    {
+      "bytes": 97,
+      "fields_or_symbols": [],
+      "kind": "text",
+      "path": "output/results/scheduler_overhead.md",
+      "row_count": 3,
+      "sha256": "112c20c60b46d7a88d5f8eb72f30fd64e2d640f84ff2cf855bdc715d76db9976"
+    },
+    {
+      "bytes": 308,
+      "fields_or_symbols": [],
+      "kind": "text",
+      "path": "output/results/unified_runtime/unified_runtime_validation.md",
+      "row_count": 14,
+      "sha256": "419ab10ae5866f622a1f25824a4150b2c04439bbb0f2be93ff25ff69d2755040"
+    },
+    {
+      "bytes": 23866,
+      "fields_or_symbols": [],
+      "kind": "text",
+      "path": "paper/draft/method.md",
+      "row_count": 285,
+      "sha256": "b878b9f010e29ac2db0d9bb0390d05848a9cd3d9a4bb22d975faa951c0fda898"
+    },
+    {
+      "bytes": 11133,
+      "fields_or_symbols": [
+        "SimpleTransE",
+        "__init__",
+        "evaluate_filtered_mrr",
+        "forward",
+        "main",
+        "original_cpu_neg_sampling",
+        "run_config"
+      ],
+      "kind": "python",
+      "path": "src/py/experiments/phase9_step2_benchmark.py",
+      "row_count": null,
+      "sha256": "dca542d2fd7c4182ef82f74174e7ff874908fa8f777b94b0fddf9609f75ae241"
+    },
+    {
+      "bytes": 7535,
+      "fields_or_symbols": [
+        "BatchProvider",
+        "__init__",
+        "_emit_logs",
+        "get_batch_weight_stats",
+        "get_scheduler_overhead_ms",
+        "iterate",
+        "set_rank"
+      ],
+      "kind": "python",
+      "path": "src/py/load/batch_provider.py",
+      "row_count": null,
+      "sha256": "fb508b1cb5ecb64cb3072cb08359bf3456d894f5a30bf8eb70a8e57d9e18e3d5"
+    },
+    {
+      "bytes": 3205,
+      "fields_or_symbols": [
+        "build_cost_table",
+        "compute_batch_weight",
+        "compute_triple_cost"
+      ],
+      "kind": "python",
+      "path": "src/py/load/cost_model.py",
+      "row_count": null,
+      "sha256": "b2564329f7ceee4110e628bc0c7508fe661d1a3d2adaee0e4dbc113b2dd82d6a"
+    },
+    {
+      "bytes": 6017,
+      "fields_or_symbols": [
+        "FeatureExtractor",
+        "__init__",
+        "_compute_degrees",
+        "_compute_features",
+        "_compute_neighbor_dict",
+        "_load_cache",
+        "_save_cache",
+        "build",
+        "get_feature"
+      ],
+      "kind": "python",
+      "path": "src/py/load/features.py",
+      "row_count": null,
+      "sha256": "15539dc5e45342eaa687390590bbc42a13a7130eeb76597c290590d0eedb1a73"
+    },
+    {
+      "bytes": 1890,
+      "fields_or_symbols": [
+        "GPUNegativeSampler",
+        "__init__",
+        "generate"
+      ],
+      "kind": "python",
+      "path": "src/py/load/gpu_sampler.py",
+      "row_count": null,
+      "sha256": "cf88e9c0d0f6f9c98b0b8685771e651ef3591f72a3d34aec533c8b725a2f5da0"
+    },
+    {
+      "bytes": 7759,
+      "fields_or_symbols": [
+        "BasePacker",
+        "BaseSorter",
+        "ChunkPacker",
+        "CostSorter",
+        "FFDPacker",
+        "RandomSorter",
+        "Scheduler",
+        "__init__",
+        "create_scheduler",
+        "get_name",
+        "pack",
+        "pack_batches",
+        "sort",
+        "triple_cost"
+      ],
+      "kind": "python",
+      "path": "src/py/load/schedulers.py",
+      "row_count": null,
+      "sha256": "83088a3ae353d455e8de7bd337605cca38d4fd3fbed360c7f39e1d722e0fb987"
+    }
+  ]
+}

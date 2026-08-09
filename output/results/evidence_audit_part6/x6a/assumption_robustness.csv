@@ -1,0 +1,4 @@
+assumption,status,detail
+log-effect t interval,PASS,six paired seed effects; df=5
+n=6 normality diagnostic,LIMITED,Shapiro is low power and non-decisive
+nested epoch/batch units,PASS,seed is independent unit

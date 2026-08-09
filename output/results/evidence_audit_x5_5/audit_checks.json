@@ -1,0 +1,14 @@
+{
+  "c3_c4_x6_5_status": "WAIVED",
+  "errors": [],
+  "inventory_claim_count": 28,
+  "no_experiment_executed": true,
+  "part1_untouched": true,
+  "primary_count": 2,
+  "replacement_count": 8,
+  "row_count": 36,
+  "script_version": "x5.5-1.0",
+  "source_paths_exist": true,
+  "status": "PASS",
+  "x1_5_snapshot_untouched": true
+}

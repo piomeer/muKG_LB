@@ -1,5 +1,7 @@
 # Phase 8 Architecture Freeze
 
+<!-- LEGACY-NON-AUTHORITATIVE: Phase X X0.5 -->
+
 **Date**: 2026-07-23  
 **Purpose**: Finalize module interfaces and file modification plan before implementation.
 

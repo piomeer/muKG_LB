@@ -1,5 +1,7 @@
 # Paper Story Freeze
 
+<!-- LEGACY-NON-AUTHORITATIVE: Phase X X0.5 -->
+
 **Date**: 2026-07-30  
 **Status**: Final (based on all completed experiments through Phase 10)
 
