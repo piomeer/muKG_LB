@@ -7,6 +7,7 @@ import csv
 from collections import Counter
 import hashlib
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -87,6 +88,7 @@ def _offline_environment() -> dict[str, str]:
             "HTTPS_PROXY": "",
             "ALL_PROXY": "",
             "NO_PROXY": "*",
+            "PYTHONDONTWRITEBYTECODE": "1",
         }
     )
     return env
@@ -140,25 +142,51 @@ def _build_execution_jobs(contract: dict[str, Any]) -> list[dict[str, Any]]:
                 "seed": seed,
                 "state": "PENDING",
                 "attempt": 0,
+                "evidence_scope": "diagnostic_only",
+                "validates_gpu_exclusivity": False,
             }
         )
     return jobs
 
 
+def _job_descriptor(job: dict[str, Any]) -> dict[str, Any]:
+    keys = (
+        "id", "kind", "pass_name", "config", "seed",
+        "evidence_scope", "validates_gpu_exclusivity",
+    )
+    return {key: job[key] for key in keys if key in job}
+
+
 def _environment_clone_entries(cloned_prefix: Path) -> list[dict[str, Any]]:
-    paths = [cloned_prefix / "bin/python"]
-    conda_meta = cloned_prefix / "conda-meta"
-    if conda_meta.is_dir():
-        paths.extend(path for path in conda_meta.rglob("*") if path.is_file())
-    unique_paths = sorted(set(paths), key=lambda path: path.relative_to(cloned_prefix).as_posix())
-    return [
-        {
+    def mutable_cache(path: Path) -> bool:
+        relative = path.relative_to(cloned_prefix)
+        parts = set(relative.parts)
+        return (
+            "__pycache__" in parts
+            or ".cache" in parts
+            or relative.parts[:2] in {("var", "cache"), ("pkgs", "cache")}
+            or path.suffix in {".pyc", ".pyo", ".lock"}
+        )
+
+    paths = sorted(
+        (
+            path
+            for path in cloned_prefix.rglob("*")
+            if (path.is_file() or path.is_symlink()) and not mutable_cache(path)
+        ),
+        key=lambda path: path.relative_to(cloned_prefix).as_posix(),
+    )
+    entries = []
+    for path in paths:
+        entry = {
             "path": path.relative_to(cloned_prefix).as_posix(),
             "bytes": path.stat().st_size,
             "sha256": _sha256_file(path),
         }
-        for path in unique_paths
-    ]
+        if path.is_symlink():
+            entry["symlink_target"] = os.readlink(path)
+        entries.append(entry)
+    return entries
 
 
 def prepare(
@@ -362,6 +390,12 @@ def _load_prepared(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     with (root / "frozen_contract.json").open(encoding="utf-8") as handle:
         contract = json.load(handle)
     _validate_contract(contract)
+    expected_descriptors = [
+        _job_descriptor(job) for job in _build_execution_jobs(contract)
+    ]
+    actual_descriptors = [_job_descriptor(job) for job in manifest.get("jobs", [])]
+    if actual_descriptors != expected_descriptors:
+        raise RuntimeError("execution manifest job descriptor/order drift detected")
     checks = {
         "frozen contract": (root / "frozen_contract.json", manifest["contract_sha256"]),
         "capsule manifest": (
@@ -384,6 +418,13 @@ def _load_prepared(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     }
     if observed_entries != expected_entries:
         raise RuntimeError("capsule manifest does not match the frozen source hashes")
+    actual_capsule_paths = {
+        path.relative_to(root / "capsule").as_posix()
+        for path in (root / "capsule").rglob("*")
+        if path.is_file() or path.is_symlink()
+    }
+    if actual_capsule_paths != set(expected_entries):
+        raise RuntimeError("capsule file-set drift detected")
     for relative, expected in expected_entries.items():
         path = root / "capsule" / relative
         if not path.is_file() or _sha256_file(path) != expected:
@@ -403,13 +444,16 @@ def _write_execution_manifest(root: Path, manifest: dict[str, Any]) -> None:
 
 def _job_output_root(root: Path, job: dict[str, Any]) -> Path:
     attempt = job.get("attempt", 0)
+    dispatch_suffix = (
+        f"_dispatch{job['dispatch']}" if job.get("dispatch", 1) > 1 else ""
+    )
     if job["kind"] == "preflight":
         return root / "raw/attempts" / f"preflight_attempt{attempt}"
     if job["kind"] == "job":
         return (
             root
             / "raw/attempts"
-            / f"{job['pass_name']}_seed{job['seed']}_attempt{attempt}"
+            / f"{job['pass_name']}_seed{job['seed']}_attempt{attempt}{dispatch_suffix}"
         )
     return root / "raw/attempts" / f"diagnostics_attempt{attempt}"
 
@@ -452,11 +496,73 @@ def _job_creation_target(root: Path, job: dict[str, Any]) -> Path:
 
 
 def _read_json(path: Path) -> dict[str, Any]:
-    with path.open(encoding="utf-8") as handle:
-        value = json.load(handle)
+    try:
+        with path.open(encoding="utf-8") as handle:
+            value = json.load(handle)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"missing or invalid JSON artifact: {path}") from exc
     if not isinstance(value, dict):
         raise RuntimeError(f"expected JSON object: {path}")
     return value
+
+
+def _runtime_probe_code() -> str:
+    return (
+        "import json,sys,torch; print(json.dumps({"
+        "'protocol_id':'C1-R1-v1.1','python':sys.version,"
+        "'pytorch':torch.__version__,'torch_cuda_runtime':torch.version.cuda,"
+        "'cuda_available':torch.cuda.is_available()}))"
+    )
+
+
+def _validate_live_environment(
+    root: Path,
+    contract: dict[str, Any],
+    transport: CommandTransport,
+) -> None:
+    expected = _read_json(root / "environment_manifest.json")
+    cloned_prefix = root / "environment/conda"
+    offline_env = _offline_environment()
+    package_capture = _command_capture(
+        transport,
+        ["conda", "list", "--offline", "--json", "--prefix", str(cloned_prefix)],
+        cwd=root / "capsule",
+        env=offline_env,
+    )
+    runtime_capture = _command_capture(
+        transport,
+        [str(cloned_prefix / "bin/python"), "-c", _runtime_probe_code()],
+        cwd=root / "capsule",
+        env=offline_env,
+    )
+    gpu_capture = _command_capture(
+        transport,
+        [
+            "nvidia-smi",
+            "--query-gpu=name,memory.total,compute_cap",
+            "--format=csv,noheader,nounits",
+        ],
+        cwd=root / "capsule",
+        env=offline_env,
+    )
+    try:
+        packages = json.loads(package_capture["stdout"])
+        runtime = json.loads(runtime_capture["stdout"])
+        identity = [part.strip() for part in gpu_capture["stdout"].strip().split(",")]
+        gpu = {
+            "name": identity[0],
+            "total_memory_mib": float(identity[1]),
+            "compute_capability": identity[2],
+        }
+    except (json.JSONDecodeError, IndexError, ValueError) as exc:
+        raise RuntimeError("live environment probe is malformed") from exc
+    if (
+        packages != expected.get("packages")
+        or runtime != expected.get("runtime")
+        or gpu != expected.get("gpu")
+        or runtime.get("protocol_id") != contract["protocol"]["protocol_id"]
+    ):
+        raise RuntimeError("live environment identity drift detected")
 
 
 def _telemetry_invalid_reason(path: Path, protocol_id: str) -> str | None:
@@ -479,6 +585,170 @@ def _telemetry_invalid_reason(path: Path, protocol_id: str) -> str | None:
     return None
 
 
+def _read_csv_rows(path: Path, required_columns: list[str]) -> list[dict[str, str]]:
+    if not path.is_file():
+        raise RuntimeError(f"missing raw CSV: {path.name}")
+    with path.open(encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        fieldnames = reader.fieldnames or []
+        missing = [column for column in required_columns if column not in fieldnames]
+        if missing:
+            raise RuntimeError(f"{path.name} schema missing columns: {missing}")
+        return list(reader)
+
+
+def _integer(row: dict[str, str], field: str, path: Path) -> int:
+    try:
+        return int(row[field])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise RuntimeError(f"{path.name} invalid integer {field}") from exc
+
+
+def _true(value: str) -> bool:
+    return value.strip().lower() in {"true", "1"}
+
+
+def _validate_primary_csvs(
+    job_dir: Path,
+    job: dict[str, Any],
+    contract: dict[str, Any],
+    status: dict[str, Any],
+) -> None:
+    schemas = contract["raw_artifact_schemas"]
+    protocol = contract["protocol"]
+    protocol_id = protocol["protocol_id"]
+    epochs = int(protocol["epochs_per_job"])
+    batch_size = int(protocol["batch_size"])
+    examples = int(protocol["training_examples"])
+    full_batches, partial_size = divmod(examples, batch_size)
+    steps_per_epoch = full_batches + (1 if partial_size else 0)
+
+    epoch_path = job_dir / "per_epoch.csv"
+    epoch_rows = _read_csv_rows(
+        epoch_path, schemas["per_epoch.csv"]["required_columns"]
+    )
+    if len(epoch_rows) != epochs:
+        raise RuntimeError(
+            f"per_epoch.csv row count mismatch: expected {epochs}, got {len(epoch_rows)}"
+        )
+    for expected_epoch, row in enumerate(epoch_rows):
+        identity = (
+            row.get("protocol_id"),
+            row.get("pass_name"),
+            row.get("config"),
+            _integer(row, "seed", epoch_path),
+        )
+        if identity != (
+            protocol_id,
+            job["pass_name"],
+            job["config"],
+            job["seed"],
+        ):
+            raise RuntimeError("per_epoch.csv protocol/job identity mismatch")
+        invariants = {
+            "epoch": (expected_epoch, _integer(row, "epoch", epoch_path)),
+            "num_steps": (steps_per_epoch, _integer(row, "num_steps", epoch_path)),
+            "full_batch_count": (
+                full_batches,
+                _integer(row, "full_batch_count", epoch_path),
+            ),
+            "partial_batch_count": (
+                1 if partial_size else 0,
+                _integer(row, "partial_batch_count", epoch_path),
+            ),
+            "partial_batch_size": (
+                partial_size,
+                _integer(row, "partial_batch_size", epoch_path),
+            ),
+            "training_examples": (examples, _integer(row, "training_examples", epoch_path)),
+        }
+        for field, (expected, observed) in invariants.items():
+            if observed != expected:
+                raise RuntimeError(f"per_epoch.csv invariant mismatch: {field}")
+        if _integer(row, "epoch_time_ns", epoch_path) <= 0 or not _true(
+            row.get("loss_finite", "")
+        ):
+            raise RuntimeError("per_epoch.csv timing/loss invariant mismatch")
+    expected_step_rows = epochs * steps_per_epoch if job["pass_name"] == "trace" else 0
+    status_counts = status.get("row_counts", {})
+    if status_counts != {"epochs": epochs, "steps": expected_step_rows}:
+        raise RuntimeError("status.json row_counts do not match raw CSV contract")
+    if job["pass_name"] != "trace":
+        return
+
+    step_path = job_dir / "per_step.csv"
+    step_rows = _read_csv_rows(
+        step_path, schemas["per_step.csv"]["required_columns"]
+    )
+    if len(step_rows) != expected_step_rows:
+        raise RuntimeError(
+            f"per_step.csv row count mismatch: expected {expected_step_rows}, got {len(step_rows)}"
+        )
+    for index, row in enumerate(step_rows):
+        epoch, step = divmod(index, steps_per_epoch)
+        identity = (
+            row.get("protocol_id"),
+            row.get("pass_name"),
+            row.get("config"),
+            _integer(row, "seed", step_path),
+            _integer(row, "epoch", step_path),
+            _integer(row, "step", step_path),
+        )
+        if identity != (
+            protocol_id,
+            job["pass_name"],
+            job["config"],
+            job["seed"],
+            epoch,
+            step,
+        ):
+            raise RuntimeError("per_step.csv protocol/job/grid identity mismatch")
+        partial = step == full_batches
+        expected_size = partial_size if partial else batch_size
+        if (
+            _integer(row, "batch_size_actual", step_path) != expected_size
+            or _true(row.get("is_partial", "")) != partial
+            or _true(row.get("is_first_measured_step", "")) != (index == 0)
+        ):
+            raise RuntimeError("per_step.csv full/partial batch invariant mismatch")
+        neg = _integer(row, "neg_time_ns", step_path)
+        component = _integer(row, "component_sum_ns", step_path)
+        total = _integer(row, "total_step_ns", step_path)
+        residual = _integer(row, "timing_residual_ns", step_path)
+        if neg <= 0 or component < 0 or total <= 0 or component + residual != total:
+            raise RuntimeError("per_step.csv numeric timing invariant mismatch")
+
+
+def _validate_compute_only_csv(
+    path: Path, job: dict[str, Any], contract: dict[str, Any]
+) -> None:
+    required = [
+        "protocol_id", "seed", "repeat", "elapsed_ns", "loss", "batch_size", "neg_num"
+    ]
+    rows = _read_csv_rows(path, required)
+    observations = int(contract["execution_matrix"]["diagnostic"]["observations_per_seed"])
+    if len(rows) != observations:
+        raise RuntimeError(
+            f"compute-only row count mismatch: expected {observations}, got {len(rows)}"
+        )
+    protocol = contract["protocol"]
+    for repeat, row in enumerate(rows):
+        try:
+            loss = float(row["loss"])
+        except (KeyError, ValueError) as exc:
+            raise RuntimeError("compute-only loss is not numeric") from exc
+        if (
+            row.get("protocol_id") != protocol["protocol_id"]
+            or _integer(row, "seed", path) != job["seed"]
+            or _integer(row, "repeat", path) != repeat
+            or _integer(row, "elapsed_ns", path) <= 0
+            or not math.isfinite(loss)
+            or _integer(row, "batch_size", path) != protocol["batch_size"]
+            or _integer(row, "neg_num", path) != protocol["negative_samples_per_positive"]
+        ):
+            raise RuntimeError("compute-only diagnostic identity/numeric invariant mismatch")
+
+
 def _validate_runner_artifacts(
     root: Path,
     job: dict[str, Any],
@@ -490,8 +760,13 @@ def _validate_runner_artifacts(
         result = _read_json(output_root / "preflight/result.json")
         if result.get("protocol_id") != protocol_id or result.get("all_passed") is not True:
             raise RuntimeError("preflight did not pass the frozen protocol")
+        telemetry_path = output_root / "preflight/gpu_telemetry.csv"
+        _read_csv_rows(
+            telemetry_path,
+            contract["raw_artifact_schemas"]["gpu_telemetry.csv"]["required_columns"],
+        )
         reason = _telemetry_invalid_reason(
-            output_root / "preflight/gpu_telemetry.csv", protocol_id
+            telemetry_path, protocol_id
         )
         if reason:
             raise InvalidAttempt(reason, "preflight telemetry is invalid")
@@ -523,13 +798,25 @@ def _validate_runner_artifacts(
             raise RuntimeError(f"missing per_epoch.csv for {job['id']}")
         if job["pass_name"] == "trace" and not (job_dir / "per_step.csv").is_file():
             raise RuntimeError(f"missing per_step.csv for {job['id']}")
+        _validate_primary_csvs(job_dir, job, contract, status)
+        telemetry_rows = _read_csv_rows(
+            job_dir / "gpu_telemetry.csv",
+            contract["raw_artifact_schemas"]["gpu_telemetry.csv"]["required_columns"],
+        )
+        for row in telemetry_rows:
+            if (
+                row.get("protocol_id") != protocol_id
+                or row.get("pass_name") != job["pass_name"]
+                or row.get("config") != job["config"]
+                or _integer(row, "seed", job_dir / "gpu_telemetry.csv") != job["seed"]
+            ):
+                raise RuntimeError("gpu_telemetry.csv protocol/job identity mismatch")
         reason = _telemetry_invalid_reason(job_dir / "gpu_telemetry.csv", protocol_id)
         if reason:
             raise InvalidAttempt(reason, f"telemetry invalid for {job['id']}")
         return
     diagnostic = output_root / "compute_only" / f"seed{job['seed']}.csv"
-    if not diagnostic.is_file():
-        raise RuntimeError(f"missing compute-only artifact for seed {job['seed']}")
+    _validate_compute_only_csv(diagnostic, job, contract)
 
 
 def _execute_job(
@@ -540,11 +827,22 @@ def _execute_job(
     transport: CommandTransport,
 ) -> None:
     if job["state"] == "COMPLETED":
+        _load_prepared(root)
+        _validate_runner_artifacts(root, job, contract)
         return
-    if job["state"] not in {"PENDING", "RUNNING"}:
+    if job["state"] == "RUNNING":
+        job["state"] = "INVALID"
+        job["invalid_reason"] = "infrastructure_failure"
+        _write_execution_manifest(root, manifest)
+        raise RuntimeError(
+            f"interrupted RUNNING job requires paired remediation: {job['id']}"
+        )
+    if job["state"] != "PENDING":
         raise RuntimeError(f"job {job['id']} requires remediation: {job['state']}")
+    _load_prepared(root)
+    _validate_live_environment(root, contract, transport)
     creation_target = _job_creation_target(root, job)
-    if job["state"] == "PENDING" and creation_target.exists():
+    if creation_target.exists():
         raise FileExistsError(f"refusing to overwrite runner output: {creation_target}")
     job["state"] = "RUNNING"
     job["command"] = _runner_command(root, job)
@@ -615,9 +913,12 @@ def run(
     manifest, contract = _load_prepared(root)
     if manifest["jobs"][0]["state"] != "COMPLETED":
         raise RuntimeError("successful preflight is required before run")
+    _validate_runner_artifacts(root, manifest["jobs"][0], contract)
     if (root / "material_passport.json").exists():
         raise RuntimeError("sealed raw artifacts cannot be executed or overwritten")
     for remediation in manifest["remediations"]:
+        if remediation.get("state") == "INTERRUPTED":
+            continue
         if any(job["state"] != "COMPLETED" for job in remediation["jobs"]):
             raise RuntimeError("an incomplete remediation must be resolved before run")
     manifest["state"] = "RUNNING"
@@ -651,9 +952,27 @@ def remediate(
         for item in manifest["remediations"]
         if item["pass_name"] == pass_name and item["seed"] == seed
     ]
+    completed = [
+        item
+        for item in existing
+        if item.get("state") == "COMPLETED"
+        or all(job.get("state") == "COMPLETED" for job in item["jobs"])
+    ]
     maximum = contract["retry_policy"]["maximum_retries_per_pass_seed_pair"]
-    if len(existing) >= maximum:
+    if len(completed) >= maximum:
         raise RuntimeError("maximum remediation retries reached for pass/seed pair")
+    for item in existing:
+        if item in completed or item.get("state") == "INTERRUPTED":
+            continue
+        item["state"] = "INTERRUPTED"
+        item["analysis_eligible"] = False
+        for retry_job in item["jobs"]:
+            retry_job["analysis_eligible"] = False
+            if retry_job["state"] == "RUNNING":
+                retry_job["state"] = "INVALID"
+                retry_job["invalid_reason"] = "infrastructure_failure"
+            elif retry_job["state"] == "PENDING":
+                retry_job["state"] = "SKIPPED_INTERRUPTED_REMEDIATION"
     pair = [
         job
         for job in manifest["jobs"]
@@ -673,17 +992,22 @@ def remediate(
     if not invalid_reasons <= eligible:
         raise RuntimeError(f"invalid reason is not eligible for remediation: {invalid_reasons}")
 
-    attempt = len(existing) + 1
+    attempt = len(completed) + 1
+    dispatch = len(existing) + 1
     retry_jobs = []
     for config in order:
         retry_jobs.append(
             {
-                "id": f"{pass_name}_{config}_seed{seed}_retry{attempt}",
+                "id": (
+                    f"{pass_name}_{config}_seed{seed}_retry{attempt}"
+                    + (f"_dispatch{dispatch}" if dispatch > 1 else "")
+                ),
                 "kind": "job",
                 "pass_name": pass_name,
                 "config": config,
                 "seed": seed,
                 "attempt": attempt,
+                "dispatch": dispatch,
                 "state": "PENDING",
                 "analysis_eligible": True,
             }
@@ -692,6 +1016,9 @@ def remediate(
         "pass_name": pass_name,
         "seed": seed,
         "attempt": attempt,
+        "dispatch": dispatch,
+        "state": "RUNNING",
+        "analysis_eligible": True,
         "trigger_reasons": sorted(invalid_reasons),
         "jobs": retry_jobs,
     }
@@ -705,6 +1032,7 @@ def remediate(
     _write_execution_manifest(root, manifest)
     for job in retry_jobs:
         _execute_job(root, manifest, contract, job, transport)
+    remediation_record["state"] = "COMPLETED"
     manifest["state"] = "REMEDIATED"
     _write_execution_manifest(root, manifest)
     return manifest
@@ -727,7 +1055,7 @@ def _raw_artifact_entries(root: Path) -> list[dict[str, Any]]:
     ]
 
 
-def seal(root: Path, *, sealed_at_ns: int | None = None) -> dict[str, Any]:
+def seal(root: Path) -> dict[str, Any]:
     """Seal a complete raw snapshot with a deterministic artifact manifest."""
     root = root.resolve()
     manifest, contract = _load_prepared(root)
@@ -744,6 +1072,8 @@ def seal(root: Path, *, sealed_at_ns: int | None = None) -> dict[str, Any]:
             raise RuntimeError(f"raw matrix job is incomplete: {job['id']}")
         _validate_runner_artifacts(root, job, contract)
     for remediation in manifest["remediations"]:
+        if remediation.get("state") == "INTERRUPTED":
+            continue
         for job in remediation["jobs"]:
             if job["state"] != "COMPLETED":
                 raise RuntimeError("raw remediation is incomplete")
@@ -762,7 +1092,7 @@ def seal(root: Path, *, sealed_at_ns: int | None = None) -> dict[str, Any]:
         "environment_manifest_sha256": manifest["environment_manifest_sha256"],
         "raw_artifact_manifest_sha256": _sha256_file(artifact_manifest_path),
         "stage": "raw",
-        "sealed_at_ns": time.time_ns() if sealed_at_ns is None else sealed_at_ns,
+        "sealed_at_ns": time.time_ns(),
     }
     required = set(contract["material_passport"]["required_fields"])
     if not required <= set(passport):

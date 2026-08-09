@@ -3,10 +3,12 @@ import hashlib
 import csv
 import io
 import json
+import shutil
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Callable
 
 from scripts import run_x8_c1_r1_clean_room as executor
 
@@ -49,6 +51,10 @@ def fixture_contract(source_hashes: dict[str, str]) -> dict[str, object]:
         "protocol": {
             "protocol_id": "C1-R1-v1.1",
             "paired_order": {"42": ["BL", "GPU"]},
+            "batch_size": 5000,
+            "epochs_per_job": 5,
+            "negative_samples_per_positive": 150,
+            "training_examples": 267115,
         },
         "execution_matrix": {
             "primary": {
@@ -56,7 +62,7 @@ def fixture_contract(source_hashes: dict[str, str]) -> dict[str, object]:
                 "passes": ["throughput", "trace"],
                 "configs": ["BL", "GPU"],
             },
-            "diagnostic": {"seeds": [42]},
+            "diagnostic": {"seeds": [42], "observations_per_seed": 20},
         },
         "retry_policy": {
             "eligible_failure_reasons": [
@@ -79,6 +85,31 @@ def fixture_contract(source_hashes: dict[str, str]) -> dict[str, object]:
                 "sealed_at_ns",
             ]
         },
+        "raw_artifact_schemas": {
+            "per_epoch.csv": {
+                "required_columns": [
+                    "protocol_id", "pass_name", "config", "seed", "epoch",
+                    "epoch_time_ns", "num_steps", "full_batch_count",
+                    "partial_batch_count", "partial_batch_size",
+                    "training_examples", "loss_finite",
+                ]
+            },
+            "per_step.csv": {
+                "required_columns": [
+                    "protocol_id", "pass_name", "config", "seed", "epoch", "step",
+                    "batch_size_actual", "is_partial", "is_first_measured_step",
+                    "neg_time_ns", "component_sum_ns", "total_step_ns",
+                    "timing_residual_ns",
+                ]
+            },
+            "gpu_telemetry.csv": {
+                "required_columns": [
+                    "protocol_id", "config", "seed", "pass_name", "event", "time_ns",
+                    "thermal_slowdown", "other_compute_processes", "raw_gpu_query",
+                    "raw_process_query", "query_error",
+                ]
+            },
+        },
     }
 
 
@@ -86,15 +117,29 @@ class FakeExternalTransport:
     def __init__(self) -> None:
         self.commands: list[list[str]] = []
         self.telemetry_issues: dict[tuple[str, str, int], str] = {}
+        self.header_only_jobs: set[tuple[str, str, int]] = set()
+        self.header_only_compute: set[int] = set()
+        self.invocations: list[tuple[list[str], dict[str, object]]] = []
+        self.after_runner: Callable[[list[str]], None] | None = None
+        self.runtime_pytorch = "2.7.1+cu118"
+        self.gpu_name = "NVIDIA GeForce RTX 3070"
+        self.interrupt_job_once: tuple[str, str, int] | None = None
+        self.malformed_preflight_telemetry = False
 
     def __call__(self, command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         self.commands.append(list(command))
+        self.invocations.append((list(command), dict(kwargs)))
         if command[:2] == ["conda", "create"]:
             clone = Path(command[command.index("--prefix") + 1])
             (clone / "bin").mkdir(parents=True)
             (clone / "bin/python").write_bytes(b"fixture-python")
             (clone / "conda-meta").mkdir()
             (clone / "conda-meta/history").write_text("fixture\n", encoding="utf-8")
+            site_packages = clone / "lib/python3.11/site-packages"
+            site_packages.mkdir(parents=True)
+            (site_packages / "fixture_runtime.py").write_text(
+                "VALUE = 1\n", encoding="utf-8"
+            )
             return subprocess.CompletedProcess(command, 0, "", "")
         if command[:2] == ["conda", "list"]:
             return subprocess.CompletedProcess(
@@ -113,7 +158,7 @@ class FakeExternalTransport:
                     {
                         "protocol_id": "C1-R1-v1.1",
                         "python": "3.11.0",
-                        "pytorch": "2.7.1+cu118",
+                        "pytorch": self.runtime_pytorch,
                         "torch_cuda_runtime": "11.8",
                         "cuda_available": True,
                     }
@@ -122,7 +167,7 @@ class FakeExternalTransport:
             )
         if command and command[0] == "nvidia-smi":
             return subprocess.CompletedProcess(
-                command, 0, "NVIDIA GeForce RTX 3070, 8192, 8.6\n", ""
+                command, 0, f"{self.gpu_name}, 8192, 8.6\n", ""
             )
         if len(command) >= 3 and command[1].endswith("c1_r1_combined_rerun.py"):
             kind = command[2]
@@ -138,11 +183,20 @@ class FakeExternalTransport:
                     },
                 )
                 self._write_telemetry(output_root / "preflight/gpu_telemetry.csv", "preflight", "GPU", -1)
+                if self.malformed_preflight_telemetry:
+                    (output_root / "preflight/gpu_telemetry.csv").write_text(
+                        "protocol_id\nC1-R1-v1.1\n", encoding="utf-8"
+                    )
             elif kind == "job":
                 config = command[command.index("--config") + 1]
                 pass_name = command[command.index("--pass-name") + 1]
                 seed = int(command[command.index("--seed") + 1])
                 job_dir = output_root / "jobs" / f"{pass_name}_{config}_seed{seed}"
+                if self.interrupt_job_once == (pass_name, config, seed):
+                    self.interrupt_job_once = None
+                    job_dir.mkdir(parents=True, exist_ok=True)
+                    (job_dir / "partial.tmp").write_text("partial\n", encoding="utf-8")
+                    raise KeyboardInterrupt("fixture hard interruption")
                 write_json(
                     job_dir / "status.json",
                     {
@@ -157,15 +211,13 @@ class FakeExternalTransport:
                         "warnings": [],
                     },
                 )
-                (job_dir / "per_epoch.csv").write_text(
-                    "protocol_id,pass_name,config,seed,epoch,epoch_time_ns,num_steps,full_batch_count,partial_batch_count,partial_batch_size,training_examples,loss_finite\n",
-                    encoding="utf-8",
+                self._write_primary_csvs(
+                    job_dir,
+                    pass_name,
+                    config,
+                    seed,
+                    header_only=(pass_name, config, seed) in self.header_only_jobs,
                 )
-                if pass_name == "trace":
-                    (job_dir / "per_step.csv").write_text(
-                        "protocol_id,pass_name,config,seed,epoch,step,batch_size_actual,is_partial,is_first_measured_step,neg_time_ns,component_sum_ns,total_step_ns,timing_residual_ns\n",
-                        encoding="utf-8",
-                    )
                 self._write_telemetry(
                     job_dir / "gpu_telemetry.csv",
                     pass_name,
@@ -177,9 +229,101 @@ class FakeExternalTransport:
                 seed = int(command[command.index("--seed") + 1])
                 path = output_root / "compute_only" / f"seed{seed}.csv"
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text("protocol_id,seed,repeat,elapsed_ns\n", encoding="utf-8")
+                fields = [
+                    "protocol_id", "seed", "repeat", "elapsed_ns", "loss",
+                    "batch_size", "neg_num",
+                ]
+                with path.open("w", encoding="utf-8", newline="") as handle:
+                    writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+                    writer.writeheader()
+                    if seed not in self.header_only_compute:
+                        for repeat in range(20):
+                            writer.writerow(
+                                {
+                                    "protocol_id": "C1-R1-v1.1",
+                                    "seed": seed,
+                                    "repeat": repeat,
+                                    "elapsed_ns": 1000 + repeat,
+                                    "loss": 1.0,
+                                    "batch_size": 5000,
+                                    "neg_num": 150,
+                                }
+                            )
+            if self.after_runner is not None:
+                self.after_runner(command)
             return subprocess.CompletedProcess(command, 0, "runner output\n", "")
         raise AssertionError(f"unexpected external command: {command}")
+
+    @staticmethod
+    def _write_primary_csvs(
+        job_dir: Path,
+        pass_name: str,
+        config: str,
+        seed: int,
+        *,
+        header_only: bool,
+    ) -> None:
+        epoch_fields = [
+            "protocol_id", "pass_name", "config", "seed", "epoch",
+            "epoch_time_ns", "num_steps", "full_batch_count", "partial_batch_count",
+            "partial_batch_size", "training_examples", "loss_finite",
+        ]
+        with (job_dir / "per_epoch.csv").open(
+            "w", encoding="utf-8", newline=""
+        ) as handle:
+            writer = csv.DictWriter(handle, fieldnames=epoch_fields, lineterminator="\n")
+            writer.writeheader()
+            if not header_only:
+                for epoch in range(5):
+                    writer.writerow(
+                        {
+                            "protocol_id": "C1-R1-v1.1",
+                            "pass_name": pass_name,
+                            "config": config,
+                            "seed": seed,
+                            "epoch": epoch,
+                            "epoch_time_ns": 1_000_000 + epoch,
+                            "num_steps": 54,
+                            "full_batch_count": 53,
+                            "partial_batch_count": 1,
+                            "partial_batch_size": 2115,
+                            "training_examples": 267115,
+                            "loss_finite": "True",
+                        }
+                    )
+        if pass_name != "trace":
+            return
+        step_fields = [
+            "protocol_id", "pass_name", "config", "seed", "epoch", "step",
+            "batch_size_actual", "is_partial", "is_first_measured_step",
+            "neg_time_ns", "component_sum_ns", "total_step_ns", "timing_residual_ns",
+        ]
+        with (job_dir / "per_step.csv").open(
+            "w", encoding="utf-8", newline=""
+        ) as handle:
+            writer = csv.DictWriter(handle, fieldnames=step_fields, lineterminator="\n")
+            writer.writeheader()
+            if not header_only:
+                for epoch in range(5):
+                    for step in range(54):
+                        partial = step == 53
+                        writer.writerow(
+                            {
+                                "protocol_id": "C1-R1-v1.1",
+                                "pass_name": pass_name,
+                                "config": config,
+                                "seed": seed,
+                                "epoch": epoch,
+                                "step": step,
+                                "batch_size_actual": 2115 if partial else 5000,
+                                "is_partial": str(partial),
+                                "is_first_measured_step": str(epoch == 0 and step == 0),
+                                "neg_time_ns": 1000 + step,
+                                "component_sum_ns": 100,
+                                "total_step_ns": 110,
+                                "timing_residual_ns": 10,
+                            }
+                        )
 
     @staticmethod
     def _write_telemetry(
@@ -280,6 +424,70 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
                 active_conda_prefix=self.active_env,
             )
 
+    def test_frozen_job_descriptors_are_exact_and_truncation_is_rejected(self):
+        """Catches a mutable/truncated manifest replacing the frozen 31-job matrix."""
+        root_contract = executor.load_contract(Path(__file__).resolve().parents[1])
+        full_jobs = executor._build_execution_jobs(root_contract)
+        self.assertEqual(len(full_jobs), 31)
+        primary_jobs = [job for job in full_jobs if job["kind"] == "job"]
+        diagnostic_jobs = [job for job in full_jobs if job["kind"] == "compute-only"]
+        self.assertEqual(len(primary_jobs), 24)
+        self.assertEqual(len(diagnostic_jobs), 6)
+        self.assertEqual([job["seed"] for job in diagnostic_jobs], [42, 43, 44, 45, 46, 47])
+        self.assertEqual(
+            [(job.get("seed"), job.get("pass_name"), job.get("config")) for job in full_jobs[1:5]],
+            [
+                (42, "throughput", "BL"),
+                (42, "throughput", "GPU"),
+                (42, "trace", "BL"),
+                (42, "trace", "GPU"),
+            ],
+        )
+        for seed in range(42, 48):
+            observed = [
+                (job["pass_name"], job["config"])
+                for job in primary_jobs if job["seed"] == seed
+            ]
+            pair = ["BL", "GPU"] if seed % 2 == 0 else ["GPU", "BL"]
+            self.assertEqual(
+                observed,
+                [("throughput", pair[0]), ("throughput", pair[1]),
+                 ("trace", pair[0]), ("trace", pair[1])],
+            )
+        seed43 = [
+            job for job in full_jobs
+            if job.get("kind") == "job" and job.get("seed") == 43
+        ]
+        self.assertEqual(
+            [(job["pass_name"], job["config"]) for job in seed43],
+            [
+                ("throughput", "GPU"),
+                ("throughput", "BL"),
+                ("trace", "GPU"),
+                ("trace", "BL"),
+            ],
+        )
+
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        manifest_path = self.root / "execution_manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        complete_job_descriptors = manifest["jobs"]
+        manifest["jobs"] = manifest["jobs"][:1]
+        write_json(manifest_path, manifest)
+
+        with self.assertRaisesRegex(RuntimeError, "job descriptor.*drift"):
+            executor.preflight(self.root, transport=transport)
+
+        manifest["jobs"] = complete_job_descriptors
+        for job in manifest["jobs"]:
+            job["state"] = "COMPLETED"
+        write_json(manifest_path, manifest)
+        with self.assertRaisesRegex(RuntimeError, "missing|not found"):
+            executor.run(self.root, transport=transport)
+
     def test_preflight_and_run_follow_seed_major_serial_order_and_resume(self):
         """Catches order drift, non-capsule execution, and duplicate resumed jobs."""
         transport = FakeExternalTransport()
@@ -317,6 +525,14 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
             ],
         )
         self.assertTrue(all(str(self.root / "capsule") in command[1] for command in runner_commands))
+        runner_envs = [
+            kwargs["env"]
+            for command, kwargs in transport.invocations
+            if len(command) >= 3 and command[1].endswith("c1_r1_combined_rerun.py")
+        ]
+        self.assertTrue(
+            all(env["PYTHONDONTWRITEBYTECODE"] == "1" for env in runner_envs)
+        )
         self.assertEqual(first["state"], "RAW_COMPLETE")
         executor.run(self.root, transport=transport)
         resumed_runner_commands = [
@@ -346,6 +562,49 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
         self.assertEqual(manifest["jobs"][1]["state"], "INVALID")
         self.assertEqual(manifest["jobs"][1]["invalid_reason"], "telemetry_failure")
         self.assertEqual(manifest["jobs"][2]["state"], "PENDING")
+
+    def test_preflight_rejects_telemetry_missing_frozen_schema(self):
+        """Catches preflight acceptance when contention/query columns are absent."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        transport.malformed_preflight_telemetry = True
+
+        with self.assertRaisesRegex(RuntimeError, "gpu_telemetry.csv schema"):
+            executor.preflight(self.root, transport=transport)
+
+    def test_run_rejects_header_only_primary_csv_despite_valid_status(self):
+        """Catches trusting status row counts without validating raw CSV content."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        executor.preflight(self.root, transport=transport)
+        transport.header_only_jobs.add(("throughput", "BL", 42))
+
+        with self.assertRaisesRegex(RuntimeError, "per_epoch.*row count"):
+            executor.run(self.root, transport=transport)
+
+    def test_compute_only_is_diagnostic_only_and_header_only_is_rejected(self):
+        """Catches diagnostics masquerading as exclusivity evidence or empty data."""
+        contract = executor.load_contract(Path(__file__).resolve().parents[1])
+        diagnostic_jobs = [
+            job for job in executor._build_execution_jobs(contract)
+            if job["kind"] == "compute-only"
+        ]
+        self.assertTrue(diagnostic_jobs)
+        self.assertTrue(all(job["evidence_scope"] == "diagnostic_only" for job in diagnostic_jobs))
+        self.assertTrue(all(job["validates_gpu_exclusivity"] is False for job in diagnostic_jobs))
+
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        executor.preflight(self.root, transport=transport)
+        transport.header_only_compute.add(42)
+        with self.assertRaisesRegex(RuntimeError, "compute-only row count"):
+            executor.run(self.root, transport=transport)
 
     def test_remediate_retries_the_whole_invalid_pair_once_in_frozen_order(self):
         """Catches selective, reordered, destructive, or repeated remediation."""
@@ -403,8 +662,11 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
         )
         executor.preflight(self.root, transport=transport)
         executor.run(self.root, transport=transport)
+        twin = self.base / "clean-room-twin"
+        shutil.copytree(self.root, twin)
 
-        passport = executor.seal(self.root, sealed_at_ns=123456789)
+        passport = executor.seal(self.root)
+        executor.seal(twin)
         artifact_manifest = json.loads(
             (self.root / "raw_artifact_manifest.json").read_text(encoding="utf-8")
         )
@@ -415,7 +677,11 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
         self.assertNotIn("raw_artifact_manifest.json", paths)
         self.assertNotIn("material_passport.json", paths)
         self.assertEqual(passport["stage"], "raw")
-        self.assertEqual(passport["sealed_at_ns"], 123456789)
+        self.assertGreater(passport["sealed_at_ns"], 0)
+        self.assertEqual(
+            (self.root / "raw_artifact_manifest.json").read_bytes(),
+            (twin / "raw_artifact_manifest.json").read_bytes(),
+        )
         self.assertTrue(executor.validate_raw_seal(self.root))
 
         artifact = next(
@@ -450,6 +716,165 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
             for command in transport.commands
         )
         self.assertEqual(runner_count, prior_runner_count)
+
+    def test_preflight_rejects_added_capsule_shadow_module_before_dispatch(self):
+        """Catches unlisted shadow modules or bytecode entering the capsule."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        shadow = self.root / "capsule/src/py/load/torch.py"
+        shadow.parent.mkdir(parents=True, exist_ok=True)
+        shadow.write_text("raise RuntimeError('shadow')\n", encoding="utf-8")
+
+        with self.assertRaisesRegex(RuntimeError, "capsule file-set drift"):
+            executor.preflight(self.root, transport=transport)
+
+        self.assertFalse(
+            any(
+                len(command) >= 3 and command[1].endswith("c1_r1_combined_rerun.py")
+                for command in transport.commands
+            )
+        )
+
+    def test_preflight_rejects_site_packages_byte_mutation(self):
+        """Catches runtime-package mutation outside bin/python and conda-meta."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        runtime_file = (
+            self.root
+            / "environment/conda/lib/python3.11/site-packages/fixture_runtime.py"
+        )
+        runtime_file.write_text("VALUE = 2\n", encoding="utf-8")
+
+        with self.assertRaisesRegex(RuntimeError, "environment clone drift"):
+            executor.preflight(self.root, transport=transport)
+
+    def test_run_revalidates_capsule_immediately_before_each_dispatch(self):
+        """Catches capsule mutation between two jobs in the same run call."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        executor.preflight(self.root, transport=transport)
+        mutated = False
+
+        def mutate_after_first_primary(command: list[str]) -> None:
+            nonlocal mutated
+            if command[2] == "job" and not mutated:
+                mutated = True
+                path = self.root / "capsule/src/py/load/shadow.py"
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("VALUE = 1\n", encoding="utf-8")
+
+        transport.after_runner = mutate_after_first_primary
+        with self.assertRaisesRegex(RuntimeError, "capsule file-set drift"):
+            executor.run(self.root, transport=transport)
+
+        primary_commands = [
+            command for command in transport.commands
+            if len(command) >= 3 and command[2] == "job"
+        ]
+        self.assertEqual(len(primary_commands), 1)
+
+    def test_run_reprobes_runtime_identity_before_each_dispatch(self):
+        """Catches live runtime drift between jobs despite unchanged manifest bytes."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        executor.preflight(self.root, transport=transport)
+        changed = False
+
+        def change_probe_after_first_primary(command: list[str]) -> None:
+            nonlocal changed
+            if command[2] == "job" and not changed:
+                changed = True
+                transport.runtime_pytorch = "9.9.9+drift"
+
+        transport.after_runner = change_probe_after_first_primary
+        with self.assertRaisesRegex(RuntimeError, "live environment.*drift"):
+            executor.run(self.root, transport=transport)
+
+        primary_commands = [
+            command for command in transport.commands
+            if len(command) >= 3 and command[2] == "job"
+        ]
+        self.assertEqual(len(primary_commands), 1)
+
+    def test_crashed_running_job_is_invalidated_without_overwriting_partial_output(self):
+        """Catches redispatch into a partial output directory after hard interruption."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        executor.preflight(self.root, transport=transport)
+        transport.interrupt_job_once = ("throughput", "BL", 42)
+        with self.assertRaises(KeyboardInterrupt):
+            executor.run(self.root, transport=transport)
+        command_count = len(
+            [command for command in transport.commands if len(command) >= 3 and command[2] == "job"]
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "interrupted RUNNING"):
+            executor.run(self.root, transport=transport)
+
+        manifest = json.loads(
+            (self.root / "execution_manifest.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(manifest["jobs"][1]["state"], "INVALID")
+        self.assertEqual(manifest["jobs"][1]["invalid_reason"], "infrastructure_failure")
+        self.assertTrue(
+            (
+                self.root
+                / "raw/attempts/throughput_seed42_attempt0/jobs/throughput_BL_seed42/partial.tmp"
+            ).is_file()
+        )
+        self.assertEqual(
+            len([command for command in transport.commands if len(command) >= 3 and command[2] == "job"]),
+            command_count,
+        )
+
+    def test_interrupted_remediation_is_retained_but_does_not_consume_retry(self):
+        """Catches an incomplete retry record permanently exhausting remediation."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        executor.preflight(self.root, transport=transport)
+        transport.telemetry_issues[("throughput", "BL", 42)] = "thermal_slowdown"
+        with self.assertRaisesRegex(RuntimeError, "thermal_slowdown"):
+            executor.run(self.root, transport=transport)
+        transport.telemetry_issues.clear()
+        transport.interrupt_job_once = ("throughput", "BL", 42)
+        with self.assertRaises(KeyboardInterrupt):
+            executor.remediate(
+                self.root, pass_name="throughput", seed=42, transport=transport
+            )
+
+        recovered = executor.remediate(
+            self.root, pass_name="throughput", seed=42, transport=transport
+        )
+
+        self.assertEqual(len(recovered["remediations"]), 2)
+        self.assertEqual(recovered["remediations"][0]["state"], "INTERRUPTED")
+        self.assertEqual(recovered["remediations"][1]["state"], "COMPLETED")
+        self.assertEqual(
+            [job["config"] for job in recovered["remediations"][1]["jobs"]],
+            ["BL", "GPU"],
+        )
+        self.assertTrue(
+            (
+                self.root
+                / "raw/attempts/throughput_seed42_attempt1/jobs/throughput_BL_seed42/partial.tmp"
+            ).is_file()
+        )
+        with self.assertRaisesRegex(RuntimeError, "maximum"):
+            executor.remediate(
+                self.root, pass_name="throughput", seed=42, transport=transport
+            )
 
     def test_status_cli_reports_the_resumable_manifest_without_gpu_execution(self):
         """Catches a missing command surface or inaccurate resume accounting."""
