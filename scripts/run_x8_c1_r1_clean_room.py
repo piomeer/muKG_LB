@@ -173,6 +173,24 @@ def _historical_prepare_lineage(roots: list[Path]) -> list[dict[str, Any]]:
     return entries
 
 
+def _is_blocked_environment_failure(
+    attempt: dict[str, Any], stage: str, error: Exception
+) -> bool:
+    """Classify only evidenced GPU/runtime environment failures as scientific blocks."""
+    if stage != "gpu_identity":
+        return False
+    if not isinstance(attempt.get("git_head"), dict) or not isinstance(
+        attempt.get("clone_prefix_probe"), dict
+    ):
+        return False
+    if isinstance(error, PrepareCommandFailure):
+        return True
+    return str(error) in {
+        "cloned runtime does not match the frozen environment contract",
+        "GPU identity does not match the frozen environment contract",
+    }
+
+
 def _blocked_environment_closure(
     root: Path, attempt: dict[str, Any]
 ) -> dict[str, Any]:
@@ -604,14 +622,27 @@ def prepare(
         ):
             raise RuntimeError("GPU identity does not match the frozen environment contract")
     except Exception as exc:
-        attempt["state"] = "BLOCKED_ENVIRONMENT"
+        blocked_environment = _is_blocked_environment_failure(
+            attempt, failure_stage, exc
+        )
+        attempt["state"] = (
+            "BLOCKED_ENVIRONMENT" if blocked_environment else "PREPARE_FAILED"
+        )
         attempt["failure"] = {
             "stage": failure_stage,
             "error_type": type(exc).__name__,
             "message": str(exc),
         }
         _write_json(root / "raw/prepare_attempt.json", attempt)
-        regenerate_blocked_environment_closure(root)
+        if blocked_environment:
+            try:
+                regenerate_blocked_environment_closure(root)
+            except Exception as closure_error:
+                attempt["closure_generation_error"] = {
+                    "error_type": type(closure_error).__name__,
+                    "message": str(closure_error),
+                }
+                _write_json(root / "raw/prepare_attempt.json", attempt)
         raise
 
     environment_document = {

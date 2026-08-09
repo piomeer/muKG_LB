@@ -127,11 +127,15 @@ class FakeExternalTransport:
         self.malformed_preflight_telemetry = False
         self.wrapper_telemetry_issue = ""
         self.gpu_identity_failure = False
+        self.git_head_failure = False
+        self.conda_clone_failure = False
 
     def __call__(self, command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         self.commands.append(list(command))
         self.invocations.append((list(command), dict(kwargs)))
         if command[:2] == ["conda", "create"]:
+            if self.conda_clone_failure:
+                return subprocess.CompletedProcess(command, 23, "", "fixture Conda clone failure\n")
             clone = Path(command[command.index("--prefix") + 1])
             (clone / "bin").mkdir(parents=True)
             (clone / "bin/python").write_bytes(b"fixture-python")
@@ -151,6 +155,8 @@ class FakeExternalTransport:
                 "",
             )
         if command[-2:] == ["rev-parse", "HEAD"]:
+            if self.git_head_failure:
+                return subprocess.CompletedProcess(command, 17, "", "fixture Git HEAD failure\n")
             return subprocess.CompletedProcess(command, 0, "a" * 40 + "\n", "")
         if command[-2] == "-c" and "torch" in command[-1]:
             return subprocess.CompletedProcess(
@@ -538,6 +544,52 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
         regenerated = executor.regenerate_blocked_environment_closure(self.root)
         self.assertEqual(regenerated, closure)
         self.assertEqual(closure_path.read_bytes(), first_closure)
+
+    def test_prepare_git_failure_retains_partial_lineage_without_environment_closure(self):
+        """Catches an early Git failure being mislabelled as a scientific environment block."""
+        transport = FakeExternalTransport()
+        transport.git_head_failure = True
+
+        with self.assertRaisesRegex(RuntimeError, "git .*rev-parse HEAD"):
+            executor.prepare(
+                self.repo,
+                self.root,
+                transport=transport,
+                active_conda_prefix=self.active_env,
+            )
+
+        attempt = json.loads((self.root / "raw/prepare_attempt.json").read_text(encoding="utf-8"))
+        self.assertEqual(attempt["state"], "PREPARE_FAILED")
+        self.assertEqual(attempt["failure"]["stage"], "git_head")
+        self.assertEqual(
+            [(item["stage"], item["returncode"]) for item in attempt["command_captures"]],
+            [("git_head", 17)],
+        )
+        self.assertIn("fixture Git HEAD failure", attempt["command_captures"][0]["stderr"])
+        self.assertFalse((self.root / "blocked_environment_closure.json").exists())
+
+    def test_prepare_conda_failure_retains_partial_lineage_without_environment_closure(self):
+        """Catches an offline clone/integrity failure being converted into BLOCKED_ENVIRONMENT."""
+        transport = FakeExternalTransport()
+        transport.conda_clone_failure = True
+
+        with self.assertRaisesRegex(RuntimeError, "conda create"):
+            executor.prepare(
+                self.repo,
+                self.root,
+                transport=transport,
+                active_conda_prefix=self.active_env,
+            )
+
+        attempt = json.loads((self.root / "raw/prepare_attempt.json").read_text(encoding="utf-8"))
+        self.assertEqual(attempt["state"], "PREPARE_FAILED")
+        self.assertEqual(attempt["failure"]["stage"], "conda_clone")
+        self.assertEqual(
+            [(item["stage"], item["returncode"]) for item in attempt["command_captures"]],
+            [("git_head", 0), ("active_prefix_probe", 0), ("conda_clone", 23)],
+        )
+        self.assertIn("fixture Conda clone failure", attempt["command_captures"][-1]["stderr"])
+        self.assertFalse((self.root / "blocked_environment_closure.json").exists())
 
     def test_frozen_job_descriptors_are_exact_and_truncation_is_rejected(self):
         """Catches a mutable/truncated manifest replacing the frozen 31-job matrix."""
