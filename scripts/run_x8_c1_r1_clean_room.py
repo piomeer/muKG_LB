@@ -10,6 +10,7 @@ import json
 import math
 import os
 import shutil
+import stat
 import subprocess
 import time
 from pathlib import Path
@@ -157,6 +158,88 @@ def _job_descriptor(job: dict[str, Any]) -> dict[str, Any]:
     return {key: job[key] for key in keys if key in job}
 
 
+def _validate_manifest_control_flow(
+    manifest: dict[str, Any], contract: dict[str, Any]
+) -> None:
+    pair_counts: dict[tuple[Any, Any], int] = {}
+    for item in manifest.get("remediations", []):
+        pair = (item.get("pass_name"), item.get("seed"))
+        pair_counts[pair] = pair_counts.get(pair, 0) + 1
+    maximum = contract["retry_policy"]["maximum_retries_per_pass_seed_pair"]
+    if any(count > maximum for count in pair_counts.values()):
+        raise RuntimeError("execution manifest remediation retry-cap drift detected")
+    initial_jobs = manifest.get("jobs", [])
+    for item in manifest.get("remediations", []):
+        pass_name = item.get("pass_name")
+        seed = item.get("seed")
+        if (
+            pass_name not in contract["execution_matrix"]["primary"]["passes"]
+            or seed not in contract["execution_matrix"]["primary"]["seeds"]
+            or item.get("attempt") != 1
+            or item.get("dispatch") != 1
+            or item.get("state") not in {"RUNNING", "COMPLETED", "INCOMPLETE"}
+        ):
+            raise RuntimeError("execution manifest remediation control-flow drift detected")
+        order = contract["protocol"]["paired_order"][str(seed)]
+        expected_retry_descriptors = [
+            {
+                "id": f"{pass_name}_{config}_seed{seed}_retry1",
+                "kind": "job",
+                "pass_name": pass_name,
+                "config": config,
+                "seed": seed,
+            }
+            for config in order
+        ]
+        actual_retry_descriptors = [
+            _job_descriptor(job) for job in item.get("jobs", [])
+        ]
+        if actual_retry_descriptors != expected_retry_descriptors:
+            raise RuntimeError("execution manifest remediation job/order drift detected")
+        incomplete = item["state"] == "INCOMPLETE"
+        if item.get("analysis_eligible") is incomplete:
+            raise RuntimeError("execution manifest remediation eligibility drift detected")
+        for retry_job in item["jobs"]:
+            if (
+                retry_job.get("attempt") != 1
+                or retry_job.get("dispatch") != 1
+                or retry_job.get("analysis_eligible") is incomplete
+            ):
+                raise RuntimeError("execution manifest retry control-flow drift detected")
+        if item["state"] == "COMPLETED" and any(
+            job.get("state") != "COMPLETED" for job in item["jobs"]
+        ):
+            raise RuntimeError("execution manifest completed remediation drift detected")
+        pair_jobs = [
+            job for job in initial_jobs
+            if job.get("kind") == "job"
+            and job.get("pass_name") == pass_name
+            and job.get("seed") == seed
+        ]
+        if len(pair_jobs) != 2 or not any(job.get("state") == "INVALID" for job in pair_jobs):
+            raise RuntimeError("execution manifest remediation trigger drift detected")
+        trigger_reasons = set(item.get("trigger_reasons", []))
+        eligible_reasons = set(contract["retry_policy"]["eligible_failure_reasons"])
+        if not trigger_reasons or not trigger_reasons <= eligible_reasons:
+            raise RuntimeError("execution manifest remediation reason drift detected")
+    remediated_pairs = {
+        (item.get("pass_name"), item.get("seed")): item
+        for item in manifest.get("remediations", [])
+    }
+    for job in manifest.get("jobs", []):
+        pair = (job.get("pass_name"), job.get("seed"))
+        remediation = remediated_pairs.get(pair) if job.get("kind") == "job" else None
+        if remediation is None:
+            if "superseded_by" in job or "analysis_eligible" in job:
+                raise RuntimeError("execution manifest control-flow field drift detected")
+            continue
+        if (
+            job.get("superseded_by") != remediation.get("attempt")
+            or job.get("analysis_eligible") is not False
+        ):
+            raise RuntimeError("execution manifest control-flow remediation drift detected")
+
+
 def _environment_clone_entries(cloned_prefix: Path) -> list[dict[str, Any]]:
     def mutable_cache(path: Path) -> bool:
         relative = path.relative_to(cloned_prefix)
@@ -168,23 +251,39 @@ def _environment_clone_entries(cloned_prefix: Path) -> list[dict[str, Any]]:
             or path.suffix in {".pyc", ".pyo", ".lock"}
         )
 
+    def identity_file(path: Path) -> bool:
+        try:
+            mode = path.lstat().st_mode
+        except OSError:
+            return False
+        return stat.S_ISREG(mode) or stat.S_ISLNK(mode)
+
     paths = sorted(
         (
             path
             for path in cloned_prefix.rglob("*")
-            if (path.is_file() or path.is_symlink()) and not mutable_cache(path)
+            if identity_file(path) and not mutable_cache(path)
         ),
         key=lambda path: path.relative_to(cloned_prefix).as_posix(),
     )
     entries = []
     for path in paths:
-        entry = {
-            "path": path.relative_to(cloned_prefix).as_posix(),
-            "bytes": path.stat().st_size,
-            "sha256": _sha256_file(path),
-        }
         if path.is_symlink():
-            entry["symlink_target"] = os.readlink(path)
+            target = os.readlink(path)
+            entry = {
+                "path": path.relative_to(cloned_prefix).as_posix(),
+                "bytes": path.lstat().st_size,
+                "sha256": hashlib.sha256(
+                    b"symlink\0" + target.encode("utf-8")
+                ).hexdigest(),
+                "symlink_target": target,
+            }
+        else:
+            entry = {
+                "path": path.relative_to(cloned_prefix).as_posix(),
+                "bytes": path.lstat().st_size,
+                "sha256": _sha256_file(path),
+            }
         entries.append(entry)
     return entries
 
@@ -396,6 +495,7 @@ def _load_prepared(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     actual_descriptors = [_job_descriptor(job) for job in manifest.get("jobs", [])]
     if actual_descriptors != expected_descriptors:
         raise RuntimeError("execution manifest job descriptor/order drift detected")
+    _validate_manifest_control_flow(manifest, contract)
     checks = {
         "frozen contract": (root / "frozen_contract.json", manifest["contract_sha256"]),
         "capsule manifest": (
@@ -749,6 +849,115 @@ def _validate_compute_only_csv(
             raise RuntimeError("compute-only diagnostic identity/numeric invariant mismatch")
 
 
+def _compute_telemetry_path(root: Path, job: dict[str, Any]) -> Path:
+    return (
+        _job_output_root(root, job)
+        / "compute_only"
+        / f"seed{job['seed']}.gpu_telemetry.csv"
+    )
+
+
+def _capture_compute_telemetry(
+    root: Path,
+    job: dict[str, Any],
+    contract: dict[str, Any],
+    event: str,
+    transport: CommandTransport,
+) -> str | None:
+    gpu_command = [
+        "nvidia-smi",
+        "--query-gpu=name,clocks_throttle_reasons.sw_thermal_slowdown",
+        "--format=csv,noheader,nounits",
+    ]
+    process_command = [
+        "nvidia-smi",
+        "--query-compute-apps=pid,process_name,used_gpu_memory",
+        "--format=csv,noheader,nounits",
+    ]
+    offline_env = _offline_environment()
+    captures = []
+    for command in (gpu_command, process_command):
+        try:
+            result = transport(
+                command,
+                cwd=str(root / "capsule"),
+                env=offline_env,
+                capture_output=True,
+                text=True,
+            )
+            captures.append(result)
+        except Exception as exc:
+            captures.append(subprocess.CompletedProcess(command, 1, "", repr(exc)))
+    gpu_result, process_result = captures
+    raw_gpu = gpu_result.stdout.strip()
+    raw_process = process_result.stdout.strip()
+    query_errors = []
+    if gpu_result.returncode:
+        query_errors.append(f"gpu_query:{gpu_result.stderr.strip()}")
+    if process_result.returncode:
+        query_errors.append(f"process_query:{process_result.stderr.strip()}")
+    other_processes = []
+    for line in raw_process.splitlines():
+        try:
+            pid = int(line.split(",", 1)[0].strip())
+        except ValueError:
+            continue
+        if pid != os.getpid():
+            other_processes.append(line.strip())
+    thermal = raw_gpu.rsplit(",", 1)[-1].strip() if "," in raw_gpu else ""
+    row = {
+        "protocol_id": contract["protocol"]["protocol_id"],
+        "config": "GPU",
+        "seed": job["seed"],
+        "pass_name": "compute_only",
+        "event": event,
+        "time_ns": time.time_ns(),
+        "thermal_slowdown": thermal,
+        "other_compute_processes": " | ".join(other_processes),
+        "raw_gpu_query": raw_gpu.replace("\n", " | "),
+        "raw_process_query": raw_process.replace("\n", " | "),
+        "query_error": ";".join(query_errors),
+    }
+    path = _compute_telemetry_path(root, job)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fields = contract["raw_artifact_schemas"]["gpu_telemetry.csv"]["required_columns"]
+    exists = path.exists()
+    with path.open("a", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+        if not exists:
+            writer.writeheader()
+        writer.writerow({field: row.get(field, "") for field in fields})
+    if row["query_error"]:
+        return "telemetry_failure"
+    if row["other_compute_processes"]:
+        return "other_compute_processes"
+    if thermal.lower() not in {"", "0", "false", "no", "none", "not active", "disabled"}:
+        return "thermal_slowdown"
+    return None
+
+
+def _validate_compute_telemetry(
+    root: Path, job: dict[str, Any], contract: dict[str, Any]
+) -> None:
+    path = _compute_telemetry_path(root, job)
+    fields = contract["raw_artifact_schemas"]["gpu_telemetry.csv"]["required_columns"]
+    rows = _read_csv_rows(path, fields)
+    if [row.get("event") for row in rows] != ["before_job", "after_job"]:
+        raise RuntimeError("compute-only wrapper telemetry event/count mismatch")
+    for row in rows:
+        if (
+            row.get("protocol_id") != contract["protocol"]["protocol_id"]
+            or row.get("config") != "GPU"
+            or row.get("pass_name") != "compute_only"
+            or _integer(row, "seed", path) != job["seed"]
+            or _integer(row, "time_ns", path) <= 0
+        ):
+            raise RuntimeError("compute-only wrapper telemetry identity mismatch")
+    reason = _telemetry_invalid_reason(path, contract["protocol"]["protocol_id"])
+    if reason:
+        raise InvalidAttempt(reason, "compute-only wrapper telemetry is invalid")
+
+
 def _validate_runner_artifacts(
     root: Path,
     job: dict[str, Any],
@@ -817,6 +1026,7 @@ def _validate_runner_artifacts(
         return
     diagnostic = output_root / "compute_only" / f"seed{job['seed']}.csv"
     _validate_compute_only_csv(diagnostic, job, contract)
+    _validate_compute_telemetry(root, job, contract)
 
 
 def _execute_job(
@@ -848,6 +1058,15 @@ def _execute_job(
     job["command"] = _runner_command(root, job)
     job["started_at_ns"] = time.time_ns()
     _write_execution_manifest(root, manifest)
+    if job["kind"] == "compute-only":
+        reason = _capture_compute_telemetry(
+            root, job, contract, "before_job", transport
+        )
+        if reason:
+            job["state"] = "INVALID"
+            job["invalid_reason"] = reason
+            _write_execution_manifest(root, manifest)
+            raise InvalidAttempt(reason, f"compute-only pre-dispatch telemetry for {job['id']}")
     result = transport(
         job["command"],
         cwd=str(root / "capsule"),
@@ -856,6 +1075,15 @@ def _execute_job(
         text=True,
     )
     job["ended_at_ns"] = time.time_ns()
+    if job["kind"] == "compute-only":
+        reason = _capture_compute_telemetry(
+            root, job, contract, "after_job", transport
+        )
+        if reason:
+            job["state"] = "INVALID"
+            job["invalid_reason"] = reason
+            _write_execution_manifest(root, manifest)
+            raise InvalidAttempt(reason, f"compute-only post-dispatch telemetry for {job['id']}")
     command_dir = root / "raw/commands"
     command_dir.mkdir(parents=True, exist_ok=True)
     stdout_path = command_dir / f"{job['id']}_attempt{job.get('attempt', 0)}.stdout.log"
@@ -917,8 +1145,6 @@ def run(
     if (root / "material_passport.json").exists():
         raise RuntimeError("sealed raw artifacts cannot be executed or overwritten")
     for remediation in manifest["remediations"]:
-        if remediation.get("state") == "INTERRUPTED":
-            continue
         if any(job["state"] != "COMPLETED" for job in remediation["jobs"]):
             raise RuntimeError("an incomplete remediation must be resolved before run")
     manifest["state"] = "RUNNING"
@@ -952,19 +1178,14 @@ def remediate(
         for item in manifest["remediations"]
         if item["pass_name"] == pass_name and item["seed"] == seed
     ]
-    completed = [
-        item
-        for item in existing
-        if item.get("state") == "COMPLETED"
-        or all(job.get("state") == "COMPLETED" for job in item["jobs"])
-    ]
     maximum = contract["retry_policy"]["maximum_retries_per_pass_seed_pair"]
-    if len(completed) >= maximum:
-        raise RuntimeError("maximum remediation retries reached for pass/seed pair")
-    for item in existing:
-        if item in completed or item.get("state") == "INTERRUPTED":
-            continue
-        item["state"] = "INTERRUPTED"
+    if existing:
+        item = existing[0]
+        if item.get("state") == "COMPLETED" or all(
+            job.get("state") == "COMPLETED" for job in item["jobs"]
+        ):
+            raise RuntimeError("maximum remediation retries reached for pass/seed pair")
+        item["state"] = "INCOMPLETE"
         item["analysis_eligible"] = False
         for retry_job in item["jobs"]:
             retry_job["analysis_eligible"] = False
@@ -972,7 +1193,14 @@ def remediate(
                 retry_job["state"] = "INVALID"
                 retry_job["invalid_reason"] = "infrastructure_failure"
             elif retry_job["state"] == "PENDING":
-                retry_job["state"] = "SKIPPED_INTERRUPTED_REMEDIATION"
+                retry_job["state"] = "SKIPPED_INCOMPLETE_REMEDIATION"
+        manifest["state"] = "INCOMPLETE"
+        _write_execution_manifest(root, manifest)
+        raise RuntimeError(
+            "remediation attempt is INCOMPLETE; maximum physical retry exhausted"
+        )
+    if len(existing) >= maximum:
+        raise RuntimeError("maximum remediation retries reached for pass/seed pair")
     pair = [
         job
         for job in manifest["jobs"]
@@ -992,8 +1220,8 @@ def remediate(
     if not invalid_reasons <= eligible:
         raise RuntimeError(f"invalid reason is not eligible for remediation: {invalid_reasons}")
 
-    attempt = len(completed) + 1
-    dispatch = len(existing) + 1
+    attempt = 1
+    dispatch = 1
     retry_jobs = []
     for config in order:
         retry_jobs.append(
@@ -1072,8 +1300,6 @@ def seal(root: Path) -> dict[str, Any]:
             raise RuntimeError(f"raw matrix job is incomplete: {job['id']}")
         _validate_runner_artifacts(root, job, contract)
     for remediation in manifest["remediations"]:
-        if remediation.get("state") == "INTERRUPTED":
-            continue
         for job in remediation["jobs"]:
             if job["state"] != "COMPLETED":
                 raise RuntimeError("raw remediation is incomplete")

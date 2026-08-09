@@ -125,6 +125,7 @@ class FakeExternalTransport:
         self.gpu_name = "NVIDIA GeForce RTX 3070"
         self.interrupt_job_once: tuple[str, str, int] | None = None
         self.malformed_preflight_telemetry = False
+        self.wrapper_telemetry_issue = ""
 
     def __call__(self, command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         self.commands.append(list(command))
@@ -165,6 +166,24 @@ class FakeExternalTransport:
                 ),
                 "",
             )
+        if command and command[0] == "nvidia-smi" and any(
+            "--query-compute-apps" in part for part in command
+        ):
+            if self.wrapper_telemetry_issue == "telemetry_failure":
+                return subprocess.CompletedProcess(command, 1, "", "query failed")
+            processes = (
+                "999, other, 100\n"
+                if self.wrapper_telemetry_issue == "other_compute_processes"
+                else ""
+            )
+            return subprocess.CompletedProcess(command, 0, processes, "")
+        if command and command[0] == "nvidia-smi" and any(
+            "sw_thermal_slowdown" in part for part in command
+        ):
+            if self.wrapper_telemetry_issue == "telemetry_failure":
+                return subprocess.CompletedProcess(command, 1, "", "query failed")
+            thermal = "Active" if self.wrapper_telemetry_issue == "thermal_slowdown" else "Not Active"
+            return subprocess.CompletedProcess(command, 0, f"fixture-gpu, {thermal}\n", "")
         if command and command[0] == "nvidia-smi":
             return subprocess.CompletedProcess(
                 command, 0, f"{self.gpu_name}, 8192, 8.6\n", ""
@@ -488,6 +507,21 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "missing|not found"):
             executor.run(self.root, transport=transport)
 
+    def test_manifest_rejects_forged_superseded_control_flow(self):
+        """Catches a forged skip flag suppressing a required primary job."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        executor.preflight(self.root, transport=transport)
+        manifest_path = self.root / "execution_manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["jobs"][1]["superseded_by"] = 1
+        write_json(manifest_path, manifest)
+
+        with self.assertRaisesRegex(RuntimeError, "control-flow.*drift"):
+            executor.run(self.root, transport=transport)
+
     def test_preflight_and_run_follow_seed_major_serial_order_and_resume(self):
         """Catches order drift, non-capsule execution, and duplicate resumed jobs."""
         transport = FakeExternalTransport()
@@ -605,6 +639,28 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
         transport.header_only_compute.add(42)
         with self.assertRaisesRegex(RuntimeError, "compute-only row count"):
             executor.run(self.root, transport=transport)
+
+    def test_compute_only_wrapper_telemetry_stops_before_thermal_dispatch(self):
+        """Catches diagnostic execution without wrapper-level GPU gating."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        executor.preflight(self.root, transport=transport)
+        transport.wrapper_telemetry_issue = "thermal_slowdown"
+
+        with self.assertRaisesRegex(RuntimeError, "thermal_slowdown"):
+            executor.run(self.root, transport=transport)
+
+        diagnostic_commands = [
+            command for command in transport.commands
+            if len(command) >= 3 and command[2] == "compute-only"
+        ]
+        self.assertEqual(diagnostic_commands, [])
+        telemetry = self.root / "raw/attempts/diagnostics_attempt0/compute_only/seed42.gpu_telemetry.csv"
+        with telemetry.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        self.assertEqual([row["event"] for row in rows], ["before_job"])
 
     def test_remediate_retries_the_whole_invalid_pair_once_in_frozen_order(self):
         """Catches selective, reordered, destructive, or repeated remediation."""
@@ -752,6 +808,28 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "environment clone drift"):
             executor.preflight(self.root, transport=transport)
 
+    def test_environment_identity_hashes_directory_and_broken_symlinks_without_following(self):
+        """Catches stat/hash traversal through common Conda-layout symlinks."""
+        prefix = self.base / "symlink-env"
+        prefix.mkdir()
+        (prefix / "regular.txt").write_text("inside\n", encoding="utf-8")
+        outside = self.base / "outside"
+        outside.mkdir()
+        (outside / "secret.txt").write_text("outside\n", encoding="utf-8")
+        (prefix / "lib64").symlink_to(outside, target_is_directory=True)
+        (prefix / "broken").symlink_to("missing-target")
+
+        entries = executor._environment_clone_entries(prefix)
+
+        by_path = {entry["path"]: entry for entry in entries}
+        self.assertEqual(set(by_path), {"broken", "lib64", "regular.txt"})
+        for name, target in [("broken", "missing-target"), ("lib64", str(outside))]:
+            self.assertEqual(by_path[name]["symlink_target"], target)
+            self.assertEqual(
+                by_path[name]["sha256"],
+                hashlib.sha256(b"symlink\0" + target.encode("utf-8")).hexdigest(),
+            )
+
     def test_run_revalidates_capsule_immediately_before_each_dispatch(self):
         """Catches capsule mutation between two jobs in the same run call."""
         transport = FakeExternalTransport()
@@ -837,8 +915,8 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
             command_count,
         )
 
-    def test_interrupted_remediation_is_retained_but_does_not_consume_retry(self):
-        """Catches an incomplete retry record permanently exhausting remediation."""
+    def test_interrupted_remediation_is_retained_incomplete_and_never_redispatched(self):
+        """Catches more than one physical retry dispatch for a pass/seed pair."""
         transport = FakeExternalTransport()
         executor.prepare(
             self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
@@ -853,28 +931,45 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
             executor.remediate(
                 self.root, pass_name="throughput", seed=42, transport=transport
             )
-
-        recovered = executor.remediate(
-            self.root, pass_name="throughput", seed=42, transport=transport
+        retry_command_count = len(
+            [
+                command for command in transport.commands
+                if len(command) >= 3
+                and command[2] == "job"
+                and "attempt1" in " ".join(command)
+            ]
+        )
+        with self.assertRaisesRegex(RuntimeError, "INCOMPLETE|maximum"):
+            executor.remediate(
+                self.root, pass_name="throughput", seed=42, transport=transport
+            )
+        closed = json.loads(
+            (self.root / "execution_manifest.json").read_text(encoding="utf-8")
         )
 
-        self.assertEqual(len(recovered["remediations"]), 2)
-        self.assertEqual(recovered["remediations"][0]["state"], "INTERRUPTED")
-        self.assertEqual(recovered["remediations"][1]["state"], "COMPLETED")
-        self.assertEqual(
-            [job["config"] for job in recovered["remediations"][1]["jobs"]],
-            ["BL", "GPU"],
-        )
+        self.assertEqual(len(closed["remediations"]), 1)
+        self.assertEqual(closed["remediations"][0]["state"], "INCOMPLETE")
         self.assertTrue(
             (
                 self.root
                 / "raw/attempts/throughput_seed42_attempt1/jobs/throughput_BL_seed42/partial.tmp"
             ).is_file()
         )
-        with self.assertRaisesRegex(RuntimeError, "maximum"):
+        with self.assertRaisesRegex(RuntimeError, "maximum|INCOMPLETE"):
             executor.remediate(
                 self.root, pass_name="throughput", seed=42, transport=transport
             )
+        self.assertEqual(
+            len(
+                [
+                    command for command in transport.commands
+                    if len(command) >= 3
+                    and command[2] == "job"
+                    and "attempt1" in " ".join(command)
+                ]
+            ),
+            retry_command_count,
+        )
 
     def test_status_cli_reports_the_resumable_manifest_without_gpu_execution(self):
         """Catches a missing command surface or inaccurate resume accounting."""
