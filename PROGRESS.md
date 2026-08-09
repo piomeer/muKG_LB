@@ -64,15 +64,18 @@ X5.5 contribution triage is complete: C1.2-R1/C1.3-R1 are the only primary Claim
 
 X6a consumed the finalized triage and is `X6A_COMPLETE_X6B_PENDING`; X6b is `COMPLETE_X6B_WAIVED`. The statistical overlay remains `ANALYZED` because no clean-room rerun has occurred. X1.5 remains frozen and is not automatically resumed.
 
-X8 C1-R1 clean-room preparation at executor commit `ed403bd` is
-`BLOCKED_ENVIRONMENT`: the offline capsule and Conda clone were constructed,
-but `nvidia-smi` exited 9 (driver communication failure) and the cloned PyTorch
-environment reports `torch.cuda.is_available()==False`. No preflight, matrix
-job, seal, independent analysis, comparison, or E1/E2/E3 value was produced.
-`docs/phase_x_x8_c1_r1_clean_room_report.md` and the deterministic blocked
-closure preserve the available lineage. The isolated-worktree X0.5 checker also
-remains baseline-blocked by absent historical `output/results/phase9_step4_5`;
-the shared checkout's untracked historical evidence was not used.
+X8 C1-R1 clean-room preparation is `BLOCKED_ENVIRONMENT`. The authoritative
+third attempt began at `2026-08-09 16:05:56.248923981 +0900` and captured Git
+HEAD, both runtime probes, all six external command results, and then
+`nvidia-smi` exit 9 (driver communication failure); cloned PyTorch reports
+`torch.cuda.is_available()==False`. No preflight, matrix job, seal, independent
+analysis, comparison, or E1/E2/E3 value was produced. The compact closure points
+to its artifact-backed raw capture; both prior roots are explicitly incomplete
+historical lineage, not reconstructed evidence. Implementation was committed
+locally but not pushed before this attempt because no-network was enforced.
+The isolated-worktree X0.5 checker also remains baseline-blocked by absent
+historical `output/results/phase9_step4_5`; shared untracked evidence was not
+used.
 
 ## 4. 下一步计划 (Next Steps)
 Repair the NVIDIA driver/runtime first. Then create a fresh X8 root, repeat

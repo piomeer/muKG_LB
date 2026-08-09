@@ -1,0 +1,37 @@
+{
+  "artifact_kind": "blocked_environment_closure",
+  "attempt_id": "prepare-x8_c1_r1_clean_room_v1_attempt3-1786259156248923157",
+  "capsule_manifest_sha256": "5bc4830f23ff61b8f8598b08e38b5be3830331543919319a39508059b7ac108f",
+  "contract_id": "X8-C1-R1-clean-room-v1",
+  "contract_sha256": "32396312a947ef24e937c873d70f28b725c9e82aa5102d14bd1f6c449033b46a",
+  "executor_commit": "d0fbe4ed0737f27ccca0674fdcc7af061453efda",
+  "failure": {
+    "error_type": "PrepareCommandFailure",
+    "message": "external command failed (9): nvidia-smi --query-gpu=name,memory.total,compute_cap --format=csv,noheader,nounits",
+    "stage": "gpu_identity"
+  },
+  "historical_prepare_lineage": [
+    {
+      "reason": "raw/prepare_attempt.json is absent; capture cannot be reconstructed",
+      "root": "/tmp/mukg-lb-x8-c1/output/results/x8_c1_r1_clean_room_v1",
+      "state": "HISTORICAL_LINEAGE_INCOMPLETE"
+    },
+    {
+      "reason": "raw/prepare_attempt.json is absent; capture cannot be reconstructed",
+      "root": "/tmp/mukg-lb-x8-c1/output/results/x8_c1_r1_clean_room_v1_prepare_defect_attempt1",
+      "state": "HISTORICAL_LINEAGE_INCOMPLETE"
+    }
+  ],
+  "material_passport": null,
+  "prepare_attempt_path": "raw/prepare_attempt.json",
+  "prepare_attempt_sha256": "6536b020e277dbf31ead888bed54951f0a278a8199bec650410f03e4875857fe",
+  "prepared_manifest": false,
+  "runtime_probe": {
+    "cuda_available": false,
+    "protocol_id": "C1-R1-v1.1",
+    "python": "3.13.12 | packaged by Anaconda, Inc. | (main, Feb 24 2026, 16:13:31) [GCC 14.3.0]",
+    "pytorch": "2.7.1+cu118",
+    "torch_cuda_runtime": "11.8"
+  },
+  "verdict": "BLOCKED_ENVIRONMENT"
+}

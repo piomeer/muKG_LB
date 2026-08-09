@@ -1,69 +1,23 @@
 {
-  "artifact_kind": "blocked_environment_closure",
-  "capsule_manifest_sha256": "5bc4830f23ff61b8f8598b08e38b5be3830331543919319a39508059b7ac108f",
-  "capsule_paths": [
-    "output/results/entity_features.npz",
-    "src/__init__.py",
-    "src/py/__init__.py",
-    "src/py/data/FB15K237/entity2id.txt",
-    "src/py/data/FB15K237/relation2id.txt",
-    "src/py/data/FB15K237/train2id.txt",
-    "src/py/experiments/c1_r1_combined_rerun.py",
-    "src/py/load/batch_provider.py",
-    "src/py/load/cost_model.py",
-    "src/py/load/gpu_sampler.py",
-    "src/py/load/schedulers.py"
-  ],
-  "contract_id": "X8-C1-R1-clean-room-v1",
-  "contract_sha256": "32396312a947ef24e937c873d70f28b725c9e82aa5102d14bd1f6c449033b46a",
-  "executor_commit": "ed403bd4ce059a0571f18fd680930f5ef89c4cd1",
-  "forbidden_stages_not_invoked": [
-    "run",
-    "remediate",
-    "seal",
-    "independent",
-    "compare"
-  ],
-  "material_passport": null,
-  "prepare": {
-    "active_conda_prefix": "/home/hma/miniconda3",
-    "command": [
-      "python",
-      "scripts/run_x8_c1_r1_clean_room.py",
-      "prepare",
-      "--repo-root",
-      "/tmp/mukg-lb-x8-c1",
-      "--root",
-      "/tmp/mukg-lb-x8-c1/output/results/x8_c1_r1_clean_room_v1",
-      "--active-conda-prefix",
-      "/home/hma/miniconda3"
-    ],
-    "failure_command": [
-      "nvidia-smi",
-      "--query-gpu=name,memory.total,compute_cap",
-      "--format=csv,noheader,nounits"
-    ],
-    "failure_exit_code": 9,
-    "failure_kind": "gpu_driver_unavailable",
-    "state": "PREPARE_BLOCKED"
+  "artifact_kind": "blocked_environment_closure_index",
+  "canonical_status": "BLOCKED_ENVIRONMENT",
+  "current_attempt": {
+    "blocked_closure_path": "output/results/x8_c1_r1_clean_room_v1_attempt3/blocked_environment_closure.json",
+    "blocked_closure_sha256": "af92487f80aa73cb0c1b85644c0b4574a99fa533e898b0b313f5b7be460bdc46",
+    "prepare_attempt_path": "output/results/x8_c1_r1_clean_room_v1_attempt3/raw/prepare_attempt.json",
+    "prepare_attempt_sha256": "6536b020e277dbf31ead888bed54951f0a278a8199bec650410f03e4875857fe",
+    "root": "output/results/x8_c1_r1_clean_room_v1_attempt3"
   },
-  "prepared_manifest": false,
-  "resumption_requirements": [
-    "Restore NVIDIA driver communication so nvidia-smi returns the contract GPU identity.",
-    "Confirm torch.cuda.is_available() is true in /home/hma/miniconda3 and in a newly cloned offline environment.",
-    "Create a fresh clean-room root; the executor intentionally refuses to overwrite this blocked root.",
-    "Run status and preflight only after prepare emits execution_manifest.json; run the frozen matrix only if preflight passes."
-  ],
-  "runtime_probe": {
-    "cuda_available": false,
-    "pytorch": "2.7.1+cu118",
-    "torch_cuda_runtime": "11.8"
-  },
-  "status_and_preflight": {
-    "preflight_exit_code": 1,
-    "preflight_reason": "clean-room root is not prepared",
-    "status_exit_code": 1,
-    "status_reason": "clean-room root is not prepared"
-  },
-  "verdict": "BLOCKED_ENVIRONMENT"
+  "historical_prepare_lineage": [
+    {
+      "reason": "raw/prepare_attempt.json is absent; capture cannot be reconstructed",
+      "root": "output/results/x8_c1_r1_clean_room_v1_prepare_defect_attempt1",
+      "state": "HISTORICAL_LINEAGE_INCOMPLETE"
+    },
+    {
+      "reason": "raw/prepare_attempt.json is absent; capture cannot be reconstructed",
+      "root": "output/results/x8_c1_r1_clean_room_v1",
+      "state": "HISTORICAL_LINEAGE_INCOMPLETE"
+    }
+  ]
 }

@@ -14,9 +14,13 @@ protocol Material Passport.
 | --- | --- |
 | Contract | `X8-C1-R1-clean-room-v1` |
 | Contract SHA-256 | `32396312a947ef24e937c873d70f28b725c9e82aa5102d14bd1f6c449033b46a` |
-| Executor commit | `ed403bd4ce059a0571f18fd680930f5ef89c4cd1` |
+| Authoritative attempt | `prepare-x8_c1_r1_clean_room_v1_attempt3-1786259156248923157` |
+| Attempt start (JST) | `2026-08-09 16:05:56.248923981 +0900` |
+| Executor commit (captured) | `d0fbe4ed0737f27ccca0674fdcc7af061453efda` |
 | Capsule manifest SHA-256 | `5bc4830f23ff61b8f8598b08e38b5be3830331543919319a39508059b7ac108f` |
-| Requested clean-room root | `output/results/x8_c1_r1_clean_room_v1` |
+| Raw prepare capture SHA-256 | `6536b020e277dbf31ead888bed54951f0a278a8199bec650410f03e4875857fe` |
+| Derived closure SHA-256 | `af92487f80aa73cb0c1b85644c0b4574a99fa533e898b0b313f5b7be460bdc46` |
+| Requested clean-room root | `output/results/x8_c1_r1_clean_room_v1_attempt3` |
 | Active Conda prefix | `/home/hma/miniconda3` |
 | Network policy | Offline: `CONDA_OFFLINE=true`, `PIP_NO_INDEX=1`, proxy variables cleared by the executor |
 
@@ -26,8 +30,12 @@ runner whose SHA-256 remains
 
 ## Exact state and blocker
 
-The real executor constructed the allowlisted capsule and locally cloned the
-specified Conda environment. It then failed closed while collecting the
+The authoritative third preparation constructed the allowlisted capsule and
+locally cloned the specified Conda environment. Before its fallible GPU
+identity query, `raw/prepare_attempt.json` retained the captured Git HEAD,
+active-prefix probe, clone probe, and complete `argv`/exit/stdout/stderr records
+for six external commands: Git HEAD, active-prefix probe, Conda clone, Conda
+list, clone probe, and GPU identity. It then failed closed while collecting the
 contract-required GPU identity:
 
 ```text
@@ -47,10 +55,15 @@ invoked. No primary or diagnostic jobs ran. No raw data were sealed, no E1/E2/E3
 estimands were computed, and no numerical-fidelity or **VERIFIED** claim is
 made.
 
-The deterministic closure is
-`output/results/x8_c1_r1_clean_room_v1/blocked_environment_closure.json`. It
-records the available capsule hashes, environment probe, attempted command,
-refused stages, and resumption requirements without inventing experiment data.
+The artifact-backed closure is
+`output/results/x8_c1_r1_clean_room_v1_attempt3/blocked_environment_closure.json`.
+Regenerating it from `raw/prepare_attempt.json` produced byte-identical output.
+The compact canonical index at
+`output/results/x8_c1_r1_clean_room_v1/blocked_environment_closure.json` points
+to these hashes. Both earlier roots are explicitly marked
+`HISTORICAL_LINEAGE_INCOMPLETE`: neither contains a retained raw
+`prepare_attempt.json`, so their command/environment capture is not
+reconstructed or asserted retroactively.
 
 ## Executor compatibility repair
 
@@ -64,8 +77,17 @@ its `conda list --help` output, which has no `--offline` option.
 A regression test was written and observed failing before the two package-list
 calls were changed to rely on the already-enforced offline environment rather
 than the unsupported subcommand flag. Commit
-`ed403bd4ce059a0571f18fd680930f5ef89c4cd1` contains that repair. The full X8
-suite then passed: 39 tests, executor/audit compilation, and `git diff --check`.
+`ed403bd4ce059a0571f18fd680930f5ef89c4cd1` contains that repair. Commit
+`d0fbe4ed0737f27ccca0674fdcc7af061453efda` adds retained failed-prepare
+lineage and tests both package-list call sites. The full X8 suite then passed:
+41 tests, executor/audit compilation, and `git diff --check`.
+
+## Procedural deviation
+
+The implementation commits were made locally but were not pushed before the
+blocked preparation. Network access was enforced as forbidden for this task, so
+this is not retroactive compliance with the plan's pre-prepare push instruction.
+Final branch integration and any push remain separate work.
 
 ## Non-GPU verification and baseline limitation
 
