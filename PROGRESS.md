@@ -72,14 +72,25 @@ HEAD, both runtime probes, all six external command results, and then
 analysis, comparison, or E1/E2/E3 value was produced. The compact closure points
 to its artifact-backed raw capture; both prior roots are explicitly incomplete
 historical lineage, not reconstructed evidence. Implementation was committed
-locally but not pushed before this attempt because no-network was enforced.
+locally but not pushed before this attempt while network use was prohibited.
 The isolated-worktree X0.5 checker also remains baseline-blocked by absent
 historical `output/results/phase9_step4_5`; shared untracked evidence was not
 used.
 
+Final-review hardening was implemented only after attempt3 and did not rerun it.
+The current contract requires six-of-six E1/E2 direction consistency, delayed
+hash-bound comparison-reference access, an explicit subprocess environment, an
+OS user/network namespace for every external command, physical capsule and
+cloned-environment seal validation, strict execution bindings, and immutable
+sealed preflight rejection. Attempt3's six commands were not namespace-wrapped;
+its environment variables are not firewall evidence. No new live `prepare`,
+preflight, GPU work, seal, analysis, estimate, or verdict was produced, and its
+artifacts remain unchanged historical lineage.
+
 ## 4. 下一步计划 (Next Steps)
-Repair the NVIDIA driver/runtime first. Then create a fresh X8 root, repeat
-`prepare`, run `status` and `preflight`, and execute the frozen clean-room
-matrix only if preflight passes. Do not run `--retry-dblp-next`, Snowball, or
+Repair the NVIDIA driver/runtime first and confirm the frozen user/network
+namespace command is available. Then create a fresh X8 root, repeat `prepare`,
+run `status` and `preflight`, and execute the frozen clean-room matrix only if
+preflight passes. Do not run `--retry-dblp-next`, Snowball, or
 any external retrieval while X1.5 is `FROZEN_DEFERRED`; X1.5 may only resume
 through its explicit release gate after X5.5, X6, and X6.5 waiver closure.

@@ -3,14 +3,25 @@ import hashlib
 import csv
 import io
 import json
+import os
 import shutil
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 from typing import Callable
+from unittest import mock
 
 from scripts import run_x8_c1_r1_clean_room as executor
+
+
+NETWORK_NAMESPACE_PREFIX = [
+    "unshare",
+    "--user",
+    "--map-root-user",
+    "--net",
+    "--",
+]
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -46,6 +57,11 @@ def fixture_contract(source_hashes: dict[str, str]) -> dict[str, object]:
             "expected_runtime": {
                 "pytorch": "2.7.1+cu118",
                 "torch_cuda_runtime": "11.8",
+            },
+            "command_isolation": {
+                "network_namespace_command": NETWORK_NAMESPACE_PREFIX,
+                "environment_inherited_allowlist": [],
+                "network_boundary": "linux_network_namespace",
             },
         },
         "protocol": {
@@ -116,10 +132,12 @@ def fixture_contract(source_hashes: dict[str, str]) -> dict[str, object]:
 class FakeExternalTransport:
     def __init__(self) -> None:
         self.commands: list[list[str]] = []
+        self.raw_commands: list[list[str]] = []
         self.telemetry_issues: dict[tuple[str, str, int], str] = {}
         self.header_only_jobs: set[tuple[str, str, int]] = set()
         self.header_only_compute: set[int] = set()
         self.invocations: list[tuple[list[str], dict[str, object]]] = []
+        self.raw_invocations: list[tuple[list[str], dict[str, object]]] = []
         self.after_runner: Callable[[list[str]], None] | None = None
         self.runtime_pytorch = "2.7.1+cu118"
         self.gpu_name = "NVIDIA GeForce RTX 3070"
@@ -129,10 +147,27 @@ class FakeExternalTransport:
         self.gpu_identity_failure = False
         self.git_head_failure = False
         self.conda_clone_failure = False
+        self.network_namespace_failure = False
 
     def __call__(self, command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        raw_command = list(command)
+        self.raw_commands.append(raw_command)
+        self.raw_invocations.append((raw_command, dict(kwargs)))
+        if raw_command[: len(NETWORK_NAMESPACE_PREFIX)] == NETWORK_NAMESPACE_PREFIX:
+            command = raw_command[len(NETWORK_NAMESPACE_PREFIX) :]
+        else:
+            command = raw_command
         self.commands.append(list(command))
         self.invocations.append((list(command), dict(kwargs)))
+        if command == ["/bin/true"]:
+            return subprocess.CompletedProcess(
+                raw_command,
+                41 if self.network_namespace_failure else 0,
+                "",
+                "fixture network namespace unavailable\n"
+                if self.network_namespace_failure
+                else "",
+            )
         if command[:2] == ["conda", "create"]:
             if self.conda_clone_failure:
                 return subprocess.CompletedProcess(command, 23, "", "fixture Conda clone failure\n")
@@ -146,21 +181,21 @@ class FakeExternalTransport:
             (site_packages / "fixture_runtime.py").write_text(
                 "VALUE = 1\n", encoding="utf-8"
             )
-            return subprocess.CompletedProcess(command, 0, "", "")
+            return subprocess.CompletedProcess(raw_command, 0, "", "")
         if command[:2] == ["conda", "list"]:
             return subprocess.CompletedProcess(
-                command,
+                raw_command,
                 0,
                 json.dumps([{"name": "pytorch", "version": "2.7.1", "build": "cu118"}]),
                 "",
             )
         if command[-2:] == ["rev-parse", "HEAD"]:
             if self.git_head_failure:
-                return subprocess.CompletedProcess(command, 17, "", "fixture Git HEAD failure\n")
-            return subprocess.CompletedProcess(command, 0, "a" * 40 + "\n", "")
+                return subprocess.CompletedProcess(raw_command, 17, "", "fixture Git HEAD failure\n")
+            return subprocess.CompletedProcess(raw_command, 0, "a" * 40 + "\n", "")
         if command[-2] == "-c" and "torch" in command[-1]:
             return subprocess.CompletedProcess(
-                command,
+                raw_command,
                 0,
                 json.dumps(
                     {
@@ -177,30 +212,30 @@ class FakeExternalTransport:
             "--query-compute-apps" in part for part in command
         ):
             if self.wrapper_telemetry_issue == "telemetry_failure":
-                return subprocess.CompletedProcess(command, 1, "", "query failed")
+                return subprocess.CompletedProcess(raw_command, 1, "", "query failed")
             processes = (
                 "999, other, 100\n"
                 if self.wrapper_telemetry_issue == "other_compute_processes"
                 else ""
             )
-            return subprocess.CompletedProcess(command, 0, processes, "")
+            return subprocess.CompletedProcess(raw_command, 0, processes, "")
         if command and command[0] == "nvidia-smi" and any(
             "sw_thermal_slowdown" in part for part in command
         ):
             if self.wrapper_telemetry_issue == "telemetry_failure":
-                return subprocess.CompletedProcess(command, 1, "", "query failed")
+                return subprocess.CompletedProcess(raw_command, 1, "", "query failed")
             thermal = "Active" if self.wrapper_telemetry_issue == "thermal_slowdown" else "Not Active"
-            return subprocess.CompletedProcess(command, 0, f"fixture-gpu, {thermal}\n", "")
+            return subprocess.CompletedProcess(raw_command, 0, f"fixture-gpu, {thermal}\n", "")
         if command and command[0] == "nvidia-smi":
             if self.gpu_identity_failure:
                 return subprocess.CompletedProcess(
-                    command,
+                    raw_command,
                     9,
                     "",
                     "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver.\n",
                 )
             return subprocess.CompletedProcess(
-                command, 0, f"{self.gpu_name}, 8192, 8.6\n", ""
+                raw_command, 0, f"{self.gpu_name}, 8192, 8.6\n", ""
             )
         if len(command) >= 3 and command[1].endswith("c1_r1_combined_rerun.py"):
             kind = command[2]
@@ -284,7 +319,7 @@ class FakeExternalTransport:
                             )
             if self.after_runner is not None:
                 self.after_runner(command)
-            return subprocess.CompletedProcess(command, 0, "runner output\n", "")
+            return subprocess.CompletedProcess(raw_command, 0, "runner output\n", "")
         raise AssertionError(f"unexpected external command: {command}")
 
     @staticmethod
@@ -457,6 +492,88 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
                 active_conda_prefix=self.active_env,
             )
 
+    def test_all_external_commands_use_network_namespace_and_allowlisted_environment(self):
+        """Catches a subprocess escaping the kernel boundary or inheriting host controls."""
+        transport = FakeExternalTransport()
+        poison = {
+            "PYTHONPATH": "/poison/pythonpath",
+            "PYTHONHOME": "/poison/pythonhome",
+            "LD_PRELOAD": "/poison/preload.so",
+            "BASH_ENV": "/poison/bash-env",
+            "ENV": "/poison/env",
+            "GIT_CONFIG_GLOBAL": "/poison/gitconfig",
+            "CUDA_VISIBLE_DEVICES": "poison",
+            "http_proxy": "http://poison.invalid",
+            "https_proxy": "http://poison.invalid",
+            "HTTP_PROXY": "http://poison.invalid",
+            "HTTPS_PROXY": "http://poison.invalid",
+            "ALL_PROXY": "http://poison.invalid",
+            "NO_PROXY": "*",
+            "PATH": "/poison/bin",
+        }
+        with mock.patch.dict(os.environ, poison, clear=False):
+            executor.prepare(
+                self.repo,
+                self.root,
+                transport=transport,
+                active_conda_prefix=self.active_env,
+            )
+            executor.preflight(self.root, transport=transport)
+            executor.run(self.root, transport=transport)
+
+        forbidden = set(poison) - {"PATH"}
+        expected_keys = {
+            "CONDA_OFFLINE",
+            "HOME",
+            "LANG",
+            "LC_ALL",
+            "PATH",
+            "PIP_NO_INDEX",
+            "PYTHONDONTWRITEBYTECODE",
+            "PYTHONNOUSERSITE",
+            "TMPDIR",
+            "TZ",
+            "XDG_CACHE_HOME",
+            "XDG_CONFIG_HOME",
+            "XDG_DATA_HOME",
+        }
+        self.assertTrue(transport.raw_invocations)
+        for command, kwargs in transport.raw_invocations:
+            self.assertEqual(
+                command[: len(NETWORK_NAMESPACE_PREFIX)],
+                NETWORK_NAMESPACE_PREFIX,
+            )
+            environment = kwargs["env"]
+            self.assertEqual(set(environment), expected_keys)
+            self.assertTrue(forbidden.isdisjoint(environment))
+            self.assertNotEqual(environment.get("NO_PROXY"), "*")
+            self.assertNotIn("/poison/bin", environment["PATH"])
+
+    def test_prepare_fails_closed_when_network_namespace_is_unavailable(self):
+        """Catches prepare continuing when the OS network boundary cannot be created."""
+        transport = FakeExternalTransport()
+        transport.network_namespace_failure = True
+
+        with self.assertRaisesRegex(RuntimeError, "network namespace|/bin/true"):
+            executor.prepare(
+                self.repo,
+                self.root,
+                transport=transport,
+                active_conda_prefix=self.active_env,
+            )
+
+        attempt = json.loads(
+            (self.root / "raw/prepare_attempt.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(attempt["state"], "PREPARE_FAILED")
+        self.assertEqual(attempt["failure"]["stage"], "network_namespace_probe")
+        self.assertEqual(
+            [(item["stage"], item["returncode"]) for item in attempt["command_captures"]],
+            [("network_namespace_probe", 41)],
+        )
+        self.assertFalse((self.root / "execution_manifest.json").exists())
+        self.assertFalse((self.root / "blocked_environment_closure.json").exists())
+
     def test_prepare_lists_packages_with_offline_environment_not_unsupported_flag(self):
         """Catches Conda versions where ``list`` rejects the ``--offline`` argument."""
         transport = FakeExternalTransport()
@@ -503,11 +620,12 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
             environment = kwargs["env"]
             self.assertEqual(environment["CONDA_OFFLINE"], "true")
             self.assertEqual(environment["PIP_NO_INDEX"], "1")
-            self.assertEqual(environment["http_proxy"], "")
-            self.assertEqual(environment["https_proxy"], "")
-            self.assertEqual(environment["HTTP_PROXY"], "")
-            self.assertEqual(environment["HTTPS_PROXY"], "")
-            self.assertEqual(environment["ALL_PROXY"], "")
+            self.assertNotIn("http_proxy", environment)
+            self.assertNotIn("https_proxy", environment)
+            self.assertNotIn("HTTP_PROXY", environment)
+            self.assertNotIn("HTTPS_PROXY", environment)
+            self.assertNotIn("ALL_PROXY", environment)
+            self.assertNotEqual(environment.get("NO_PROXY"), "*")
 
     def test_prepare_gpu_identity_failure_persists_artifact_backed_blocked_closure(self):
         """Catches loss of command, commit, probe, or stderr lineage before GPU identity fails."""
@@ -533,8 +651,10 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
         self.assertEqual(attempt["active_prefix_probe"]["cuda_available"], True)
         self.assertEqual(attempt["clone_prefix_probe"]["pytorch"], "2.7.1+cu118")
         self.assertEqual(
-            attempt["command_captures"][-1]["command"][0], "nvidia-smi"
+            attempt["command_captures"][-1]["command"][: len(NETWORK_NAMESPACE_PREFIX)],
+            NETWORK_NAMESPACE_PREFIX,
         )
+        self.assertEqual(attempt["command_captures"][-1]["command"][-3], "nvidia-smi")
         self.assertEqual(attempt["command_captures"][-1]["returncode"], 9)
         self.assertIn("couldn't communicate", attempt["command_captures"][-1]["stderr"])
         self.assertEqual(closure["executor_commit"], "a" * 40)
@@ -563,9 +683,9 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
         self.assertEqual(attempt["failure"]["stage"], "git_head")
         self.assertEqual(
             [(item["stage"], item["returncode"]) for item in attempt["command_captures"]],
-            [("git_head", 17)],
+            [("network_namespace_probe", 0), ("git_head", 17)],
         )
-        self.assertIn("fixture Git HEAD failure", attempt["command_captures"][0]["stderr"])
+        self.assertIn("fixture Git HEAD failure", attempt["command_captures"][1]["stderr"])
         self.assertFalse((self.root / "blocked_environment_closure.json").exists())
 
     def test_prepare_conda_failure_retains_partial_lineage_without_environment_closure(self):
@@ -586,7 +706,12 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
         self.assertEqual(attempt["failure"]["stage"], "conda_clone")
         self.assertEqual(
             [(item["stage"], item["returncode"]) for item in attempt["command_captures"]],
-            [("git_head", 0), ("active_prefix_probe", 0), ("conda_clone", 23)],
+            [
+                ("network_namespace_probe", 0),
+                ("git_head", 0),
+                ("active_prefix_probe", 0),
+                ("conda_clone", 23),
+            ],
         )
         self.assertIn("fixture Conda clone failure", attempt["command_captures"][-1]["stderr"])
         self.assertFalse((self.root / "blocked_environment_closure.json").exists())
@@ -894,6 +1019,31 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
         artifact.write_text("tampered\n", encoding="utf-8")
         with self.assertRaisesRegex(RuntimeError, "raw artifact.*mismatch"):
             executor.validate_raw_seal(self.root)
+
+    def test_preflight_rejects_a_materialized_passport_without_mutating_the_seal(self):
+        """Catches sealed preflight rewriting the manifest covered by the raw seal."""
+        transport = FakeExternalTransport()
+        executor.prepare(
+            self.repo, self.root, transport=transport, active_conda_prefix=self.active_env
+        )
+        executor.preflight(self.root, transport=transport)
+        executor.run(self.root, transport=transport)
+        executor.seal(self.root)
+        protected = [
+            self.root / "execution_manifest.json",
+            self.root / "raw_artifact_manifest.json",
+            self.root / "material_passport.json",
+        ]
+        before = {path.name: sha256_bytes(path.read_bytes()) for path in protected}
+        prior_invocations = len(transport.raw_invocations)
+
+        with self.assertRaisesRegex(RuntimeError, "sealed raw artifacts"):
+            executor.preflight(self.root, transport=transport)
+
+        after = {path.name: sha256_bytes(path.read_bytes()) for path in protected}
+        self.assertEqual(after, before)
+        self.assertEqual(len(transport.raw_invocations), prior_invocations)
+        self.assertTrue(executor.validate_raw_seal(self.root))
 
     def test_preflight_rejects_local_conda_clone_drift_before_gpu_execution(self):
         """Catches post-prepare mutation of the cloned runtime environment."""

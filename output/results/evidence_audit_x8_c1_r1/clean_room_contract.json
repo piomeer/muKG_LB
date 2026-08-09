@@ -47,6 +47,7 @@
     "primary_family": ["E1", "E2"],
     "primary_gate": {
       "complete_pairs_required": 6,
+      "direction_consistency_required": true,
       "raw_data_complete_required": true,
       "simultaneous_lower_bound_strictly_above": 1.0,
       "valid_protocol_required": true
@@ -98,6 +99,17 @@
   "contract_version": 1,
   "environment": {
     "clone_active_conda_environment_locally": true,
+    "command_isolation": {
+      "environment_inherited_allowlist": [],
+      "network_boundary": "linux_network_namespace",
+      "network_namespace_command": [
+        "unshare",
+        "--user",
+        "--map-root-user",
+        "--net",
+        "--"
+      ]
+    },
     "cuda_available_required": true,
     "expected_gpu": {
       "compute_capability": "8.6",

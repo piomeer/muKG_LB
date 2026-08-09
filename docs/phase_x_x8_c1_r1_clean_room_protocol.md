@@ -13,9 +13,16 @@ The machine-readable authority is
 `output/results/evidence_audit_x8_c1_r1/clean_room_contract.json`. Its
 allowlist is the complete execution capsule; its denylist explicitly excludes
 the original C1-R1 result root and all X8 outputs from capsule construction.
-No network access is permitted. The active Conda environment is cloned locally,
-and source, input, environment, and raw-artifact hashes must validate before a
-stage is accepted.
+No network access is permitted. Every external command, including environment
+probes, telemetry, and runner dispatch, must execute behind the frozen Linux
+network-namespace prefix `unshare --user --map-root-user --net --`. `prepare`
+must probe that boundary and classify an unavailable boundary as
+`PREPARE_FAILED`. Subprocesses receive only the explicit environment recorded in
+the contract; proxy variables, `PYTHONPATH`, `PYTHONHOME`, `LD_PRELOAD`, and
+ambient code-control variables are not inherited. Package-manager offline
+variables are defense in depth, not firewall evidence. The active Conda
+environment is cloned locally, and source, input, environment, and raw-artifact
+hashes must validate before a stage is accepted.
 
 ## Frozen execution
 
@@ -44,8 +51,14 @@ forbidden.
 A Material Passport binds the contract hash, capsule manifest, cloned
 environment, stage, and raw/derived artifact seal. Every sealed artifact has a
 path, byte count, and SHA-256. Missing or mismatched lineage fails closed.
+Validation traverses the actual capsule file set and hashes and the actual
+cloned-environment identity; lineage-document hashes alone are insufficient.
+Once a Material Passport exists, `preflight`, `run`, and remediation are
+immutable and must reject before any manifest or sealed byte is changed.
 Independent analysis must create and seal its own passport before any comparison
-code may read the original C1-R1 result root.
+code may open the separately tracked original-comparison reference or read the
+original C1-R1 result root. Independent mode neither imports nor opens that
+comparison-only reference.
 
 ## Statistical contract
 
@@ -54,10 +67,21 @@ the seed-paired BL/GPU ratio of the mean of five within-epoch population SDs of
 full-batch negative-sampling time. E3 is the six-run arithmetic summary of GPU
 full-batch negative-sampling time. E1 and E2 are one joint primary family:
 report their per-estimand 95% intervals and require Bonferroni 97.5%
-simultaneous lower bounds strictly above one. E2 and E3 use only rows with
+simultaneous lower bounds strictly above one. The primary gate additionally
+requires direction consistency for all six seeds for both E1 and E2. E2 and E3
+use only rows with
 `is_partial == False` and `batch_size_actual == 5000`; E2 uses `ddof=0`.
 
 The inclusive clean/original numerical-fidelity ratio ranges are E1
 `[0.90, 1.10]`, E2 `[0.75, 1.25]`, and E3 `[0.90, 1.10]`. Comparison may emit
 only `VERIFIED`, `SUPPORTED_WITH_NUMERICAL_DRIFT`, `NOT_REPRODUCED`,
 `INCOMPLETE`, or `BLOCKED_ENVIRONMENT`.
+
+## Historical attempt boundary
+
+The authoritative blocked attempt3 predates the final-review hardening above.
+Its retained six command captures were not network-namespace wrapped; its
+offline/proxy environment controls do not establish a firewall. No live
+`prepare`, preflight, GPU job, seal, independent analysis, or comparison was run
+after this hardening, and the historical attempt3 capsule and closure remain
+unchanged lineage rather than retroactive evidence of the revised controls.

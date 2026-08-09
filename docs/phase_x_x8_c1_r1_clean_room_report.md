@@ -13,7 +13,7 @@ protocol Material Passport.
 | Field | Value |
 | --- | --- |
 | Contract | `X8-C1-R1-clean-room-v1` |
-| Contract SHA-256 | `32396312a947ef24e937c873d70f28b725c9e82aa5102d14bd1f6c449033b46a` |
+| Attempt3 contract SHA-256 | `32396312a947ef24e937c873d70f28b725c9e82aa5102d14bd1f6c449033b46a` |
 | Authoritative attempt | `prepare-x8_c1_r1_clean_room_v1_attempt3-1786259156248923157` |
 | Attempt start (JST) | `2026-08-09 16:05:56.248923981 +0900` |
 | Executor commit (captured) | `d0fbe4ed0737f27ccca0674fdcc7af061453efda` |
@@ -22,7 +22,7 @@ protocol Material Passport.
 | Derived closure SHA-256 | `af92487f80aa73cb0c1b85644c0b4574a99fa533e898b0b313f5b7be460bdc46` |
 | Requested clean-room root | `output/results/x8_c1_r1_clean_room_v1_attempt3` |
 | Active Conda prefix | `/home/hma/miniconda3` |
-| Network policy | Offline: `CONDA_OFFLINE=true`, `PIP_NO_INDEX=1`, proxy variables cleared by the executor |
+| Attempt3 network controls | Package-manager offline variables and proxy-environment changes only; no kernel network namespace was present |
 
 The 11-file capsule contains only the contract allowlist, including the frozen
 runner whose SHA-256 remains
@@ -85,9 +85,11 @@ lineage and tests both package-list call sites. The full X8 suite then passed:
 ## Procedural deviation
 
 The implementation commits were made locally but were not pushed before the
-blocked preparation. Network access was enforced as forbidden for this task, so
-this is not retroactive compliance with the plan's pre-prepare push instruction.
-Final branch integration and any push remain separate work.
+blocked preparation. Network use was prohibited, but attempt3 relied on
+application environment controls rather than an OS network namespace; those
+variables are not firewall evidence. This is not retroactive compliance with
+the plan's pre-prepare push instruction. Final branch integration and any push
+remain separate work.
 
 ## Non-GPU verification and baseline limitation
 
@@ -129,12 +131,37 @@ closure. The existing GPU-identity failure regression remains blocked with an
 artifact-backed closure. The suite now has 43 passing X8 tests. No new live
 prepare was run and attempt3 artifacts were not modified by this correction.
 
+## Final-review hardening after attempt3
+
+Attempt3 predates the final-review hardening. The current tracked contract has
+SHA-256 `b76f14a5439a11ccfe1a3bee1ab574f739a7291aeaf9a0362d679d8e0a12ff99`;
+the attempt3 closure correctly retains its earlier contract hash instead of
+being rewritten. The post-attempt implementation now:
+
+- freezes six-of-six direction consistency as part of the E1/E2 primary gate;
+- keeps exact original estimates only in the separately tracked, hash-bound
+  comparison reference and opens it only after the independent seal validates;
+- gives every subprocess an explicit non-inherited environment and wraps every
+  command in `unshare --user --map-root-user --net --`, with a fail-closed
+  namespace probe during `prepare`;
+- validates the actual capsule file set/hashes, cloned-environment identity, and
+  every execution-manifest binding before accepting a raw seal; and
+- rejects `preflight` immediately after Material Passport creation without
+  changing the execution manifest or raw seal.
+
+No new live `prepare`, preflight, GPU job, seal, independent analysis,
+comparison, E1/E2/E3 estimate, or verdict was produced during this hardening.
+The tests used injected transports and synthetic sealed fixtures only.
+
 ## Resume only after environment repair
 
 1. Restore NVIDIA-driver communication and confirm the expected RTX 3070 GPU
    identity through `nvidia-smi`.
 2. Confirm `torch.cuda.is_available()` is true in `/home/hma/miniconda3`.
-3. Use a new root (the executor must not overwrite a blocked root), run
-   `prepare`, `status`, then `preflight`.
-4. Only after a passing preflight, execute the frozen 1 + 24 + 6 matrix, seal
+3. Confirm the host permits the frozen user/network namespace command, then use
+   a new root (the executor must not overwrite a blocked root) and run `prepare`.
+   The namespace probe must pass before Git, Conda, runtime, or GPU preparation
+   proceeds.
+4. Run `status`, then `preflight`.
+5. Only after a passing preflight, execute the frozen 1 + 24 + 6 matrix, seal
    raw data, run blind independent analysis, and then permit comparison.

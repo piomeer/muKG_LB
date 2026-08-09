@@ -1,0 +1,20 @@
+{
+  "artifact_kind": "x8_c1_r1_original_comparison_reference",
+  "contract_id": "X8-C1-R1-clean-room-v1",
+  "estimands": {
+    "E1": 6.013389739959145,
+    "E2": 87.87705683218147,
+    "E3": 3002619.603144654
+  },
+  "original_summary_path": "output/results/c1_r1_combined_rerun/analysis/summary.json",
+  "schema_bindings": {
+    "E1": "C1.2-R1.geometric_mean_speedup",
+    "E2": "C1.3-R1.geometric_mean_sd_compression",
+    "E3": "C1.7-R1.six_run_mean_ms"
+  },
+  "units": {
+    "E1": "ratio",
+    "E2": "ratio",
+    "E3": "nanoseconds"
+  }
+}

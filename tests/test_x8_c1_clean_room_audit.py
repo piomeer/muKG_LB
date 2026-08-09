@@ -7,8 +7,16 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from scripts import audit_x8_c1_r1_clean_room as audit
+
+
+FIXTURE_RUNNER_PATH = "src/py/experiments/c1_r1_combined_rerun.py"
+FIXTURE_INPUT_PATH = "src/py/data/FB15K237/train2id.txt"
+FIXTURE_RUNNER_BYTES = b"print('sealed fixture runner')\n"
+FIXTURE_INPUT_BYTES = b"1\n0 0 0\n"
+FIXTURE_ENVIRONMENT_BYTES = b"sealed fixture python\n"
 
 
 def write_json(path: Path, value: object) -> None:
@@ -36,8 +44,8 @@ def fixture_split() -> dict[str, object]:
         "training_set_size": 12115,
         "split_seed": 42,
         "split_algorithm": "fixture frozen shuffle; first 5000 held out",
-        "source_path": "src/py/data/FB15K237/train2id.txt",
-        "source_sha256": "f" * 64,
+        "source_path": FIXTURE_INPUT_PATH,
+        "source_sha256": hashlib.sha256(FIXTURE_INPUT_BYTES).hexdigest(),
         "raw_order_sha256": "a" * 64,
         "file_order_sha256": "b" * 64,
         "held_out_order_sha256": "c" * 64,
@@ -61,11 +69,28 @@ def fixture_contract() -> dict[str, object]:
         "thermal_slowdown", "other_compute_processes", "raw_gpu_query",
         "raw_process_query", "query_error",
     ]
+    source_hashes = {
+        FIXTURE_INPUT_PATH: hashlib.sha256(FIXTURE_INPUT_BYTES).hexdigest(),
+        FIXTURE_RUNNER_PATH: hashlib.sha256(FIXTURE_RUNNER_BYTES).hexdigest(),
+    }
     return {
         "contract_id": "X8-C1-R1-clean-room-v1",
         "status": "FROZEN",
-        "source_hashes": {
-            "src/py/data/FB15K237/train2id.txt": "f" * 64,
+        "source_hashes": source_hashes,
+        "capsule": {
+            "allowlisted_paths": list(source_hashes),
+            "excluded_path_prefixes": ["output/results/c1_r1_combined_rerun"],
+            "source_mutation_forbidden": True,
+        },
+        "environment": {
+            "network_forbidden": True,
+            "command_isolation": {
+                "network_namespace_command": [
+                    "unshare", "--user", "--map-root-user", "--net", "--",
+                ],
+                "environment_inherited_allowlist": [],
+                "network_boundary": "linux_network_namespace",
+            },
         },
         "protocol": {
             "protocol_id": "C1-R1-v1.1",
@@ -98,6 +123,7 @@ def fixture_contract() -> dict[str, object]:
             },
             "primary_gate": {
                 "complete_pairs_required": 6,
+                "direction_consistency_required": True,
                 "simultaneous_lower_bound_strictly_above": 1.0,
             },
             "t_critical_values": {
@@ -174,8 +200,45 @@ def telemetry_row(pass_name: str, config: str, seed: int) -> dict[str, object]:
 def create_sealed_raw_fixture(root: Path) -> None:
     contract = fixture_contract()
     write_json(root / "frozen_contract.json", contract)
-    write_json(root / "capsule_manifest.json", {"contract_id": contract["contract_id"], "files": []})
-    write_json(root / "environment_manifest.json", {"contract_id": contract["contract_id"]})
+    capsule_entries = []
+    for relative, content in (
+        (FIXTURE_INPUT_PATH, FIXTURE_INPUT_BYTES),
+        (FIXTURE_RUNNER_PATH, FIXTURE_RUNNER_BYTES),
+    ):
+        path = root / "capsule" / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+        capsule_entries.append(
+            {
+                "path": relative,
+                "bytes": len(content),
+                "sha256": hashlib.sha256(content).hexdigest(),
+            }
+        )
+    write_json(
+        root / "capsule_manifest.json",
+        {
+            "contract_id": contract["contract_id"],
+            "source_mutation_forbidden": True,
+            "files": capsule_entries,
+        },
+    )
+    clone_file = root / "environment/conda/bin/python"
+    clone_file.parent.mkdir(parents=True, exist_ok=True)
+    clone_file.write_bytes(FIXTURE_ENVIRONMENT_BYTES)
+    write_json(
+        root / "environment_manifest.json",
+        {
+            "contract_id": contract["contract_id"],
+            "clone_identity_files": [
+                {
+                    "path": "bin/python",
+                    "bytes": len(FIXTURE_ENVIRONMENT_BYTES),
+                    "sha256": hashlib.sha256(FIXTURE_ENVIRONMENT_BYTES).hexdigest(),
+                }
+            ],
+        },
+    )
     raw = root / "raw"
     write_json(
         raw / "environment.json",
@@ -228,12 +291,16 @@ def create_sealed_raw_fixture(root: Path) -> None:
                     raw / "attempts" / f"{pass_name}_seed{seed}_attempt0" / "jobs"
                     / f"{pass_name}_{config}_seed{seed}"
                 )
-                epoch_time = 20 if config == "BL" else 10
                 epoch_rows = [
                     {
                         "protocol_id": "C1-R1-v1.1", "pass_name": pass_name,
                         "config": config, "seed": seed, "epoch": epoch,
-                        "epoch_time_ns": epoch_time, "num_steps": 3,
+                        "epoch_time_ns": (
+                            (seed - 40) * (10 + epoch)
+                            if config == "BL"
+                            else 10 + epoch
+                        ),
+                        "num_steps": 3,
                         "full_batch_count": 2, "partial_batch_count": 1,
                         "partial_batch_size": 2115, "training_examples": 12115,
                         "loss_finite": "True",
@@ -244,8 +311,20 @@ def create_sealed_raw_fixture(root: Path) -> None:
                 step_count = 0
                 if pass_name == "trace":
                     step_rows = []
-                    full_values = [10, 30] if config == "BL" else [10, 20]
                     for epoch in range(5):
+                        epoch_number = epoch + 1
+                        seed_offset = seed - 42
+                        full_values = (
+                            [
+                                10 * epoch_number + seed_offset,
+                                30 * epoch_number + seed_offset,
+                            ]
+                            if config == "BL"
+                            else [
+                                10 * epoch_number + seed_offset,
+                                20 * epoch_number + seed_offset,
+                            ]
+                        )
                         for step, neg_time in enumerate(full_values + [999_999_999]):
                             partial = step == 2
                             step_rows.append(
@@ -485,12 +564,29 @@ class X8C1CleanRoomIndependentTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(first_bytes, second_bytes)
         self.assertEqual(first["status"], "ANALYZED")
-        self.assertEqual(first["estimands"]["E1"]["estimate"], 2.0)
-        self.assertEqual(first["estimands"]["E1"]["ci95"], {"low": 2.0, "high": 2.0})
+        self.assertAlmostEqual(first["estimands"]["E1"]["estimate"], 4.1406808334652885)
+        self.assertAlmostEqual(
+            first["estimands"]["E1"]["ci95"]["low"], 2.5404906481413017
+        )
+        self.assertAlmostEqual(
+            first["estimands"]["E1"]["ci95"]["high"], 6.74878995408653
+        )
+        self.assertAlmostEqual(
+            first["estimands"]["E1"]["ci97_5_bonferroni"]["low"],
+            2.2698278352184134,
+        )
         self.assertEqual(first["estimands"]["E2"]["estimate"], 2.0)
         self.assertEqual(first["estimands"]["E2"]["ci97_5_bonferroni"]["low"], 2.0)
-        self.assertEqual(first["estimands"]["E3"]["estimate_ns"], 15.0)
-        self.assertEqual(first["estimands"]["E3"]["sample_sd_ns"], 0.0)
+        self.assertEqual(first["estimands"]["E3"]["estimate_ns"], 47.5)
+        self.assertAlmostEqual(
+            first["estimands"]["E3"]["sample_sd_ns"], 1.8708286933869707
+        )
+        self.assertAlmostEqual(
+            first["estimands"]["E3"]["ci95_ns"]["low"], 45.53668569301968
+        )
+        self.assertAlmostEqual(
+            first["estimands"]["E3"]["ci95_ns"]["high"], 49.46331430698032
+        )
         self.assertEqual(first["direction_consistency"]["E1"], {"count": 6, "required": 6, "passed": True})
         self.assertEqual(first["direction_consistency"]["E2"], {"count": 6, "required": 6, "passed": True})
         self.assertTrue(first["primary_gate_passed"])
@@ -504,12 +600,62 @@ class X8C1CleanRoomIndependentTests(unittest.TestCase):
         ) as handle:
             leave_one_rows = list(csv.DictReader(handle))
         self.assertEqual(len(seed_rows), 6)
-        self.assertTrue(all(row["E1_ratio"] == "2.0" for row in seed_rows))
+        self.assertEqual(
+            [row["E1_ratio"] for row in seed_rows],
+            ["2.0", "3.0", "4.0", "5.0", "6.0", "7.0"],
+        )
+        self.assertEqual(
+            [row["E2_bl_mean_epoch_population_sd_ns"] for row in seed_rows],
+            ["30.0"] * 6,
+        )
+        self.assertEqual(
+            [row["E2_gpu_mean_epoch_population_sd_ns"] for row in seed_rows],
+            ["15.0"] * 6,
+        )
         self.assertTrue(all(row["E2_ratio"] == "2.0" for row in seed_rows))
-        self.assertTrue(all(row["E3_gpu_full_neg_mean_ns"] == "15.0" for row in seed_rows))
+        self.assertEqual(
+            [row["E3_gpu_full_neg_mean_ns"] for row in seed_rows],
+            ["45.0", "46.0", "47.0", "48.0", "49.0", "50.0"],
+        )
         self.assertEqual(len(leave_one_rows), 6)
-        self.assertTrue(all(row["E1_estimate"] == "2.0" for row in leave_one_rows))
+        self.assertEqual(
+            [row["E3_estimate_ns"] for row in leave_one_rows],
+            ["48.0", "47.8", "47.6", "47.4", "47.2", "47.0"],
+        )
         self.assertFalse(any(path.is_relative_to(self.root / "raw") for path in paths))
+
+    def test_one_seed_direction_reversal_blocks_the_contractual_primary_gate(self):
+        """Catches a strong interval masking one seed whose paired effect reverses."""
+        path = (
+            self.root
+            / "raw/attempts/throughput_seed42_attempt0/jobs"
+            / "throughput_BL_seed42/per_epoch.csv"
+        )
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        for row in rows:
+            row["epoch_time_ns"] = "9"
+        write_csv(path, list(rows[0]), rows)
+        reseal_raw_fixture(self.root)
+
+        summary = audit.run_independent(self.root)
+
+        self.assertGreater(
+            summary["estimands"]["E1"]["ci97_5_bonferroni"]["low"], 1.0
+        )
+        self.assertEqual(
+            summary["direction_consistency"]["E1"],
+            {"count": 5, "required": 6, "passed": False},
+        )
+        self.assertFalse(summary["primary_gate_passed"])
+
+    def test_independent_analysis_does_not_require_the_comparison_reference(self):
+        """Catches independent mode opening comparison-only outcome values."""
+        missing = Path(self.tempdir.name) / "comparison-reference-must-not-be-read.json"
+        with mock.patch.object(audit, "COMPARISON_REFERENCE_PATH", missing):
+            summary = audit.run_independent(self.root)
+
+        self.assertEqual(summary["status"], "ANALYZED")
 
     def test_raw_seal_rejects_a_malformed_passport_timestamp(self):
         """Catches accepting a materially tampered passport field as valid lineage."""
@@ -519,6 +665,31 @@ class X8C1CleanRoomIndependentTests(unittest.TestCase):
         write_json(passport_path, passport)
 
         with self.assertRaisesRegex(RuntimeError, "sealed_at_ns"):
+            audit.validate_raw_seal(self.root)
+
+    def test_raw_seal_validates_actual_capsule_and_cloned_environment_identity(self):
+        """Catches lineage hashes that ignore post-seal capsule or environment mutation."""
+        extra = self.root / "capsule/src/py/attacker_shadow.py"
+        extra.parent.mkdir(parents=True, exist_ok=True)
+        extra.write_text("raise RuntimeError('shadow')\n", encoding="utf-8")
+        with self.assertRaisesRegex(RuntimeError, "capsule"):
+            audit.validate_raw_seal(self.root)
+
+        root = Path(self.tempdir.name) / "environment-mutation"
+        create_sealed_raw_fixture(root)
+        (root / "environment/conda/bin/python").write_bytes(b"mutated environment\n")
+        with self.assertRaisesRegex(RuntimeError, "environment clone"):
+            audit.validate_raw_seal(root)
+
+    def test_raw_seal_requires_every_execution_manifest_binding(self):
+        """Catches a self-consistent raw reseal with a missing execution binding."""
+        manifest_path = self.root / "execution_manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        del manifest["contract_sha256"]
+        write_json(manifest_path, manifest)
+        reseal_raw_fixture(self.root)
+
+        with self.assertRaisesRegex(RuntimeError, "execution manifest.*contract_sha256"):
             audit.validate_raw_seal(self.root)
 
     def test_raw_and_independent_seals_detect_post_seal_byte_tampering(self):
@@ -570,7 +741,7 @@ class X8C1CleanRoomIndependentTests(unittest.TestCase):
 
         summary = audit.run_independent(self.root)
 
-        self.assertEqual(summary["estimands"]["E1"]["seed_level_ratios"][0], 3.0)
+        self.assertEqual(summary["estimands"]["E1"]["seed_level_ratios"][0], 2.5)
         with (self.root / "derived/independent/seed_level_metrics.csv").open(
             encoding="utf-8", newline=""
         ) as handle:
@@ -582,7 +753,7 @@ class X8C1CleanRoomIndependentTests(unittest.TestCase):
         manifest["remediations"][0]["jobs"].pop()
         write_json(manifest_path, manifest)
         reseal_raw_fixture(self.root)
-        with self.assertRaisesRegex(RuntimeError, "pair/order"):
+        with self.assertRaisesRegex(RuntimeError, "(?:pair|job)/order"):
             audit.run_independent(self.root)
 
     def test_retry_trigger_reasons_must_equal_actual_eligible_invalid_reasons(self):
@@ -788,10 +959,61 @@ class X8C1CleanRoomComparisonTests(unittest.TestCase):
             result = audit.compare_estimates({"status": status}, original, contract)
             self.assertEqual(result, {"verdict": status, "estimands": {}})
 
+    def test_compare_requires_and_consumes_the_direction_contract_field(self):
+        """Catches a comparison gate that hard-codes or ignores direction policy."""
+        contract = fixture_contract()
+        original = self.original_estimates()
+        independent = {
+            "status": "ANALYZED",
+            "complete_seed_pairs": 6,
+            "primary_gate_passed": True,
+            "direction_consistency": {
+                "E1": {"count": 5, "required": 6, "passed": False},
+                "E2": {"count": 6, "required": 6, "passed": True},
+            },
+            "estimands": {
+                "E1": {"estimate": original["E1"]},
+                "E2": {"estimate": original["E2"]},
+                "E3": {"estimate_ns": original["E3"]},
+            },
+            "pooling_performed": False,
+        }
+
+        self.assertEqual(
+            audit.compare_estimates(independent, original, contract)["verdict"],
+            "NOT_REPRODUCED",
+        )
+        contract["analysis"]["primary_gate"]["direction_consistency_required"] = False
+        self.assertEqual(
+            audit.compare_estimates(independent, original, contract)["verdict"],
+            "VERIFIED",
+        )
+        del contract["analysis"]["primary_gate"]["direction_consistency_required"]
+        with self.assertRaisesRegex(RuntimeError, "direction_consistency_required"):
+            audit.compare_estimates(independent, original, contract)
+
     def test_compare_validates_independent_seal_before_reading_original(self):
         """Catches any original-result read before the independent passport gate."""
-        with self.assertRaisesRegex(RuntimeError, "independent"):
-            audit.run_compare(self.root, self.original / "does-not-exist")
+        missing_reference = self.base / "comparison-reference-must-not-be-read.json"
+        with mock.patch.object(audit, "COMPARISON_REFERENCE_PATH", missing_reference):
+            with self.assertRaisesRegex(RuntimeError, "independent"):
+                audit.run_compare(self.root, self.original / "does-not-exist")
+
+    def test_compare_fails_closed_when_reference_is_missing_or_drifted(self):
+        """Catches comparison proceeding without the separately frozen reference."""
+        audit.run_independent(self.root)
+        self.write_frozen_original()
+        missing_reference = self.base / "missing-comparison-reference.json"
+        with mock.patch.object(audit, "COMPARISON_REFERENCE_PATH", missing_reference):
+            with self.assertRaisesRegex(RuntimeError, "comparison reference"):
+                audit.run_compare(self.root, self.original)
+
+        tracked_reference = Path(__file__).resolve().parents[1] / audit.COMPARISON_REFERENCE_PATH
+        drifted_reference = self.base / "drifted-comparison-reference.json"
+        drifted_reference.write_bytes(tracked_reference.read_bytes() + b"\n")
+        with mock.patch.object(audit, "COMPARISON_REFERENCE_PATH", drifted_reference):
+            with self.assertRaisesRegex(RuntimeError, "comparison reference.*drift"):
+                audit.run_compare(self.root, self.original)
 
     def test_run_compare_preserves_status_only_verdicts_without_estimands(self):
         """Catches the fallacy gate overwriting terminal no-estimate statuses."""

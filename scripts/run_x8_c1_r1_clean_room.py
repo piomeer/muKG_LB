@@ -19,6 +19,14 @@ from typing import Any, Callable
 
 CONTRACT_PATH = Path("output/results/evidence_audit_x8_c1_r1/clean_room_contract.json")
 RUNNER_PATH = Path("src/py/experiments/c1_r1_combined_rerun.py")
+NETWORK_NAMESPACE_COMMAND = (
+    "unshare",
+    "--user",
+    "--map-root-user",
+    "--net",
+    "--",
+)
+SYSTEM_COMMAND_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 CommandTransport = Callable[..., subprocess.CompletedProcess[str]]
 
@@ -69,42 +77,60 @@ def _command_capture(
     cwd: Path | None = None,
     env: dict[str, str] | None = None,
 ) -> dict[str, Any]:
+    isolated_command = [*NETWORK_NAMESPACE_COMMAND, *command]
     result = transport(
-        command,
+        isolated_command,
         cwd=None if cwd is None else str(cwd),
         env=env,
         capture_output=True,
         text=True,
     )
     capture = {
-        "command": command,
+        "command": isolated_command,
         "returncode": result.returncode,
         "stdout": result.stdout,
         "stderr": result.stderr,
     }
     if result.returncode:
         raise RuntimeError(
-            f"external command failed ({result.returncode}): {' '.join(command)}"
+            f"external command failed ({result.returncode}): {' '.join(isolated_command)}"
         )
     return capture
 
 
-def _offline_environment() -> dict[str, str]:
-    env = dict(os.environ)
-    env.update(
-        {
-            "CONDA_OFFLINE": "true",
-            "PIP_NO_INDEX": "1",
-            "http_proxy": "",
-            "https_proxy": "",
-            "HTTP_PROXY": "",
-            "HTTPS_PROXY": "",
-            "ALL_PROXY": "",
-            "NO_PROXY": "*",
-            "PYTHONDONTWRITEBYTECODE": "1",
-        }
-    )
-    return env
+def _offline_environment(
+    root: Path, *, executable_prefix: Path | None = None
+) -> dict[str, str]:
+    """Build the complete subprocess environment without inheriting host controls."""
+    command_home = root / "environment/command-home"
+    command_tmp = root / "environment/tmp"
+    xdg_root = root / "environment/xdg"
+    for directory in (
+        command_home,
+        command_tmp,
+        xdg_root / "cache",
+        xdg_root / "config",
+        xdg_root / "data",
+    ):
+        directory.mkdir(parents=True, exist_ok=True)
+    path = SYSTEM_COMMAND_PATH
+    if executable_prefix is not None:
+        path = f"{executable_prefix}:{path}"
+    return {
+        "CONDA_OFFLINE": "true",
+        "HOME": str(command_home),
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "PATH": path,
+        "PIP_NO_INDEX": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONNOUSERSITE": "1",
+        "TMPDIR": str(command_tmp),
+        "TZ": "UTC",
+        "XDG_CACHE_HOME": str(xdg_root / "cache"),
+        "XDG_CONFIG_HOME": str(xdg_root / "config"),
+        "XDG_DATA_HOME": str(xdg_root / "data"),
+    }
 
 
 def _prepare_capture_command(
@@ -118,8 +144,9 @@ def _prepare_capture_command(
     env: dict[str, str],
 ) -> dict[str, Any]:
     """Capture every prepare subprocess before allowing a failure to escape."""
+    isolated_command = [*NETWORK_NAMESPACE_COMMAND, *command]
     result = transport(
-        command,
+        isolated_command,
         cwd=str(cwd),
         env=env,
         capture_output=True,
@@ -127,7 +154,7 @@ def _prepare_capture_command(
     )
     capture = {
         "stage": stage,
-        "command": command,
+        "command": isolated_command,
         "returncode": result.returncode,
         "stdout": result.stdout,
         "stderr": result.stderr,
@@ -237,6 +264,14 @@ def _validate_contract(contract: dict[str, Any]) -> None:
         raise RuntimeError("unexpected clean-room contract id")
     if not contract.get("environment", {}).get("network_forbidden"):
         raise RuntimeError("clean-room contract must forbid network access")
+    isolation = contract.get("environment", {}).get("command_isolation", {})
+    if (
+        isolation.get("network_namespace_command")
+        != list(NETWORK_NAMESPACE_COMMAND)
+        or isolation.get("environment_inherited_allowlist") != []
+        or isolation.get("network_boundary") != "linux_network_namespace"
+    ):
+        raise RuntimeError("clean-room command isolation contract is malformed")
     allowlist = contract.get("capsule", {}).get("allowlisted_paths")
     source_hashes = contract.get("source_hashes")
     if not isinstance(allowlist, list) or not isinstance(source_hashes, dict):
@@ -507,8 +542,20 @@ def prepare(
         if _sha256_file(frozen_contract_path) != contract_sha256:
             raise RuntimeError("frozen contract copy hash mismatch")
 
-        offline_env = _offline_environment()
+        offline_env = _offline_environment(
+            root, executable_prefix=active_conda_prefix / "bin"
+        )
         cloned_prefix = root / "environment/conda"
+        failure_stage = "network_namespace_probe"
+        _prepare_capture_command(
+            root,
+            attempt,
+            failure_stage,
+            transport,
+            ["/bin/true"],
+            cwd=repo_root,
+            env=offline_env,
+        )
         failure_stage = "git_head"
         git_capture = _prepare_capture_command(
             root,
@@ -699,6 +746,16 @@ def _load_prepared(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     with (root / "frozen_contract.json").open(encoding="utf-8") as handle:
         contract = json.load(handle)
     _validate_contract(contract)
+    manifest_bindings = {
+        "contract_id": contract["contract_id"],
+        "protocol_id": contract["protocol"]["protocol_id"],
+        "contract_sha256": _sha256_file(root / "frozen_contract.json"),
+        "capsule_manifest_sha256": _sha256_file(root / "capsule_manifest.json"),
+        "environment_manifest_sha256": _sha256_file(root / "environment_manifest.json"),
+    }
+    for field, expected in manifest_bindings.items():
+        if manifest.get(field) != expected:
+            raise RuntimeError(f"execution manifest binding mismatch: {field}")
     expected_descriptors = [
         _job_descriptor(job) for job in _build_execution_jobs(contract)
     ]
@@ -706,22 +763,10 @@ def _load_prepared(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     if actual_descriptors != expected_descriptors:
         raise RuntimeError("execution manifest job descriptor/order drift detected")
     _validate_manifest_control_flow(manifest, contract)
-    checks = {
-        "frozen contract": (root / "frozen_contract.json", manifest["contract_sha256"]),
-        "capsule manifest": (
-            root / "capsule_manifest.json",
-            manifest["capsule_manifest_sha256"],
-        ),
-        "environment manifest": (
-            root / "environment_manifest.json",
-            manifest["environment_manifest_sha256"],
-        ),
-    }
-    for label, (path, expected) in checks.items():
-        if not path.is_file() or _sha256_file(path) != expected:
-            raise RuntimeError(f"{label} drift detected")
     with (root / "capsule_manifest.json").open(encoding="utf-8") as handle:
         capsule_manifest = json.load(handle)
+    if capsule_manifest.get("contract_id") != contract["contract_id"]:
+        raise RuntimeError("capsule manifest contract mismatch")
     expected_entries = contract["source_hashes"]
     observed_entries = {
         entry["path"]: entry["sha256"] for entry in capsule_manifest["files"]
@@ -737,9 +782,11 @@ def _load_prepared(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
         raise RuntimeError("capsule file-set drift detected")
     for relative, expected in expected_entries.items():
         path = root / "capsule" / relative
-        if not path.is_file() or _sha256_file(path) != expected:
+        if path.is_symlink() or not path.is_file() or _sha256_file(path) != expected:
             raise RuntimeError(f"capsule source/input drift detected: {relative}")
     environment_manifest = _read_json(root / "environment_manifest.json")
+    if environment_manifest.get("contract_id") != contract["contract_id"]:
+        raise RuntimeError("environment manifest contract mismatch")
     cloned_prefix = root / "environment/conda"
     if environment_manifest.get("clone_identity_files") != _environment_clone_entries(
         cloned_prefix
@@ -832,7 +879,9 @@ def _validate_live_environment(
 ) -> None:
     expected = _read_json(root / "environment_manifest.json")
     cloned_prefix = root / "environment/conda"
-    offline_env = _offline_environment()
+    offline_env = _offline_environment(
+        root, executable_prefix=cloned_prefix / "bin"
+    )
     package_capture = _command_capture(
         transport,
         ["conda", "list", "--json", "--prefix", str(cloned_prefix)],
@@ -1084,12 +1133,15 @@ def _capture_compute_telemetry(
         "--query-compute-apps=pid,process_name,used_gpu_memory",
         "--format=csv,noheader,nounits",
     ]
-    offline_env = _offline_environment()
+    offline_env = _offline_environment(
+        root, executable_prefix=root / "environment/conda/bin"
+    )
     captures = []
     for command in (gpu_command, process_command):
         try:
+            isolated_command = [*NETWORK_NAMESPACE_COMMAND, *command]
             result = transport(
-                command,
+                isolated_command,
                 cwd=str(root / "capsule"),
                 env=offline_env,
                 capture_output=True,
@@ -1097,7 +1149,9 @@ def _capture_compute_telemetry(
             )
             captures.append(result)
         except Exception as exc:
-            captures.append(subprocess.CompletedProcess(command, 1, "", repr(exc)))
+            captures.append(
+                subprocess.CompletedProcess(isolated_command, 1, "", repr(exc))
+            )
     gpu_result, process_result = captures
     raw_gpu = gpu_result.stdout.strip()
     raw_process = process_result.stdout.strip()
@@ -1278,9 +1332,11 @@ def _execute_job(
             _write_execution_manifest(root, manifest)
             raise InvalidAttempt(reason, f"compute-only pre-dispatch telemetry for {job['id']}")
     result = transport(
-        job["command"],
+        [*NETWORK_NAMESPACE_COMMAND, *job["command"]],
         cwd=str(root / "capsule"),
-        env={**_offline_environment(), "PYTHONNOUSERSITE": "1"},
+        env=_offline_environment(
+            root, executable_prefix=root / "environment/conda/bin"
+        ),
         capture_output=True,
         text=True,
     )
@@ -1331,6 +1387,8 @@ def preflight(
 ) -> dict[str, Any]:
     """Run the frozen preflight once and stop on any failure."""
     root = root.resolve()
+    if (root / "material_passport.json").exists():
+        raise RuntimeError("sealed raw artifacts cannot be executed or overwritten")
     manifest, contract = _load_prepared(root)
     job = manifest["jobs"][0]
     if job["kind"] != "preflight":
@@ -1548,22 +1606,33 @@ def validate_raw_seal(root: Path) -> bool:
         raise RuntimeError("raw seal is incomplete")
     passport = _read_json(passport_path)
     artifact_manifest = _read_json(artifact_manifest_path)
+    if execution_manifest.get("state") != "RAW_COMPLETE":
+        raise RuntimeError("sealed execution manifest is not RAW_COMPLETE")
     required = set(contract["material_passport"]["required_fields"])
     if not required <= set(passport):
         raise RuntimeError("raw material passport is missing required fields")
+    if (
+        not isinstance(passport.get("sealed_at_ns"), int)
+        or isinstance(passport["sealed_at_ns"], bool)
+        or passport["sealed_at_ns"] <= 0
+    ):
+        raise RuntimeError("raw material passport invalid sealed_at_ns")
     expected_bindings = {
         "contract_id": contract["contract_id"],
-        "contract_sha256": execution_manifest["contract_sha256"],
-        "capsule_manifest_sha256": execution_manifest["capsule_manifest_sha256"],
-        "environment_manifest_sha256": execution_manifest["environment_manifest_sha256"],
+        "contract_sha256": _sha256_file(root / "frozen_contract.json"),
+        "capsule_manifest_sha256": _sha256_file(root / "capsule_manifest.json"),
+        "environment_manifest_sha256": _sha256_file(root / "environment_manifest.json"),
         "raw_artifact_manifest_sha256": _sha256_file(artifact_manifest_path),
         "stage": "raw",
     }
     for field, expected in expected_bindings.items():
         if passport.get(field) != expected:
             raise RuntimeError(f"raw artifact seal binding mismatch: {field}")
-    if artifact_manifest.get("contract_id") != contract["contract_id"]:
-        raise RuntimeError("raw artifact manifest contract mismatch")
+    if (
+        artifact_manifest.get("contract_id") != contract["contract_id"]
+        or artifact_manifest.get("stage") != "raw"
+    ):
+        raise RuntimeError("raw artifact manifest identity mismatch")
     observed_entries = artifact_manifest.get("artifacts")
     if not isinstance(observed_entries, list):
         raise RuntimeError("raw artifact manifest is malformed")

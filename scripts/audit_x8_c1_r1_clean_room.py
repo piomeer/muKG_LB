@@ -15,8 +15,19 @@ import statistics
 import sys
 from typing import Any, Iterable
 
+try:
+    from scripts import run_x8_c1_r1_clean_room as executor
+except ModuleNotFoundError:  # Direct ``python scripts/...`` execution.
+    import run_x8_c1_r1_clean_room as executor
+
 
 CONTRACT_PATH = Path("output/results/evidence_audit_x8_c1_r1/clean_room_contract.json")
+COMPARISON_REFERENCE_PATH = Path(
+    "output/results/evidence_audit_x8_c1_r1/original_comparison_reference.json"
+)
+COMPARISON_REFERENCE_SHA256 = (
+    "e1dd0fa5056b53f4c43d6344a1ac0e877e7e2eb1c5e14fbf502386f05c0fe8d3"
+)
 INDEPENDENT_DIR = Path("derived/independent")
 INDEPENDENT_MANIFEST = Path("independent_artifact_manifest.json")
 INDEPENDENT_PASSPORT = Path("independent_material_passport.json")
@@ -26,13 +37,6 @@ INDEPENDENT_OUTPUT_NAMES = (
     "seed_level_metrics.csv",
     "summary.json",
 )
-FROZEN_ORIGINAL_ESTIMATES = {
-    "E1": 6.013389739959145,
-    "E2": 87.87705683218147,
-    "E3": 3_002_619.603144654,
-}
-
-
 def load_contract(repo_root: Path) -> dict[str, Any]:
     """Load the frozen X8 contract for a future audit invocation."""
     with (repo_root / CONTRACT_PATH).open(encoding="utf-8") as handle:
@@ -102,6 +106,37 @@ def _read_json(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise RuntimeError(f"expected JSON object: {path}")
     return value
+
+
+def _load_comparison_reference() -> dict[str, float]:
+    """Open the separately frozen outcome reference only from comparison mode."""
+    path = COMPARISON_REFERENCE_PATH
+    if not path.is_absolute():
+        path = Path(__file__).resolve().parents[1] / path
+    try:
+        digest = _sha256_file(path)
+    except OSError as exc:
+        raise RuntimeError(f"comparison reference is unavailable: {path}") from exc
+    if digest != COMPARISON_REFERENCE_SHA256:
+        raise RuntimeError("comparison reference byte drift detected")
+    reference = _read_json(path)
+    if (
+        reference.get("artifact_kind")
+        != "x8_c1_r1_original_comparison_reference"
+        or reference.get("contract_id") != "X8-C1-R1-clean-room-v1"
+        or set(reference.get("estimands", {})) != {"E1", "E2", "E3"}
+    ):
+        raise RuntimeError("comparison reference schema drift detected")
+    try:
+        estimates = {
+            estimand: float(reference["estimands"][estimand])
+            for estimand in ("E1", "E2", "E3")
+        }
+    except (KeyError, TypeError, ValueError) as exc:
+        raise RuntimeError("comparison reference estimates are invalid") from exc
+    if any(not math.isfinite(value) or value <= 0 for value in estimates.values()):
+        raise RuntimeError("comparison reference estimates are invalid")
+    return estimates
 
 
 def _write_json(path: Path, value: Any) -> None:
@@ -195,6 +230,7 @@ def _load_frozen(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
 def validate_raw_seal(root: Path) -> bool:
     """Independently validate the complete raw seal and its lineage bindings."""
     root = root.resolve()
+    executor.validate_raw_seal(root)
     manifest, contract = _load_frozen(root)
     raw_manifest_path = root / "raw_artifact_manifest.json"
     passport_path = root / "material_passport.json"
@@ -204,16 +240,28 @@ def validate_raw_seal(root: Path) -> bool:
     _require_fields(passport, required, label="raw material passport")
     if not isinstance(passport.get("sealed_at_ns"), int) or passport["sealed_at_ns"] <= 0:
         raise RuntimeError("raw material passport invalid sealed_at_ns")
-    bindings = {
+    execution_bindings = {
         "contract_id": contract["contract_id"],
+        "protocol_id": contract["protocol"]["protocol_id"],
         "contract_sha256": _sha256_file(root / "frozen_contract.json"),
         "capsule_manifest_sha256": _sha256_file(root / "capsule_manifest.json"),
         "environment_manifest_sha256": _sha256_file(root / "environment_manifest.json"),
+    }
+    for field, expected in execution_bindings.items():
+        if manifest.get(field) != expected:
+            raise RuntimeError(f"execution manifest binding mismatch: {field}")
+    passport_bindings = {
+        "contract_id": execution_bindings["contract_id"],
+        "contract_sha256": execution_bindings["contract_sha256"],
+        "capsule_manifest_sha256": execution_bindings["capsule_manifest_sha256"],
+        "environment_manifest_sha256": execution_bindings[
+            "environment_manifest_sha256"
+        ],
         "raw_artifact_manifest_sha256": _sha256_file(raw_manifest_path),
         "stage": "raw",
     }
-    for field, expected in bindings.items():
-        if passport.get(field) != expected or manifest.get(field) not in {None, expected}:
+    for field, expected in passport_bindings.items():
+        if passport.get(field) != expected:
             raise RuntimeError(f"raw artifact seal binding mismatch: {field}")
     if (
         raw_manifest.get("contract_id") != contract["contract_id"]
@@ -729,12 +777,17 @@ def run_independent(root: Path) -> dict[str, Any]:
     }
     for item in direction.values():
         item["passed"] = item["count"] == item["required"]
+    direction_required = _direction_consistency_required(contract)
     threshold = float(
         contract["analysis"]["primary_gate"]["simultaneous_lower_bound_strictly_above"]
     )
     primary_gate = (
         e1_summary["ci97_5_bonferroni"]["low"] > threshold
         and e2_summary["ci97_5_bonferroni"]["low"] > threshold
+        and (
+            not direction_required
+            or all(item["passed"] is True for item in direction.values())
+        )
     )
     summary = {
         "contract_id": contract["contract_id"],
@@ -817,6 +870,15 @@ def _inside_inclusive(value: float, lower: float, upper: float) -> bool:
     return lower <= value <= upper
 
 
+def _direction_consistency_required(contract: dict[str, Any]) -> bool:
+    value = contract.get("analysis", {}).get("primary_gate", {}).get(
+        "direction_consistency_required"
+    )
+    if not isinstance(value, bool):
+        raise RuntimeError("direction_consistency_required must be an explicit boolean")
+    return value
+
+
 def compare_estimates(
     independent: dict[str, Any],
     original: dict[str, float],
@@ -852,8 +914,9 @@ def compare_estimates(
             "inclusive_tolerance": [lower, upper],
             "within_tolerance": _inside_inclusive(ratio, lower, upper),
         }
+    direction_required = _direction_consistency_required(contract)
     direction = independent.get("direction_consistency", {})
-    directions_pass = all(
+    directions_pass = not direction_required or all(
         direction.get(estimand, {}).get("passed") is True
         and direction[estimand].get("count") == required
         for estimand in ("E1", "E2")
@@ -878,12 +941,13 @@ def run_compare(root: Path, original_root: Path) -> dict[str, Any]:
     """Enter comparison only through the validated independent-seal gate."""
     root = root.resolve()
     validate_independent_seal(root)
+    reference = _load_comparison_reference()
     original_root = original_root.resolve()
     if original_root == root or original_root.is_relative_to(root):
         raise RuntimeError("original result root must remain separate from clean-room outputs")
     manifest, contract = _load_frozen(root)
     independent = _read_json(root / INDEPENDENT_DIR / "summary.json")
-    original = _read_original_estimates(original_root)
+    original = _read_original_estimates(original_root, reference)
     result = compare_estimates(independent, original, contract)
     fallacies = _statistical_fallacy_scan(independent, contract)
     status_only = result["verdict"] in {"INCOMPLETE", "BLOCKED_ENVIRONMENT"}
@@ -909,7 +973,9 @@ def run_compare(root: Path, original_root: Path) -> dict[str, Any]:
     return result
 
 
-def _read_original_estimates(original_root: Path) -> dict[str, float]:
+def _read_original_estimates(
+    original_root: Path, reference: dict[str, float]
+) -> dict[str, float]:
     summary = _read_json(original_root / "analysis/summary.json")
     try:
         estimates = {
@@ -926,13 +992,13 @@ def _read_original_estimates(original_root: Path) -> dict[str, float]:
         raise RuntimeError("frozen original summary schema is invalid") from exc
     if gates != [True, True, True]:
         raise RuntimeError("frozen original gates drift detected")
-    for estimand, expected in FROZEN_ORIGINAL_ESTIMATES.items():
+    for estimand, expected in reference.items():
         absolute_tolerance = 1e-9 if estimand == "E3" else 1e-15
         if not math.isclose(
             estimates[estimand], expected, rel_tol=0.0, abs_tol=absolute_tolerance
         ):
             raise RuntimeError(f"frozen original estimate drift detected: {estimand}")
-    return dict(FROZEN_ORIGINAL_ESTIMATES)
+    return dict(reference)
 
 
 def _statistical_fallacy_scan(
@@ -1060,9 +1126,6 @@ def self_test() -> dict[str, Any]:
         "geometric_constant_ratio": geometric["ci97_5_bonferroni"]
         == {"low": 2.0, "high": 2.0},
         "arithmetic_mean": arithmetic["estimate"] == 15.0,
-        "frozen_original_positive": all(
-            value > 0 for value in FROZEN_ORIGINAL_ESTIMATES.values()
-        ),
     }
     if not all(checks.values()):
         raise AssertionError(f"self-test failure: {checks}")

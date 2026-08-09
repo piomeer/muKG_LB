@@ -39,6 +39,9 @@ class X8C1CleanRoomContractTests(unittest.TestCase):
             contract["analysis"]["simultaneous_interval"],
             {"method": "Bonferroni", "confidence_level": 0.975, "lower_bound": 1.0},
         )
+        self.assertTrue(
+            contract["analysis"]["primary_gate"]["direction_consistency_required"]
+        )
         self.assertEqual(
             contract["analysis"]["filters"]["E2"],
             {
