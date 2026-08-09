@@ -2,7 +2,7 @@
 *(Cline 指令: 开始任务前全文读取，任务阶段性结束后通过 memory_bouncer.py 更新)*
 
 ## 1. 当前活动目标 (Active Task)
-Phase X X5.5 — contribution triage complete; X6a/X6b closed with X6.5 waiver; X1.5 remains governance-frozen
+Phase X X8 — C1-R1 clean-room is BLOCKED_ENVIRONMENT before preflight; X1.5 remains governance-frozen
 
 ## 2. 活跃约束提醒 (Active Constraints)
 - **显存红线**：batch_size=10000、neg_num=150 在 RTX 3070 8GB 上仍为已知 OOM 配置。C1-R1 preflight 证明 batch_size=5000、neg_num=150 的完整 BL/GPU step 在当前环境峰值 reserved 约 44%，但其他代码路径仍须独立预检。
@@ -64,5 +64,19 @@ X5.5 contribution triage is complete: C1.2-R1/C1.3-R1 are the only primary Claim
 
 X6a consumed the finalized triage and is `X6A_COMPLETE_X6B_PENDING`; X6b is `COMPLETE_X6B_WAIVED`. The statistical overlay remains `ANALYZED` because no clean-room rerun has occurred. X1.5 remains frozen and is not automatically resumed.
 
+X8 C1-R1 clean-room preparation at executor commit `ed403bd` is
+`BLOCKED_ENVIRONMENT`: the offline capsule and Conda clone were constructed,
+but `nvidia-smi` exited 9 (driver communication failure) and the cloned PyTorch
+environment reports `torch.cuda.is_available()==False`. No preflight, matrix
+job, seal, independent analysis, comparison, or E1/E2/E3 value was produced.
+`docs/phase_x_x8_c1_r1_clean_room_report.md` and the deterministic blocked
+closure preserve the available lineage. The isolated-worktree X0.5 checker also
+remains baseline-blocked by absent historical `output/results/phase9_step4_5`;
+the shared checkout's untracked historical evidence was not used.
+
 ## 4. 下一步计划 (Next Steps)
-Prepare the server-window experiment package: X8 C1-R1 clean-room reproduction first, then separately registered C1 sensitivity/quality/VRAM/profiling experiments as time permits. Do not run `--retry-dblp-next`, Snowball, or any external retrieval while X1.5 is `FROZEN_DEFERRED`; X1.5 may only resume through its explicit release gate after X5.5, X6, and X6.5 waiver closure.
+Repair the NVIDIA driver/runtime first. Then create a fresh X8 root, repeat
+`prepare`, run `status` and `preflight`, and execute the frozen clean-room
+matrix only if preflight passes. Do not run `--retry-dblp-next`, Snowball, or
+any external retrieval while X1.5 is `FROZEN_DEFERRED`; X1.5 may only resume
+through its explicit release gate after X5.5, X6, and X6.5 waiver closure.
