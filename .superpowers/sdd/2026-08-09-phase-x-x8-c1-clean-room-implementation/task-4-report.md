@@ -77,3 +77,14 @@ After the NVIDIA driver returns, confirm `nvidia-smi` identity and
 rerun `prepare`, `status`, and `preflight`. Only a passing preflight authorizes
 the frozen 1 + 24 + 6 matrix, sealing, blind independent analysis, and delayed
 comparison.
+
+## Re-review correction
+
+Commit `cd924935b014d5bb1c1318864b30ce422cdc0c57` adds explicit
+`PREPARE_FAILED` classification for early Git/capsule/hash/Conda/clone/probe or
+integrity failures. They retain partial raw command lineage, emit no
+`BLOCKED_ENVIRONMENT` closure, and preserve the original exception. Only an
+evidenced GPU/runtime failure after Git and clone-probe capture may emit the
+scientific blocked-environment closure. Regression tests cover early Git and
+Conda clone failures; 43 X8 tests, the audit self-test, compilation, and diff
+check passed. No live prepare was run, so attempt3 remains unchanged.

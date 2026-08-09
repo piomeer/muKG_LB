@@ -111,6 +111,24 @@ parses as JSON; the pre-existing file has unrelated malformed historical JSONL
 lines (75 and 139), so this task did not rewrite or normalize that shared
 memory history.
 
+## Re-review correction: prepare-failure classification
+
+Commit `cd924935b014d5bb1c1318864b30ce422cdc0c57` corrects an executor defect
+found after attempt3. Previously, every prepare exception was labelled
+`BLOCKED_ENVIRONMENT`, and an early failure could be masked by a closure builder
+that required unavailable Git/clone-probe evidence. The executor now emits
+`BLOCKED_ENVIRONMENT` only for sufficiently evidenced GPU/runtime environment
+failures at the GPU-identity stage. Earlier Git, capsule/hash, Conda/clone,
+probe-parse, and integrity failures retain their available
+`raw/prepare_attempt.json` command lineage as `PREPARE_FAILED`, emit no
+scientific blocked-environment closure, and re-raise the original failure.
+
+Two regression tests force an early Git failure and an offline Conda clone
+failure; both preserve the original error and partial raw lineage without a
+closure. The existing GPU-identity failure regression remains blocked with an
+artifact-backed closure. The suite now has 43 passing X8 tests. No new live
+prepare was run and attempt3 artifacts were not modified by this correction.
+
 ## Resume only after environment repair
 
 1. Restore NVIDIA-driver communication and confirm the expected RTX 3070 GPU
