@@ -443,6 +443,25 @@ class X8C1CleanRoomExecutorTests(unittest.TestCase):
                 active_conda_prefix=self.active_env,
             )
 
+    def test_prepare_lists_packages_with_offline_environment_not_unsupported_flag(self):
+        """Catches Conda versions where ``list`` rejects the ``--offline`` argument."""
+        transport = FakeExternalTransport()
+
+        executor.prepare(
+            self.repo,
+            self.root,
+            transport=transport,
+            active_conda_prefix=self.active_env,
+        )
+
+        list_command = next(
+            command for command in transport.commands if command[:2] == ["conda", "list"]
+        )
+        self.assertEqual(
+            list_command,
+            ["conda", "list", "--json", "--prefix", str(self.root / "environment/conda")],
+        )
+
     def test_frozen_job_descriptors_are_exact_and_truncation_is_rejected(self):
         """Catches a mutable/truncated manifest replacing the frozen 31-job matrix."""
         root_contract = executor.load_contract(Path(__file__).resolve().parents[1])

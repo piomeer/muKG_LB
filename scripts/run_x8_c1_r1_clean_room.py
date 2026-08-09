@@ -374,7 +374,7 @@ def prepare(
 
     conda_capture = _command_capture(
         transport,
-        ["conda", "list", "--offline", "--json", "--prefix", str(cloned_prefix)],
+        ["conda", "list", "--json", "--prefix", str(cloned_prefix)],
         cwd=repo_root,
         env=offline_env,
     )
@@ -625,7 +625,7 @@ def _validate_live_environment(
     offline_env = _offline_environment()
     package_capture = _command_capture(
         transport,
-        ["conda", "list", "--offline", "--json", "--prefix", str(cloned_prefix)],
+        ["conda", "list", "--json", "--prefix", str(cloned_prefix)],
         cwd=root / "capsule",
         env=offline_env,
     )
