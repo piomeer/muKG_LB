@@ -68,6 +68,9 @@
       "BLOCKED_ENVIRONMENT"
     ]
   },
+  "analysis_controls": {
+    "pooling_forbidden": true
+  },
   "capsule": {
     "allowlisted_paths": [
       "src/__init__.py",

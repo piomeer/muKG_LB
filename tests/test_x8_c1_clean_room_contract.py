@@ -22,6 +22,7 @@ class X8C1CleanRoomContractTests(unittest.TestCase):
         )
         self.assertEqual(contract["execution_matrix"]["primary_job_count"], 24)
         self.assertEqual(contract["execution_matrix"]["diagnostic_job_count"], 6)
+        self.assertTrue(contract["analysis_controls"]["pooling_forbidden"])
         self.assertNotIn(
             "output/results/c1_r1_combined_rerun",
             contract["capsule"]["allowlisted_paths"],
@@ -33,6 +34,7 @@ class X8C1CleanRoomContractTests(unittest.TestCase):
         contract = audit.load_contract(ROOT)
 
         self.assertEqual(contract["analysis"]["primary_family"], ["E1", "E2"])
+        self.assertTrue(contract["analysis_controls"]["pooling_forbidden"])
         self.assertEqual(
             contract["analysis"]["simultaneous_interval"],
             {"method": "Bonferroni", "confidence_level": 0.975, "lower_bound": 1.0},
@@ -60,6 +62,7 @@ class X8C1CleanRoomContractTests(unittest.TestCase):
                 "BLOCKED_ENVIRONMENT",
             ],
         )
+        self.assertTrue(audit.load_contract(ROOT)["analysis_controls"]["pooling_forbidden"])
 
 
 if __name__ == "__main__":
