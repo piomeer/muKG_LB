@@ -28,6 +28,23 @@ def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def fixture_split() -> dict[str, object]:
+    return {
+        "declared_triples": 17115,
+        "raw_triples": 17115,
+        "held_out_size": 5000,
+        "training_set_size": 12115,
+        "split_seed": 42,
+        "split_algorithm": "fixture frozen shuffle; first 5000 held out",
+        "source_path": "src/py/data/FB15K237/train2id.txt",
+        "source_sha256": "f" * 64,
+        "raw_order_sha256": "a" * 64,
+        "file_order_sha256": "b" * 64,
+        "held_out_order_sha256": "c" * 64,
+        "training_order_sha256": "d" * 64,
+    }
+
+
 def fixture_contract() -> dict[str, object]:
     epoch_fields = [
         "protocol_id", "pass_name", "config", "seed", "epoch",
@@ -47,6 +64,9 @@ def fixture_contract() -> dict[str, object]:
     return {
         "contract_id": "X8-C1-R1-clean-room-v1",
         "status": "FROZEN",
+        "source_hashes": {
+            "src/py/data/FB15K237/train2id.txt": "f" * 64,
+        },
         "protocol": {
             "protocol_id": "C1-R1-v1.1",
             "batch_size": 5000,
@@ -96,7 +116,7 @@ def fixture_contract() -> dict[str, object]:
         "retry_policy": {
             "maximum_retries_per_pass_seed_pair": 1,
             "paired_configs": ["BL", "GPU"],
-            "eligible_failure_reasons": ["thermal_slowdown"],
+            "eligible_failure_reasons": ["thermal_slowdown", "telemetry_failure"],
         },
         "raw_artifact_schemas": {
             "environment.json": {
@@ -172,7 +192,12 @@ def create_sealed_raw_fixture(root: Path) -> None:
     preflight_root = raw / "attempts/preflight_attempt0/preflight"
     write_json(
         preflight_root / "result.json",
-        {"protocol_id": "C1-R1-v1.1", "all_passed": True, "checks": [], "split": {}},
+        {
+            "protocol_id": "C1-R1-v1.1",
+            "all_passed": True,
+            "checks": [],
+            "split": fixture_split(),
+        },
     )
     telemetry_fields = contract["raw_artifact_schemas"]["gpu_telemetry.csv"]["required_columns"]
     write_csv(
@@ -241,7 +266,7 @@ def create_sealed_raw_fixture(root: Path) -> None:
                     job_dir / "status.json",
                     {
                         "protocol_id": "C1-R1-v1.1", "pass_name": pass_name,
-                        "config": config, "seed": seed, "split": {},
+                        "config": config, "seed": seed, "split": fixture_split(),
                         "row_counts": {"epochs": 5, "steps": step_count},
                         "valid": True, "invalid_reasons": [], "warnings": [],
                     },
@@ -321,6 +346,43 @@ def reseal_raw_fixture(root: Path) -> None:
         root / "raw_artifact_manifest.json"
     )
     write_json(root / "material_passport.json", passport)
+
+
+def reseal_independent_fixture(root: Path) -> None:
+    paths = [
+        root / "derived/independent/summary.json",
+        root / "derived/independent/checks.json",
+        root / "derived/independent/seed_level_metrics.csv",
+        root / "derived/independent/leave_one_seed_out.csv",
+    ]
+    raw_passport = json.loads(
+        (root / "material_passport.json").read_text(encoding="utf-8")
+    )
+    contract = json.loads((root / "frozen_contract.json").read_text(encoding="utf-8"))
+    write_json(
+        root / "independent_artifact_manifest.json",
+        {
+            "contract_id": contract["contract_id"],
+            "stage": "independent",
+            "raw_artifact_manifest_sha256": raw_passport[
+                "raw_artifact_manifest_sha256"
+            ],
+            "artifacts": [
+                {
+                    "path": path.relative_to(root).as_posix(),
+                    "bytes": path.stat().st_size,
+                    "sha256": sha256_file(path),
+                }
+                for path in sorted(paths)
+            ],
+        },
+    )
+    passport_path = root / "independent_material_passport.json"
+    passport = json.loads(passport_path.read_text(encoding="utf-8"))
+    passport["independent_artifact_manifest_sha256"] = sha256_file(
+        root / "independent_artifact_manifest.json"
+    )
+    write_json(passport_path, passport)
 
 
 def install_paired_retry(root: Path, *, pass_name: str, seed: int) -> None:
@@ -523,6 +585,118 @@ class X8C1CleanRoomIndependentTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "pair/order"):
             audit.run_independent(self.root)
 
+    def test_retry_trigger_reasons_must_equal_actual_eligible_invalid_reasons(self):
+        """Catches missing, outcome-driven, or relabeled retry lineage."""
+        cases = (
+            ("missing", None, ["thermal_slowdown"]),
+            ("noneligible", "outcome_regression", ["thermal_slowdown"]),
+            ("mismatch", "thermal_slowdown", ["telemetry_failure"]),
+        )
+        for name, actual_reason, declared_reasons in cases:
+            with self.subTest(name=name):
+                root = Path(self.tempdir.name) / f"retry-{name}"
+                create_sealed_raw_fixture(root)
+                install_paired_retry(root, pass_name="throughput", seed=42)
+                manifest_path = root / "execution_manifest.json"
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                invalid = next(
+                    job
+                    for job in manifest["jobs"]
+                    if job.get("state") == "INVALID"
+                    and job.get("pass_name") == "throughput"
+                    and job.get("seed") == 42
+                )
+                invalid.pop("invalid_reason", None)
+                if actual_reason is not None:
+                    invalid["invalid_reason"] = actual_reason
+                manifest["remediations"][0]["trigger_reasons"] = declared_reasons
+                write_json(manifest_path, manifest)
+                reseal_raw_fixture(root)
+
+                with self.assertRaisesRegex(RuntimeError, "invalid reason|trigger reason"):
+                    audit.run_independent(root)
+
+    def test_paired_effects_require_exact_preflight_and_frozen_split_lineage(self):
+        """Catches pairing jobs from different splits or a non-frozen split size."""
+        status_path = (
+            self.root
+            / "raw/attempts/throughput_seed42_attempt0/jobs"
+            / "throughput_GPU_seed42/status.json"
+        )
+        status = json.loads(status_path.read_text(encoding="utf-8"))
+        status["split"]["training_order_sha256"] = "e" * 64
+        write_json(status_path, status)
+        reseal_raw_fixture(self.root)
+
+        with self.assertRaisesRegex(RuntimeError, "split"):
+            audit.run_independent(self.root)
+        self.assertFalse(
+            (self.root / "derived/independent/summary.json").exists()
+        )
+
+        root = Path(self.tempdir.name) / "frozen-split-drift"
+        create_sealed_raw_fixture(root)
+        preflight_path = root / "raw/attempts/preflight_attempt0/preflight/result.json"
+        preflight = json.loads(preflight_path.read_text(encoding="utf-8"))
+        preflight["split"]["training_set_size"] = 12114
+        write_json(preflight_path, preflight)
+        for path in (root / "raw/attempts").rglob("status.json"):
+            job_status = json.loads(path.read_text(encoding="utf-8"))
+            job_status["split"] = preflight["split"]
+            write_json(path, job_status)
+        reseal_raw_fixture(root)
+
+        with self.assertRaisesRegex(RuntimeError, "split"):
+            audit.run_independent(root)
+
+    def test_independent_seal_allows_only_four_regular_declared_outputs(self):
+        """Catches sealed extras or writes through attacker-controlled symlinks."""
+        extra_root = Path(self.tempdir.name) / "preexisting-extra"
+        create_sealed_raw_fixture(extra_root)
+        extra_path = extra_root / "derived/independent/extra.json"
+        write_json(extra_path, {"unexpected": True})
+        with self.assertRaisesRegex(RuntimeError, "unexpected independent output"):
+            audit.run_independent(extra_root)
+
+        symlink_root = Path(self.tempdir.name) / "preexisting-symlink"
+        create_sealed_raw_fixture(symlink_root)
+        outside = Path(self.tempdir.name) / "outside.json"
+        outside.write_text("outside stays unchanged\n", encoding="utf-8")
+        symlink = symlink_root / "derived/independent/summary.json"
+        symlink.parent.mkdir(parents=True)
+        symlink.symlink_to(outside)
+        with self.assertRaisesRegex(RuntimeError, "symlink"):
+            audit.run_independent(symlink_root)
+        self.assertEqual(outside.read_text(encoding="utf-8"), "outside stays unchanged\n")
+
+        forged_root = Path(self.tempdir.name) / "forged-extra"
+        create_sealed_raw_fixture(forged_root)
+        audit.run_independent(forged_root)
+        forged_extra = forged_root / "derived/independent/extra.json"
+        write_json(forged_extra, {"unexpected": True})
+        paths = sorted(
+            path
+            for path in (forged_root / "derived/independent").iterdir()
+            if path.is_file()
+        )
+        manifest_path = forged_root / "independent_artifact_manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["artifacts"] = [
+            {
+                "path": path.relative_to(forged_root).as_posix(),
+                "bytes": path.stat().st_size,
+                "sha256": sha256_file(path),
+            }
+            for path in paths
+        ]
+        write_json(manifest_path, manifest)
+        passport_path = forged_root / "independent_material_passport.json"
+        passport = json.loads(passport_path.read_text(encoding="utf-8"))
+        passport["independent_artifact_manifest_sha256"] = sha256_file(manifest_path)
+        write_json(passport_path, passport)
+        with self.assertRaisesRegex(RuntimeError, "unexpected independent output"):
+            audit.validate_independent_seal(forged_root)
+
 
 class X8C1CleanRoomComparisonTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -587,6 +761,10 @@ class X8C1CleanRoomComparisonTests(unittest.TestCase):
         boundary["estimands"]["E2"]["estimate"] = original["E2"] * 1.25
         boundary["estimands"]["E3"]["estimate_ns"] = original["E3"] * 1.10
         boundary_result = audit.compare_estimates(boundary, original, contract)
+        just_outside = json.loads(json.dumps(supported))
+        just_outside["estimands"]["E1"]["estimate"] = (
+            original["E1"] * 1.100000000001
+        )
         drift = json.loads(json.dumps(supported))
         drift["estimands"]["E2"]["estimate"] = original["E2"] * 1.30
         failed = json.loads(json.dumps(supported))
@@ -594,6 +772,10 @@ class X8C1CleanRoomComparisonTests(unittest.TestCase):
 
         self.assertEqual(verified["verdict"], "VERIFIED")
         self.assertEqual(boundary_result["verdict"], "VERIFIED")
+        self.assertEqual(
+            audit.compare_estimates(just_outside, original, contract)["verdict"],
+            "SUPPORTED_WITH_NUMERICAL_DRIFT",
+        )
         self.assertEqual(
             audit.compare_estimates(drift, original, contract)["verdict"],
             "SUPPORTED_WITH_NUMERICAL_DRIFT",
@@ -610,6 +792,24 @@ class X8C1CleanRoomComparisonTests(unittest.TestCase):
         """Catches any original-result read before the independent passport gate."""
         with self.assertRaisesRegex(RuntimeError, "independent"):
             audit.run_compare(self.root, self.original / "does-not-exist")
+
+    def test_run_compare_preserves_status_only_verdicts_without_estimands(self):
+        """Catches the fallacy gate overwriting terminal no-estimate statuses."""
+        self.write_frozen_original()
+        for status in ("INCOMPLETE", "BLOCKED_ENVIRONMENT"):
+            with self.subTest(status=status):
+                audit.run_independent(self.root)
+                summary_path = self.root / "derived/independent/summary.json"
+                summary = json.loads(summary_path.read_text(encoding="utf-8"))
+                summary["status"] = status
+                summary["estimands"] = {}
+                write_json(summary_path, summary)
+                reseal_independent_fixture(self.root)
+
+                result = audit.run_compare(self.root, self.original)
+
+                self.assertEqual(result["verdict"], status)
+                self.assertEqual(result["estimands"], {})
 
     def test_compare_emits_one_deterministic_verdict_and_all_fallacy_items(self):
         """Catches pooling, omitted fallacy checks, or multiple conflicting verdicts."""

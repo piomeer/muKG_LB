@@ -20,6 +20,12 @@ CONTRACT_PATH = Path("output/results/evidence_audit_x8_c1_r1/clean_room_contract
 INDEPENDENT_DIR = Path("derived/independent")
 INDEPENDENT_MANIFEST = Path("independent_artifact_manifest.json")
 INDEPENDENT_PASSPORT = Path("independent_material_passport.json")
+INDEPENDENT_OUTPUT_NAMES = (
+    "checks.json",
+    "leave_one_seed_out.csv",
+    "seed_level_metrics.csv",
+    "summary.json",
+)
 FROZEN_ORIGINAL_ESTIMATES = {
     "E1": 6.013389739959145,
     "E2": 87.87705683218147,
@@ -311,11 +317,35 @@ def _select_analysis_jobs(
                     or initial_job.get("superseded_by") != 1
                 ):
                     raise RuntimeError("superseded attempt eligibility drift detected")
-            if not any(
-                initial_jobs[(pass_name, config, seed)].get("state") == "INVALID"
+            invalid_jobs = [
+                initial_jobs[(pass_name, config, seed)]
                 for config in order
-            ):
+                if initial_jobs[(pass_name, config, seed)].get("state") == "INVALID"
+            ]
+            if not invalid_jobs:
                 raise RuntimeError("remediation lacks an explicitly invalid initial attempt")
+            actual_reasons: set[str] = set()
+            eligible_reasons = set(contract["retry_policy"]["eligible_failure_reasons"])
+            for invalid_job in invalid_jobs:
+                reasons: list[Any] = []
+                if "invalid_reason" in invalid_job:
+                    reasons.append(invalid_job["invalid_reason"])
+                if "invalid_reasons" in invalid_job:
+                    listed = invalid_job["invalid_reasons"]
+                    if not isinstance(listed, list):
+                        raise RuntimeError("invalid reason lineage is malformed")
+                    reasons.extend(listed)
+                if not reasons or any(
+                    not isinstance(reason, str) or not reason.strip()
+                    for reason in reasons
+                ):
+                    raise RuntimeError("invalid reason lineage is missing or malformed")
+                normalized = {reason.strip() for reason in reasons}
+                if not normalized <= eligible_reasons:
+                    raise RuntimeError("invalid reason is not retry eligible")
+                actual_reasons.update(normalized)
+            if remediation["trigger_reasons"] != sorted(actual_reasons):
+                raise RuntimeError("trigger reasons do not match actual invalid reasons")
             for config, retry_job in zip(order, retry_jobs):
                 expected_id = f"{pass_name}_{config}_seed{seed}_retry1"
                 if (
@@ -342,7 +372,7 @@ def _job_dir(root: Path, job: dict[str, Any]) -> Path:
     return attempt_root / "jobs" / f"{job['pass_name']}_{job['config']}_seed{job['seed']}"
 
 
-def _validate_lineage_schemas(root: Path, contract: dict[str, Any]) -> None:
+def _validate_lineage_schemas(root: Path, contract: dict[str, Any]) -> dict[str, Any]:
     schemas = contract["raw_artifact_schemas"]
     environment = _read_json(root / "raw/environment.json")
     _require_fields(
@@ -368,10 +398,75 @@ def _validate_lineage_schemas(root: Path, contract: dict[str, Any]) -> None:
     )
     if not telemetry:
         raise RuntimeError("preflight telemetry is empty")
+    split = preflight.get("split")
+    split_fields = (
+        "declared_triples",
+        "raw_triples",
+        "held_out_size",
+        "training_set_size",
+        "split_seed",
+        "split_algorithm",
+        "source_path",
+        "source_sha256",
+        "raw_order_sha256",
+        "file_order_sha256",
+        "held_out_order_sha256",
+        "training_order_sha256",
+    )
+    if not isinstance(split, dict):
+        raise RuntimeError("preflight split lineage is malformed")
+    _require_fields(split, split_fields, label="preflight split")
+    integer_fields = (
+        "declared_triples",
+        "raw_triples",
+        "held_out_size",
+        "training_set_size",
+        "split_seed",
+    )
+    if any(
+        not isinstance(split[field], int) or isinstance(split[field], bool)
+        for field in integer_fields
+    ):
+        raise RuntimeError("preflight split size/seed lineage is malformed")
+    if (
+        split["training_set_size"] != int(contract["protocol"]["training_examples"])
+        or split["raw_triples"]
+        != split["training_set_size"] + split["held_out_size"]
+        or split["declared_triples"] != split["raw_triples"]
+        or split["split_seed"] != 42
+    ):
+        raise RuntimeError("preflight split size/rule drift from frozen protocol")
+    source_path = split["source_path"]
+    source_hashes = contract.get("source_hashes", {})
+    if (
+        not isinstance(source_path, str)
+        or source_hashes.get(source_path) != split["source_sha256"]
+        or not isinstance(split["split_algorithm"], str)
+        or not split["split_algorithm"].strip()
+    ):
+        raise RuntimeError("preflight split source/rule drift from frozen protocol")
+    for field in (
+        "source_sha256",
+        "raw_order_sha256",
+        "file_order_sha256",
+        "held_out_order_sha256",
+        "training_order_sha256",
+    ):
+        value = split[field]
+        if (
+            not isinstance(value, str)
+            or len(value) != 64
+            or any(character not in "0123456789abcdef" for character in value)
+        ):
+            raise RuntimeError(f"preflight split hash is malformed: {field}")
+    return split
 
 
 def _validate_job(
-    root: Path, job: dict[str, Any], contract: dict[str, Any]
+    root: Path,
+    job: dict[str, Any],
+    contract: dict[str, Any],
+    expected_split: dict[str, Any],
 ) -> dict[str, Any]:
     schemas = contract["raw_artifact_schemas"]
     protocol = contract["protocol"]
@@ -385,8 +480,9 @@ def _validate_job(
         or identity != expected_identity
         or status.get("valid") is not True
         or status.get("invalid_reasons") not in ([], None)
+        or status.get("split") != expected_split
     ):
-        raise RuntimeError("selected status identity/validity drift detected")
+        raise RuntimeError("selected status identity/validity/split drift detected")
     telemetry_path = path / "gpu_telemetry.csv"
     telemetry = _read_csv(
         telemetry_path, schemas["gpu_telemetry.csv"]["required_columns"]
@@ -489,11 +585,27 @@ def _geometric_mean(values: Iterable[float]) -> float:
     return math.exp(statistics.fmean(math.log(value) for value in materialized))
 
 
-def _independent_paths(root: Path) -> list[Path]:
-    return sorted(
-        [path for path in (root / INDEPENDENT_DIR).rglob("*") if path.is_file()],
-        key=lambda item: item.relative_to(root).as_posix(),
-    )
+def _independent_paths(root: Path, *, require_complete: bool = True) -> list[Path]:
+    directory = root / INDEPENDENT_DIR
+    if directory.is_symlink():
+        raise RuntimeError("independent output directory must not be a symlink")
+    if not directory.exists():
+        if require_complete:
+            raise RuntimeError("independent outputs are incomplete")
+        return []
+    if not directory.is_dir():
+        raise RuntimeError("independent output root is not a directory")
+    expected = {directory / name for name in INDEPENDENT_OUTPUT_NAMES}
+    observed: set[Path] = set()
+    for path in directory.iterdir():
+        if path.is_symlink():
+            raise RuntimeError(f"independent output must not be a symlink: {path.name}")
+        if path not in expected or not path.is_file():
+            raise RuntimeError(f"unexpected independent output: {path.name}")
+        observed.add(path)
+    if require_complete and observed != expected:
+        raise RuntimeError("independent outputs are incomplete")
+    return sorted(observed, key=lambda item: item.relative_to(root).as_posix())
 
 
 def validate_independent_seal(root: Path) -> bool:
@@ -535,11 +647,13 @@ def run_independent(root: Path) -> dict[str, Any]:
     """Recompute every X8 estimand from the sealed raw nanosecond artifacts."""
     root = root.resolve()
     validate_raw_seal(root)
+    _independent_paths(root, require_complete=False)
     manifest, contract = _load_frozen(root)
-    _validate_lineage_schemas(root, contract)
+    expected_split = _validate_lineage_schemas(root, contract)
     selected = _select_analysis_jobs(manifest, contract)
     measurements = {
-        key: _validate_job(root, job, contract) for key, job in selected.items()
+        key: _validate_job(root, job, contract, expected_split)
+        for key, job in selected.items()
     }
     seeds = sorted(contract["execution_matrix"]["primary"]["seeds"])
     required = int(contract["analysis"]["primary_gate"]["complete_pairs_required"])
@@ -700,11 +814,7 @@ def run_independent(root: Path) -> dict[str, Any]:
 
 
 def _inside_inclusive(value: float, lower: float, upper: float) -> bool:
-    return (
-        lower <= value <= upper
-        or math.isclose(value, lower, rel_tol=1e-12, abs_tol=1e-15)
-        or math.isclose(value, upper, rel_tol=1e-12, abs_tol=1e-15)
-    )
+    return lower <= value <= upper
 
 
 def compare_estimates(
@@ -776,7 +886,8 @@ def run_compare(root: Path, original_root: Path) -> dict[str, Any]:
     original = _read_original_estimates(original_root)
     result = compare_estimates(independent, original, contract)
     fallacies = _statistical_fallacy_scan(independent, contract)
-    if not all(item["passed"] for item in fallacies):
+    status_only = result["verdict"] in {"INCOMPLETE", "BLOCKED_ENVIRONMENT"}
+    if not status_only and not all(item["passed"] for item in fallacies):
         result["verdict"] = "NOT_REPRODUCED"
     result.update(
         {
