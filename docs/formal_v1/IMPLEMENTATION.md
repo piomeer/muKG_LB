@@ -31,3 +31,10 @@ Historical source fdfd880; TransE dim=250, L1, uniform initialization ±(7+2)/25
 - Ruling: leave codex/formal-v1 and its managed worktree in place, as specified; no merge/push or cleanup of the production workspace.
 - Ruling: sensitivity and WN18RR remain post-core decisions; no additional model, dataset, or outcome-driven seed expansion is launched.
 - Final validation: 159 unittest tests passed on the host with CUDA available; new CUDA parity test executed (not skipped). Archive verify returned an empty error list including all sealed external files and Git bundle. git diff --cached --check passed.
+
+## 2026-11-04 user stop and scheduling revision
+
+- User explicitly ended the paused campaign, requested GPU release, and revoked further experiment execution pending discussion. Verified stopped controller140550 and worker171770 identities, saved pre-termination statuses, then killed these stopped processes without SIGCONT. Neither process remains; nvidia-smi lists no compute processes and about72MiB residual display/other VRAM.
+- Three seed7 diagnostics complete; formal cpu101 interrupted after13 completed epochs, with epoch10 model checkpoint only. No test evaluation or complete formal pair. Interrupted status and reason recorded without altering sealed diagnostic files.
+- Latest user preference: schedule whole indivisible experiments, not fixed-hour slices. Recorded6 quality tasks and20 independent timing tasks with estimated slots. This is a discussion draft, not a new approved protocol or execution authorization.
+- No experiment, training test, preflight, timing pass, or model evaluation was run in this closeout. Only existing logs/hashes were read, documents generated, and resource release checked. Single-task command implementation is deferred until the experimental comparison is discussed; existing suite/campaign commands remain historical bulk commands and must not be used for individual scheduling.

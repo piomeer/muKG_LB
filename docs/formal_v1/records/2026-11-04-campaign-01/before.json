@@ -1,0 +1,171 @@
+{
+  "time_unix": 1793780211.7720442,
+  "statuses": {
+    "status.json": {
+      "stage": "quality",
+      "started_at_unix": 1793775494.1767144,
+      "status": "running"
+    },
+    "quality/status.json": {
+      "started_at_unix": 1793779551.2106266,
+      "status": "running"
+    },
+    "quality/suite.json": {
+      "config": {
+        "adv": 2.0,
+        "batch_size": 5000,
+        "dim": 250,
+        "entity_chunk": 2048,
+        "learning_rate": 0.0005,
+        "margin": 7.0,
+        "max_epochs": 2000,
+        "max_rejection_rounds": 64,
+        "min_delta": 0.0001,
+        "min_epochs": 100,
+        "negatives": 150,
+        "patience": 5,
+        "protocol": "formal-v1",
+        "query_chunk": 32,
+        "validation_every": 10
+      },
+      "environment": {
+        "cuda_available": true,
+        "cuda_runtime": "11.8",
+        "gpu": "NVIDIA GeForce RTX 3070",
+        "hardware": "GPU-0bd13d63-b466-1f0b-ce46-481d3e6ec720, 550.67, 8192",
+        "platform": "Linux-5.15.0-139-generic-x86_64-with-glibc2.31",
+        "python": "3.13.12 | packaged by Anaconda, Inc. | (main, Feb 24 2026, 16:13:31) [GCC 14.3.0]",
+        "torch": "2.7.1+cu118",
+        "torch_threads": 10
+      },
+      "frozen": {
+        "available_hours": 718.8730832937028,
+        "budget": {
+          "assumption": "full epoch cap, observed mean diagnostic cost, test/validation query-count ratio; no early-stop savings assumed",
+          "quality_hours_upper_projection": 57.18440069185209,
+          "required_hours_with_reserve": 75.06860632628845,
+          "reserve_fraction": 0.3,
+          "timing_hours_projection": 0.5606810976005555
+        },
+        "config": {
+          "adv": 2.0,
+          "batch_size": 5000,
+          "dim": 250,
+          "entity_chunk": 2048,
+          "learning_rate": 0.0005,
+          "margin": 7.0,
+          "max_epochs": 2000,
+          "max_rejection_rounds": 64,
+          "min_delta": 0.0001,
+          "min_epochs": 100,
+          "negatives": 150,
+          "patience": 5,
+          "protocol": "formal-v1",
+          "query_chunk": 32,
+          "validation_every": 10
+        },
+        "diagnostic_sha256": "db09e9b80897c65a9376b71c9fd1c21641af6d1ce0f33961999849761e721599",
+        "environment": {
+          "cuda_available": true,
+          "cuda_runtime": "11.8",
+          "gpu": "NVIDIA GeForce RTX 3070",
+          "hardware": "GPU-0bd13d63-b466-1f0b-ce46-481d3e6ec720, 550.67, 8192",
+          "platform": "Linux-5.15.0-139-generic-x86_64-with-glibc2.31",
+          "python": "3.13.12 | packaged by Anaconda, Inc. | (main, Feb 24 2026, 16:13:31) [GCC 14.3.0]",
+          "torch": "2.7.1+cu118",
+          "torch_threads": 10
+        },
+        "freeze_sha256": "e36eeaa94120ff564b3867f411b3100fa6fa45178b50df7d7857124d9a5abda2",
+        "groups": [
+          "cpu",
+          "balanced"
+        ],
+        "protocol": "formal-v1",
+        "provenance": {
+          "data": {
+            "entity2id.txt": "2df2382d68595f17c638a13557265226d06beaac04b2f4b31c9646d8c3ffe16b",
+            "relation2id.txt": "ecdf2f828ce7ddfdfd4c24d0615638948c28f5f94c3589f33dbf35da762d32f5",
+            "train2id.txt": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2",
+            "valid2id.txt": "7d21e778de4369d5348f5cff23a08dc847ab5fce4b5f07c80113297d2dc60a86"
+          },
+          "sources": {
+            "__init__.py": "d052e6f17751db72ff0881d08d21f3ce71667e5974cc941e726ec78a55f85bcf",
+            "__main__.py": "bfbe9f2796c6ae9121b06c9e910b88e31f7838a8a0acf70551ecde5eba3b98bb",
+            "controller.py": "080c6851e0c1399625524e9529f84ed74408d56623ac42828917b0a028e37e8c",
+            "core.py": "294b6fd677fe25598c7fb3c63c414b04f4f96f25c72ba9d3f04f9b88a808e0f6",
+            "data.py": "ea625cfee43b65aa70e6f89c3f4641e3eaf1503339dd8c61bf16702c949729e7",
+            "protocol.py": "a5f2b745feb97fe158f5e360d949fb1b47b89ecc17b8ce02f0e4978b9c2e4186",
+            "reference/dataloader.py": "91d748bf7eddebc28d6b9ba764b8fec467672322a1193789080b54d834153e67",
+            "reference/losses.py": "429e1c0d29026b6f65571d8dc1fc17fc9ae044e3db738027eea22e1453145cc6",
+            "reference/transe.py": "9d1e4feeda4eaa78313fa55f1798ccb565e94d7ca25d688fe3026052a3aed533",
+            "runtime.py": "ce0ecd702f8efa41e1efcd99d689fc5d698e8a8d5445da87217d4ebaf90c14b5"
+          }
+        },
+        "quality_ratio_target": 0.95,
+        "quality_seeds": [
+          101,
+          102,
+          103
+        ],
+        "timing_seeds": [
+          201,
+          202,
+          203,
+          204,
+          205
+        ]
+      },
+      "jobs": [],
+      "kind": "quality",
+      "provenance": {
+        "data": {
+          "entity2id.txt": "2df2382d68595f17c638a13557265226d06beaac04b2f4b31c9646d8c3ffe16b",
+          "relation2id.txt": "ecdf2f828ce7ddfdfd4c24d0615638948c28f5f94c3589f33dbf35da762d32f5",
+          "train2id.txt": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2",
+          "valid2id.txt": "7d21e778de4369d5348f5cff23a08dc847ab5fce4b5f07c80113297d2dc60a86"
+        },
+        "sources": {
+          "__init__.py": "d052e6f17751db72ff0881d08d21f3ce71667e5974cc941e726ec78a55f85bcf",
+          "__main__.py": "bfbe9f2796c6ae9121b06c9e910b88e31f7838a8a0acf70551ecde5eba3b98bb",
+          "controller.py": "080c6851e0c1399625524e9529f84ed74408d56623ac42828917b0a028e37e8c",
+          "core.py": "294b6fd677fe25598c7fb3c63c414b04f4f96f25c72ba9d3f04f9b88a808e0f6",
+          "data.py": "ea625cfee43b65aa70e6f89c3f4641e3eaf1503339dd8c61bf16702c949729e7",
+          "protocol.py": "a5f2b745feb97fe158f5e360d949fb1b47b89ecc17b8ce02f0e4978b9c2e4186",
+          "reference/dataloader.py": "91d748bf7eddebc28d6b9ba764b8fec467672322a1193789080b54d834153e67",
+          "reference/losses.py": "429e1c0d29026b6f65571d8dc1fc17fc9ae044e3db738027eea22e1453145cc6",
+          "reference/transe.py": "9d1e4feeda4eaa78313fa55f1798ccb565e94d7ca25d688fe3026052a3aed533",
+          "runtime.py": "ce0ecd702f8efa41e1efcd99d689fc5d698e8a8d5445da87217d4ebaf90c14b5"
+        }
+      },
+      "status": "running"
+    },
+    "quality/jobs/quality_cpu_101/status.json": {
+      "best_epoch": 10,
+      "best_validation_mrr": 0.2583753211617205,
+      "converged": false,
+      "epochs_completed": 13,
+      "freeze_sha256": "e36eeaa94120ff564b3867f411b3100fa6fa45178b50df7d7857124d9a5abda2",
+      "group": "cpu",
+      "kind": "quality",
+      "seed": 101,
+      "status": "running",
+      "test_seconds": 0.0,
+      "training_seconds": 337.5280382690001,
+      "validation_count": 1,
+      "validation_seconds": 27.90261087473482,
+      "wall_seconds": 368.47020318638533
+    }
+  },
+  "processes": [
+    {
+      "pid": 171770,
+      "command": "/home/hma/miniconda3/bin/python3 -B -m src.py.experiments.formal_v1 _worker --request /home/hma/.codex/worktrees/formal-v1/muKG_LB/output/results/formal_v1/campaign-01/quality/jobs/quality_cpu_101.request.json ",
+      "state_before": "State:\tT (stopped)"
+    },
+    {
+      "pid": 140550,
+      "command": "/home/hma/miniconda3/bin/python3 -B -m scripts.run_formal_v1_campaign --output output/results/formal_v1/campaign-01 --available-hours 720 ",
+      "state_before": "State:\tT (stopped)"
+    }
+  ]
+}

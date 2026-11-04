@@ -1,5 +1,7 @@
 # Formal v1 使用与实验协议
 
+> **2026-11-04最新状态：用户已结束campaign-01并要求先讨论、以后逐项手动安排。当前无实验进程；下面的连续运行命令仅保留为历史说明，不代表当前运行授权。** 结果见 [本次记录](records/2026-11-04-campaign-01/RESULTS.md)，独立任务草案见 [任务清单](records/2026-11-04-campaign-01/TASKS.md)。
+
 代码位于 `src/py/experiments/formal_v1/`。历史原版源文件保留于 reference/，核心测试直接抽取历史类／函数比较分数、损失、梯度、Adam 更新及 CPU 采样结果。正式实现不依赖 Ray、CBP、成本缓存或旧治理工具。
 
 ## 操作顺序
@@ -41,9 +43,9 @@ TransE dim250、L1、原 uniform 初始化、不归一化；logistic_adv margin7
 
 敏感性与 WN18RR 不由本版核心命令自动启动：核心完成后另立配置与输出，改变一个因素，不混入主结果。CUDA源码审计只用于机制解释。存档索引见 RESEARCH_INVENTORY.md。
 
-## 连续执行与中断
+## 历史连续执行方式（已停用）
 
-用户已确认 RTX 3070 可以持续独占使用。按30天720小时设置上限；冻结时扣除已耗用的预检／诊断时间，剩余预算仍须覆盖核心任务与30%余量。
+先前运行曾按 RTX 3070 持续独占、30天720小时设置上限；该连续执行安排已被用户本次指令撤销。历史算法为：冻结时扣除已耗用的预检／诊断时间，剩余预算仍须覆盖核心任务与30%余量。
 
 ```bash
 python3 -B -m scripts.run_formal_v1_campaign --output output/results/formal_v1/campaign-01 --available-hours 720
@@ -57,7 +59,7 @@ python3 -B -m scripts.run_formal_v1_campaign --output output/results/formal_v1/c
 
 ## 本次执行位置
 
-实现提交 `e4035f1`；主流程运行于 `output/results/formal_v1/campaign-01/`。最新预检已通过三组 batch5000。该目录的 status.json 是实时状态；VALIDATION.json 仅为交付时刻的检查快照，不能当作后续任务完成证明。
+实现提交 `e4035f1`；已结束的主流程保存在 `output/results/formal_v1/campaign-01/`。最新预检已通过三组 batch5000。该目录的 status.json 是实时状态；VALIDATION.json 仅为交付时刻的检查快照，不能当作后续任务完成证明。
 
 CPU／GPU组都在GPU上训练同一个模型，名称区分负采样所在设备及规则。启动入口的 check 运行24项正式路径测试；完整测试集159项另包含旧研究的测试，并使用从存档恢复的历史材料。全量测试日志保存在 output/results/formal_v1/implementation-validation/。新正式路径不依赖这些旧输出文件。
 

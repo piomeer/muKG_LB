@@ -1,0 +1,9 @@
+{
+  "method": "SIGKILL of identity-verified SIGSTOP processes; no SIGCONT/no training resumed",
+  "reason": "User requested end of paused campaign, GPU memory release, and discussion before any further experiments.",
+  "memory_only_state_discarded": true,
+  "retained_checkpoint": "quality/jobs/quality_cpu_101/best.pt (validation-selected epoch 10; not a full resume checkpoint)",
+  "last_completed_epoch": 13,
+  "test_evaluated": false,
+  "restart_policy": "No automatic restart. Any future attempt requires discussion, a fresh output directory, and explicit recording of this user-terminated attempt."
+}
