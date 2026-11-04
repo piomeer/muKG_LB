@@ -1,0 +1,62 @@
+{
+  "as_of_utc": "2026-11-04T07:00:47.764217+00:00",
+  "implementation_commit": "e4035f1743bf3f8ecb0015c9cc9f73c53680b6a2",
+  "archive_files": 1590,
+  "archive_bytes": 3963690935,
+  "archive_verify_errors": [],
+  "tests": {
+    "full_suite": 159,
+    "formal_suite": 24,
+    "archive_tests": 2,
+    "cuda_test_executed": true
+  },
+  "common_batch_size": 5000,
+  "preflight_attempts": [
+    {
+      "batch_size": 5000,
+      "group": "cpu",
+      "peak_allocated_bytes": 2326854144,
+      "peak_reserved_bytes": 3061841920,
+      "status": "passed",
+      "total_bytes": 8351318016
+    },
+    {
+      "batch_size": 5000,
+      "group": "balanced",
+      "peak_allocated_bytes": 2328951296,
+      "peak_reserved_bytes": 3087007744,
+      "status": "passed",
+      "total_bytes": 8351318016
+    },
+    {
+      "batch_size": 5000,
+      "group": "tail",
+      "peak_allocated_bytes": 2328951296,
+      "peak_reserved_bytes": 3087007744,
+      "status": "passed",
+      "total_bytes": 8351318016
+    }
+  ],
+  "campaign": "/home/hma/.codex/worktrees/formal-v1/muKG_LB/output/results/formal_v1/campaign-01",
+  "campaign_pid": 140550,
+  "observed_status": {
+    "stage": "diagnostic",
+    "started_at_unix": 1793775494.1767144,
+    "status": "running"
+  },
+  "observed_first_job": {
+    "converged": false,
+    "epochs_completed": 5,
+    "freeze_sha256": null,
+    "group": "cpu",
+    "kind": "diagnostic",
+    "seed": 7,
+    "status": "running",
+    "test_seconds": 0.0,
+    "training_seconds": 129.889082478,
+    "validation_count": 0,
+    "validation_seconds": 0.0,
+    "wall_seconds": 131.71013302076608
+  },
+  "preflight_sha256": "ca342526dcb0612c17556c0effa4ae0608fbf1709bd7e0e782fa9c32a1bea2ac"
+}

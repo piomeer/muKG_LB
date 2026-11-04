@@ -54,3 +54,11 @@ python3 -B -m scripts.run_formal_v1_campaign --output output/results/formal_v1/c
 环境绑定包括 Python、PyTorch/CUDA、驱动、GPU UUID、CPU线程数。每个epoch前后记录GPU进程、温度、功率及频率，发现其他计算进程即停止；这不能排除边界采样之间的短暂干扰。GPU整轮峰值 allocated/reserved 包含整个训练任务，不解释为采样器独占显存。trace 的 sampling_ns 包含负样本生成及其设备传输；positive_transfer_ns 单独记录正样本传输。
 
 冻结前核对完整任务矩阵、强制材料清单、逐文件哈希、配置、环境、初始权重和耗时原始记录。正式结果核对同一冻结协议身份。未完成、被修改或缺失的记录不能通过冻结／正式统计。
+
+## 本次执行位置
+
+实现提交 `e4035f1`；主流程运行于 `output/results/formal_v1/campaign-01/`。最新预检已通过三组 batch5000。该目录的 status.json 是实时状态；VALIDATION.json 仅为交付时刻的检查快照，不能当作后续任务完成证明。
+
+CPU／GPU组都在GPU上训练同一个模型，名称区分负采样所在设备及规则。启动入口的 check 运行24项正式路径测试；完整测试集159项另包含旧研究的测试，并使用从存档恢复的历史材料。全量测试日志保存在 output/results/formal_v1/implementation-validation/。新正式路径不依赖这些旧输出文件。
+
+运行中的正式 Python 源码不要修改；代码／数据变化会使后续任务或预算冻结拒绝继续。保留当前输出用于解释中断原因，另立版本和结果目录，不覆盖重跑。
