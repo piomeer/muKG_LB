@@ -2,6 +2,7 @@
 from dataclasses import dataclass,asdict
 from pathlib import Path
 import hashlib,json,math,statistics,sys,time,platform,subprocess
+from importlib.metadata import version,PackageNotFoundError
 import torch
 from scipy.stats import t
 
@@ -57,7 +58,11 @@ def environment():
     if available:
         result=subprocess.run(['nvidia-smi','--query-gpu=uuid,driver_version,memory.total','--format=csv,noheader,nounits'],capture_output=True,text=True,check=True)
         hardware=result.stdout.strip()
-    return {'python':sys.version,'platform':platform.platform(),'torch':torch.__version__,'cuda_runtime':torch.version.cuda,
+    dependencies={}
+    for name in ('numpy','scipy','matplotlib'):
+        try:dependencies[name]=version(name)
+        except PackageNotFoundError:dependencies[name]=None
+    return {'python':sys.version,'platform':platform.platform(),'torch':torch.__version__,'cuda_runtime':torch.version.cuda,'dependencies':dependencies,
             'gpu':torch.cuda.get_device_name(0) if available else None,'hardware':hardware,
             'cuda_available':available,'torch_threads':torch.get_num_threads()}
 def paired_summary(values):

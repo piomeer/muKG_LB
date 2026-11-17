@@ -1,9 +1,24 @@
 import argparse,json,signal,subprocess,sys
 from pathlib import Path
-from . import controller as c,protocol as p,runtime
 
 def interrupted(signum,frame):raise InterruptedError(f'Signal {signum}')
 def main():
+    if len(sys.argv)>1 and sys.argv[1] in ('confirmation','_confirmation-worker'):
+        from . import confirmation
+        arguments=sys.argv[2:] if sys.argv[1]=='confirmation' else ['_worker',*sys.argv[2:]]
+        return confirmation.main(arguments)
+    if len(sys.argv)>1 and sys.argv[1] in ('mechanism','_mechanism-worker'):
+        from . import mechanism
+        arguments=sys.argv[2:] if sys.argv[1]=='mechanism' else ['_worker',*sys.argv[2:]]
+        return mechanism.main(arguments)
+    # Read-only status must work without importing torch or initializing CUDA.
+    if len(sys.argv)>1 and sys.argv[1] in ('run-task','run-diagnostics','status','_abc-worker'):
+        from . import diagnostics
+        return diagnostics.main(sys.argv[1:])
+    if len(sys.argv)>1 and sys.argv[1] in ('check-formal','freeze-formal','run-formal-task','analyze-formal','_formal-worker'):
+        from . import formal
+        return formal.main(sys.argv[1:])
+    from . import controller as c,protocol as p,runtime
     parser=argparse.ArgumentParser(description='Formal v1 research runtime')
     sub=parser.add_subparsers(dest='command',required=True)
     for name in ('preflight','diagnostic','formal'):

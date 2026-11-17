@@ -18,6 +18,23 @@ def historical():
  exec(compile(ast.Module(body=[node],type_ignores=[]),'cpu_reference','exec'),env)
  return env
 class CoreTests(unittest.TestCase):
+ def test_historical_multi_positive_150_negative_layout(self):
+  env=historical();args=SimpleNamespace(dim=250,ent_l2_norm=False,margin=7,loss='logistic_adv')
+  torch.manual_seed(17);old=env['TransE'](SimpleNamespace(entities_num=200,relations_num=2),args)
+  torch.manual_seed(17);new=c.TransE(200,2,dim=250)
+  pos=torch.tensor([[0,0,1],[2,1,3],[4,0,5]])
+  neg=pos[:,None,:].expand(3,150,3).clone();neg[:,:,2]=torch.arange(6,156)[None,:]
+  def old_score(x):
+   h,r,t=x.unbind(-1);return old({'batch_h':h,'batch_r':r,'batch_t':t})
+  a=old_score(pos)[:,None];b=new(*pos.unbind(-1))[:,None]
+  an=old_score(neg.reshape(-1,3)).reshape(3,150);bn=new(*neg.unbind(-1))
+  torch.testing.assert_close(a,b);torch.testing.assert_close(an,bn)
+  la=env['logistic_adv_loss_torch'](a,an,2);lb=c.adversarial_loss(b,bn,2)
+  torch.testing.assert_close(la,lb);la.backward();lb.backward()
+  for x,y in zip(old.parameters(),new.parameters()):
+   if x.requires_grad:torch.testing.assert_close(x.grad,y.grad)
+  torch.optim.Adam(old.parameters(),lr=.0005).step();torch.optim.Adam(new.parameters(),lr=.0005).step()
+  for x,y in zip(old.parameters(),new.parameters()):torch.testing.assert_close(x,y)
  def test_historical_scores_loss_gradients_and_adam_step(self):
   env=historical();args=SimpleNamespace(dim=8,ent_l2_norm=False,margin=7,loss='logistic_adv')
   torch.manual_seed(4);old=env['TransE'](SimpleNamespace(entities_num=9,relations_num=2),args)
@@ -73,6 +90,25 @@ if __name__=='__main__':unittest.main()
 
 @unittest.skipUnless(torch.cuda.is_available(),'CUDA not exposed to this process')
 class CUDATests(unittest.TestCase):
+ def test_actual_abc_sampling_devices_and_150_negatives(self):
+  from src.py.experiments.formal_v1 import runtime,protocol
+  cfg=protocol.Config();ds={'entities':200,'relations':2,'train':[(0,0,1),(2,1,3)]}
+  initial=[]
+  for group in ('A','B','C'):
+   model,opt,sampler=runtime.build(ds,cfg,group,7,'cuda')
+   self.assertEqual(model.ent_embeddings.weight.device.type,'cuda')
+   initial.append(model.ent_embeddings.weight.detach().cpu())
+   if group=='B':self.assertEqual(str(sampler.device),'cpu')
+   if group=='C':self.assertEqual(str(sampler.device),'cuda')
+   out=sampler.generate(torch.tensor(ds['train']))
+   self.assertEqual(out.shape,(2,150,3))
+   if group in ('B','C'):
+    values=out.cpu()
+    self.assertFalse(set(map(tuple,values.reshape(-1,3).tolist()))&set(ds['train']))
+    self.assertTrue(torch.equal(values[:,:75,2],torch.tensor([1,3])[:,None].expand(2,75)))
+    self.assertTrue(torch.equal(values[:,75:,0],torch.tensor([0,2])[:,None].expand(2,75)))
+   del model,opt,sampler
+  for item in initial[1:]:torch.testing.assert_close(initial[0],item,rtol=0,atol=0)
  def test_cuda_sampling_and_evaluation_match_independent_cpu_results(self):
   rows=[(0,0,1),(1,1,2),(3,0,4)];known=set(rows)|{(0,0,2),(2,1,2)}
   batch=torch.tensor(rows)

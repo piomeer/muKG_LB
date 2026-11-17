@@ -1,0 +1,41 @@
+{
+  "command": [
+    "/home/hma/miniconda3/bin/python3",
+    "-B",
+    "-m",
+    "src.py.experiments.formal_v1",
+    "confirmation",
+    "run-task",
+    "--run",
+    "/home/hma/.codex/worktrees/formal-v1/muKG_LB/output/results/confirmation_v1/run-01",
+    "--task",
+    "S-M00-525"
+  ],
+  "config": {
+    "adv": 2.0,
+    "batch_size": 5000,
+    "dim": 250,
+    "entity_chunk": 2048,
+    "learning_rate": 0.0005,
+    "margin": 7.0,
+    "max_epochs": 1000,
+    "max_rejection_rounds": 64,
+    "min_delta": 0.0001,
+    "min_epochs": 100,
+    "negatives": 150,
+    "patience": 5,
+    "protocol": "confirmation-v1",
+    "query_chunk": 32,
+    "validation_every": 10
+  },
+  "estimate": {
+    "basis": "seed 550 complete warmup and five times one complete measured epoch",
+    "scheduled_seconds": 23.367432141300004,
+    "seconds": 17.974947801000003
+  },
+  "group": "M00",
+  "id": "S-M00-525",
+  "kind": "S",
+  "prior_phases": [],
+  "seed": 525
+}

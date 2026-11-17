@@ -1,0 +1,21 @@
+{
+  "authorization": "User requested continuation after being informed that the automatic retry was exhausted.",
+  "execution_policy_exception": "A third attempt is explicitly scheduled after two infrastructure failures.",
+  "freeze_sha256": "e695ba6f688dcc8428da9023bc3ce20f2df4f9cbb4456672e5b4b9237818d855",
+  "new_attempt": "jobs/Q-A-504/attempt-03",
+  "previous_attempt_artifacts": {
+    "jobs/Q-A-504/attempt-01": "951b34e36b22cf7dcad30ced3696af378af7646ff28a61bf2c31c3299a1d9a33",
+    "jobs/Q-A-504/attempt-02": "3b46fca223241af138effb4ea6da3fbe4776138f62465d2c1156861f531b755c"
+  },
+  "previous_outcomes_sha256": "e2239f42eec1954a3b9477c665e5d4388d122359adacbd8b3afac6386ffd1449",
+  "scope": "One manual fresh attempt for Q-A-504, then continue the frozen queue.",
+  "started_unix": 1794406565.556393,
+  "task": {
+    "group": "A",
+    "id": "Q-A-504",
+    "kind": "Q",
+    "seed": 504
+  },
+  "user_message": "能否继续任务。",
+  "verified_completed_tasks": 121
+}

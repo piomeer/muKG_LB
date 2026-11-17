@@ -1,0 +1,1330 @@
+{
+  "cards_sha256": "c9d5fee94c8a9d4f849240b943b48d4e07ec8ce344253dfdf59fdae4a8dc79da",
+  "config": {
+    "adv": 2.0,
+    "batch_size": 5000,
+    "dim": 250,
+    "entity_chunk": 2048,
+    "learning_rate": 0.0005,
+    "margin": 7.0,
+    "max_epochs": 1000,
+    "max_rejection_rounds": 64,
+    "min_delta": 0.0001,
+    "min_epochs": 100,
+    "negatives": 150,
+    "patience": 5,
+    "protocol": "confirmation-v1",
+    "query_chunk": 32,
+    "validation_every": 10
+  },
+  "created_unix": 1794197963.5020564,
+  "environment": {
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "cuda_available": true,
+    "cuda_runtime": "11.8",
+    "dependencies": {
+      "matplotlib": "3.11.1",
+      "numpy": "2.4.4",
+      "scipy": "1.17.1"
+    },
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "hardware": "GPU-0bd13d63-b466-1f0b-ce46-481d3e6ec720, 550.67, 8192",
+    "interop_threads": 1,
+    "platform": "Linux-5.15.0-139-generic-x86_64-with-glibc2.31",
+    "python": "3.13.12 | packaged by Anaconda, Inc. | (main, Feb 24 2026, 16:13:31) [GCC 14.3.0]",
+    "torch": "2.7.1+cu118",
+    "torch_threads": 10
+  },
+  "git_head": "212b238169812ae9ecdac03abd35ccb46547d06e",
+  "preflight_sha256": "0037f973f4f65e2a6db05791a39db692b32bd35eb6f23f9845b068eb9f5c6a91",
+  "protocol": "confirmation-v1",
+  "protocol_sha256": "522add23af7b9982156f785a34d3562bdf84c23c038fc362134b4fb06297955f",
+  "source": {
+    "__init__.py": "d052e6f17751db72ff0881d08d21f3ce71667e5974cc941e726ec78a55f85bcf",
+    "__main__.py": "64c2c8b070e1f65d50deb1be5de3322a03276218b48af48149af83fdc30f3648",
+    "confirmation.py": "795d9905648a9c10a088c84316a5a5482ef745110c41ed8ab8c5313de6a1fe26",
+    "confirmation_jobs.py": "aaeac63b0b9d6d7e259d9962883c8f99a2c81fc63bd4bbbdaad9854fae3e208d",
+    "confirmation_report.py": "edf24352e46f1bce07b076988d5b821e48ca4eb79b5636d0b43a31010fac8922",
+    "controller.py": "080c6851e0c1399625524e9529f84ed74408d56623ac42828917b0a028e37e8c",
+    "core.py": "aa78e0bbcc7759281d0bded6471453d8d460d8591a1da5b473627b9ac5afc314",
+    "data.py": "ea625cfee43b65aa70e6f89c3f4641e3eaf1503339dd8c61bf16702c949729e7",
+    "diagnostic_archive.py": "23b2d56776092440fc61c3fbc36d56a8f074bcd9b20fabfd8ebb41969e23cbd5",
+    "diagnostic_report.py": "72b47bb213bb5bc7103b722f453be639fb9f9dd973fd7d4868b47dc02e62f7c2",
+    "diagnostics.py": "1cae13acea8d47c9ac8fae40efe7819cb55b274b3985851aa26730c43f48cd52",
+    "formal.py": "a75041cfcb02093e9d03bf63dd27683797c4a23c1d7f1eaab1c4e149137955d5",
+    "formal_checks.py": "6a49f7d2a8719efdbdd94905a4f2830e70c99c05bf9c5b304007653b448c83c2",
+    "formal_report.py": "2347a4a3609c36d9bfb22bb60faae20c099eac5d334bd9012e1587c19048c0e6",
+    "mechanism.py": "6e6d34bf90608043d9967d172b1f215942076857072d20b83beeb8118d9528a3",
+    "mechanism_jobs.py": "7e791991223c2caadb3c6766089e22a8094756578b040b129b4d2d0937aa4b09",
+    "mechanism_observe.py": "9b85b6d66ac77955add3a93176d622b9967ca10e68d2c9ec003797bd860d902e",
+    "mechanism_observe_jobs.py": "4d9c576b97c58e310aae151ef5a2aa1d91b0dd5f11b4d9743d5f80126de816b5",
+    "mechanism_report.py": "0b03ab58263b523f2936295daa34baa849b79c73fd2f3cd56bd0d6bc7d5c2614",
+    "mechanism_sampling.py": "93453d78b071ee22f1e5cf8bd6a4a4360d5409507376e13ae9ed516d7a0adf16",
+    "protocol.py": "cbcb01c19cb757ccae879e3faf373e2996d7ee40cdad236fb41456f7e7aa8445",
+    "reference/dataloader.py": "91d748bf7eddebc28d6b9ba764b8fec467672322a1193789080b54d834153e67",
+    "reference/losses.py": "429e1c0d29026b6f65571d8dc1fc17fc9ae044e3db738027eea22e1453145cc6",
+    "reference/transe.py": "9d1e4feeda4eaa78313fa55f1798ccb565e94d7ca25d688fe3026052a3aed533",
+    "runtime.py": "3d3af2108425a8b75bea74dfe57cfcc6c7de7d521614576ac4de1ea818a1c4c1"
+  },
+  "source_sha256": "a86bd5f9d8bddd2766fb064aad300731a41a42bba99d43c8f2177ee1a46cdd92",
+  "task_index_sha256": "d1477e45b28c68196ee5add1cf6f4cdead5c6c1b52eafa92930016b62a96c257",
+  "tasks": [
+    {
+      "group": "A",
+      "id": "S-A-521",
+      "kind": "S",
+      "seed": 521
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-521",
+      "kind": "S",
+      "seed": 521
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-521",
+      "kind": "S",
+      "seed": 521
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-521",
+      "kind": "S",
+      "seed": 521
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-521",
+      "kind": "S",
+      "seed": 521
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-521",
+      "kind": "S",
+      "seed": 521
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-522",
+      "kind": "S",
+      "seed": 522
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-522",
+      "kind": "S",
+      "seed": 522
+    },
+    {
+      "group": "A",
+      "id": "S-A-522",
+      "kind": "S",
+      "seed": 522
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-522",
+      "kind": "S",
+      "seed": 522
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-522",
+      "kind": "S",
+      "seed": 522
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-522",
+      "kind": "S",
+      "seed": 522
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-523",
+      "kind": "S",
+      "seed": 523
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-523",
+      "kind": "S",
+      "seed": 523
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-523",
+      "kind": "S",
+      "seed": 523
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-523",
+      "kind": "S",
+      "seed": 523
+    },
+    {
+      "group": "A",
+      "id": "S-A-523",
+      "kind": "S",
+      "seed": 523
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-523",
+      "kind": "S",
+      "seed": 523
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-524",
+      "kind": "S",
+      "seed": 524
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-524",
+      "kind": "S",
+      "seed": 524
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-524",
+      "kind": "S",
+      "seed": 524
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-524",
+      "kind": "S",
+      "seed": 524
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-524",
+      "kind": "S",
+      "seed": 524
+    },
+    {
+      "group": "A",
+      "id": "S-A-524",
+      "kind": "S",
+      "seed": 524
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-525",
+      "kind": "S",
+      "seed": 525
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-525",
+      "kind": "S",
+      "seed": 525
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-525",
+      "kind": "S",
+      "seed": 525
+    },
+    {
+      "group": "A",
+      "id": "S-A-525",
+      "kind": "S",
+      "seed": 525
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-525",
+      "kind": "S",
+      "seed": 525
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-525",
+      "kind": "S",
+      "seed": 525
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-526",
+      "kind": "S",
+      "seed": 526
+    },
+    {
+      "group": "A",
+      "id": "S-A-526",
+      "kind": "S",
+      "seed": 526
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-526",
+      "kind": "S",
+      "seed": 526
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-526",
+      "kind": "S",
+      "seed": 526
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-526",
+      "kind": "S",
+      "seed": 526
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-526",
+      "kind": "S",
+      "seed": 526
+    },
+    {
+      "group": "A",
+      "id": "S-A-527",
+      "kind": "S",
+      "seed": 527
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-527",
+      "kind": "S",
+      "seed": 527
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-527",
+      "kind": "S",
+      "seed": 527
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-527",
+      "kind": "S",
+      "seed": 527
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-527",
+      "kind": "S",
+      "seed": 527
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-527",
+      "kind": "S",
+      "seed": 527
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-528",
+      "kind": "S",
+      "seed": 528
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-528",
+      "kind": "S",
+      "seed": 528
+    },
+    {
+      "group": "A",
+      "id": "S-A-528",
+      "kind": "S",
+      "seed": 528
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-528",
+      "kind": "S",
+      "seed": 528
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-528",
+      "kind": "S",
+      "seed": 528
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-528",
+      "kind": "S",
+      "seed": 528
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-529",
+      "kind": "S",
+      "seed": 529
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-529",
+      "kind": "S",
+      "seed": 529
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-529",
+      "kind": "S",
+      "seed": 529
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-529",
+      "kind": "S",
+      "seed": 529
+    },
+    {
+      "group": "A",
+      "id": "S-A-529",
+      "kind": "S",
+      "seed": 529
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-529",
+      "kind": "S",
+      "seed": 529
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-530",
+      "kind": "S",
+      "seed": 530
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-530",
+      "kind": "S",
+      "seed": 530
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-530",
+      "kind": "S",
+      "seed": 530
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-530",
+      "kind": "S",
+      "seed": 530
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-530",
+      "kind": "S",
+      "seed": 530
+    },
+    {
+      "group": "A",
+      "id": "S-A-530",
+      "kind": "S",
+      "seed": 530
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-531",
+      "kind": "S",
+      "seed": 531
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-531",
+      "kind": "S",
+      "seed": 531
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-531",
+      "kind": "S",
+      "seed": 531
+    },
+    {
+      "group": "A",
+      "id": "S-A-531",
+      "kind": "S",
+      "seed": 531
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-531",
+      "kind": "S",
+      "seed": 531
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-531",
+      "kind": "S",
+      "seed": 531
+    },
+    {
+      "group": "M11-CPU",
+      "id": "S-M11-CPU-532",
+      "kind": "S",
+      "seed": 532
+    },
+    {
+      "group": "A",
+      "id": "S-A-532",
+      "kind": "S",
+      "seed": 532
+    },
+    {
+      "group": "M10-CPU",
+      "id": "S-M10-CPU-532",
+      "kind": "S",
+      "seed": 532
+    },
+    {
+      "group": "M00",
+      "id": "S-M00-532",
+      "kind": "S",
+      "seed": 532
+    },
+    {
+      "group": "M11-GPU",
+      "id": "S-M11-GPU-532",
+      "kind": "S",
+      "seed": 532
+    },
+    {
+      "group": "M10-GPU",
+      "id": "S-M10-GPU-532",
+      "kind": "S",
+      "seed": 532
+    },
+    {
+      "group": "A",
+      "id": "T-A-541",
+      "kind": "T",
+      "seed": 541
+    },
+    {
+      "group": "M00",
+      "id": "T-M00-541",
+      "kind": "T",
+      "seed": 541
+    },
+    {
+      "group": "M11-CPU",
+      "id": "T-M11-CPU-541",
+      "kind": "T",
+      "seed": 541
+    },
+    {
+      "group": "M10-GPU",
+      "id": "T-M10-GPU-541",
+      "kind": "T",
+      "seed": 541
+    },
+    {
+      "group": "M10-CPU",
+      "id": "T-M10-CPU-541",
+      "kind": "T",
+      "seed": 541
+    },
+    {
+      "group": "M11-GPU",
+      "id": "T-M11-GPU-541",
+      "kind": "T",
+      "seed": 541
+    },
+    {
+      "group": "M00",
+      "id": "T-M00-542",
+      "kind": "T",
+      "seed": 542
+    },
+    {
+      "group": "M10-GPU",
+      "id": "T-M10-GPU-542",
+      "kind": "T",
+      "seed": 542
+    },
+    {
+      "group": "A",
+      "id": "T-A-542",
+      "kind": "T",
+      "seed": 542
+    },
+    {
+      "group": "M11-GPU",
+      "id": "T-M11-GPU-542",
+      "kind": "T",
+      "seed": 542
+    },
+    {
+      "group": "M11-CPU",
+      "id": "T-M11-CPU-542",
+      "kind": "T",
+      "seed": 542
+    },
+    {
+      "group": "M10-CPU",
+      "id": "T-M10-CPU-542",
+      "kind": "T",
+      "seed": 542
+    },
+    {
+      "group": "M10-GPU",
+      "id": "T-M10-GPU-543",
+      "kind": "T",
+      "seed": 543
+    },
+    {
+      "group": "M11-GPU",
+      "id": "T-M11-GPU-543",
+      "kind": "T",
+      "seed": 543
+    },
+    {
+      "group": "M00",
+      "id": "T-M00-543",
+      "kind": "T",
+      "seed": 543
+    },
+    {
+      "group": "M10-CPU",
+      "id": "T-M10-CPU-543",
+      "kind": "T",
+      "seed": 543
+    },
+    {
+      "group": "A",
+      "id": "T-A-543",
+      "kind": "T",
+      "seed": 543
+    },
+    {
+      "group": "M11-CPU",
+      "id": "T-M11-CPU-543",
+      "kind": "T",
+      "seed": 543
+    },
+    {
+      "group": "M11-GPU",
+      "id": "T-M11-GPU-544",
+      "kind": "T",
+      "seed": 544
+    },
+    {
+      "group": "M10-CPU",
+      "id": "T-M10-CPU-544",
+      "kind": "T",
+      "seed": 544
+    },
+    {
+      "group": "M10-GPU",
+      "id": "T-M10-GPU-544",
+      "kind": "T",
+      "seed": 544
+    },
+    {
+      "group": "M11-CPU",
+      "id": "T-M11-CPU-544",
+      "kind": "T",
+      "seed": 544
+    },
+    {
+      "group": "M00",
+      "id": "T-M00-544",
+      "kind": "T",
+      "seed": 544
+    },
+    {
+      "group": "A",
+      "id": "T-A-544",
+      "kind": "T",
+      "seed": 544
+    },
+    {
+      "group": "M10-CPU",
+      "id": "T-M10-CPU-545",
+      "kind": "T",
+      "seed": 545
+    },
+    {
+      "group": "M11-CPU",
+      "id": "T-M11-CPU-545",
+      "kind": "T",
+      "seed": 545
+    },
+    {
+      "group": "M11-GPU",
+      "id": "T-M11-GPU-545",
+      "kind": "T",
+      "seed": 545
+    },
+    {
+      "group": "A",
+      "id": "T-A-545",
+      "kind": "T",
+      "seed": 545
+    },
+    {
+      "group": "M10-GPU",
+      "id": "T-M10-GPU-545",
+      "kind": "T",
+      "seed": 545
+    },
+    {
+      "group": "M00",
+      "id": "T-M00-545",
+      "kind": "T",
+      "seed": 545
+    },
+    {
+      "group": "M11-CPU",
+      "id": "T-M11-CPU-546",
+      "kind": "T",
+      "seed": 546
+    },
+    {
+      "group": "A",
+      "id": "T-A-546",
+      "kind": "T",
+      "seed": 546
+    },
+    {
+      "group": "M10-CPU",
+      "id": "T-M10-CPU-546",
+      "kind": "T",
+      "seed": 546
+    },
+    {
+      "group": "M00",
+      "id": "T-M00-546",
+      "kind": "T",
+      "seed": 546
+    },
+    {
+      "group": "M11-GPU",
+      "id": "T-M11-GPU-546",
+      "kind": "T",
+      "seed": 546
+    },
+    {
+      "group": "M10-GPU",
+      "id": "T-M10-GPU-546",
+      "kind": "T",
+      "seed": 546
+    },
+    {
+      "group": "A",
+      "id": "Q-A-501",
+      "kind": "Q",
+      "seed": 501
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-501",
+      "kind": "Q",
+      "seed": 501
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-501",
+      "kind": "Q",
+      "seed": 501
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-501",
+      "kind": "Q",
+      "seed": 501
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-502",
+      "kind": "Q",
+      "seed": 502
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-502",
+      "kind": "Q",
+      "seed": 502
+    },
+    {
+      "group": "A",
+      "id": "Q-A-502",
+      "kind": "Q",
+      "seed": 502
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-502",
+      "kind": "Q",
+      "seed": 502
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-503",
+      "kind": "Q",
+      "seed": 503
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-503",
+      "kind": "Q",
+      "seed": 503
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-503",
+      "kind": "Q",
+      "seed": 503
+    },
+    {
+      "group": "A",
+      "id": "Q-A-503",
+      "kind": "Q",
+      "seed": 503
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-504",
+      "kind": "Q",
+      "seed": 504
+    },
+    {
+      "group": "A",
+      "id": "Q-A-504",
+      "kind": "Q",
+      "seed": 504
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-504",
+      "kind": "Q",
+      "seed": 504
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-504",
+      "kind": "Q",
+      "seed": 504
+    },
+    {
+      "group": "A",
+      "id": "Q-A-505",
+      "kind": "Q",
+      "seed": 505
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-505",
+      "kind": "Q",
+      "seed": 505
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-505",
+      "kind": "Q",
+      "seed": 505
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-505",
+      "kind": "Q",
+      "seed": 505
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-506",
+      "kind": "Q",
+      "seed": 506
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-506",
+      "kind": "Q",
+      "seed": 506
+    },
+    {
+      "group": "A",
+      "id": "Q-A-506",
+      "kind": "Q",
+      "seed": 506
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-506",
+      "kind": "Q",
+      "seed": 506
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-507",
+      "kind": "Q",
+      "seed": 507
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-507",
+      "kind": "Q",
+      "seed": 507
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-507",
+      "kind": "Q",
+      "seed": 507
+    },
+    {
+      "group": "A",
+      "id": "Q-A-507",
+      "kind": "Q",
+      "seed": 507
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-508",
+      "kind": "Q",
+      "seed": 508
+    },
+    {
+      "group": "A",
+      "id": "Q-A-508",
+      "kind": "Q",
+      "seed": 508
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-508",
+      "kind": "Q",
+      "seed": 508
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-508",
+      "kind": "Q",
+      "seed": 508
+    },
+    {
+      "group": "A",
+      "id": "Q-A-509",
+      "kind": "Q",
+      "seed": 509
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-509",
+      "kind": "Q",
+      "seed": 509
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-509",
+      "kind": "Q",
+      "seed": 509
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-509",
+      "kind": "Q",
+      "seed": 509
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-510",
+      "kind": "Q",
+      "seed": 510
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-510",
+      "kind": "Q",
+      "seed": 510
+    },
+    {
+      "group": "A",
+      "id": "Q-A-510",
+      "kind": "Q",
+      "seed": 510
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-510",
+      "kind": "Q",
+      "seed": 510
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-511",
+      "kind": "Q",
+      "seed": 511
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-511",
+      "kind": "Q",
+      "seed": 511
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-511",
+      "kind": "Q",
+      "seed": 511
+    },
+    {
+      "group": "A",
+      "id": "Q-A-511",
+      "kind": "Q",
+      "seed": 511
+    },
+    {
+      "group": "M11-GPU",
+      "id": "Q-M11-GPU-512",
+      "kind": "Q",
+      "seed": 512
+    },
+    {
+      "group": "A",
+      "id": "Q-A-512",
+      "kind": "Q",
+      "seed": 512
+    },
+    {
+      "group": "M10-GPU",
+      "id": "Q-M10-GPU-512",
+      "kind": "Q",
+      "seed": 512
+    },
+    {
+      "group": "M00",
+      "id": "Q-M00-512",
+      "kind": "Q",
+      "seed": 512
+    },
+    {
+      "group": "A",
+      "id": "E-A-501",
+      "kind": "E",
+      "seed": 501
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-501",
+      "kind": "E",
+      "seed": 501
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-501",
+      "kind": "E",
+      "seed": 501
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-501",
+      "kind": "E",
+      "seed": 501
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-502",
+      "kind": "E",
+      "seed": 502
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-502",
+      "kind": "E",
+      "seed": 502
+    },
+    {
+      "group": "A",
+      "id": "E-A-502",
+      "kind": "E",
+      "seed": 502
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-502",
+      "kind": "E",
+      "seed": 502
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-503",
+      "kind": "E",
+      "seed": 503
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-503",
+      "kind": "E",
+      "seed": 503
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-503",
+      "kind": "E",
+      "seed": 503
+    },
+    {
+      "group": "A",
+      "id": "E-A-503",
+      "kind": "E",
+      "seed": 503
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-504",
+      "kind": "E",
+      "seed": 504
+    },
+    {
+      "group": "A",
+      "id": "E-A-504",
+      "kind": "E",
+      "seed": 504
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-504",
+      "kind": "E",
+      "seed": 504
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-504",
+      "kind": "E",
+      "seed": 504
+    },
+    {
+      "group": "A",
+      "id": "E-A-505",
+      "kind": "E",
+      "seed": 505
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-505",
+      "kind": "E",
+      "seed": 505
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-505",
+      "kind": "E",
+      "seed": 505
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-505",
+      "kind": "E",
+      "seed": 505
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-506",
+      "kind": "E",
+      "seed": 506
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-506",
+      "kind": "E",
+      "seed": 506
+    },
+    {
+      "group": "A",
+      "id": "E-A-506",
+      "kind": "E",
+      "seed": 506
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-506",
+      "kind": "E",
+      "seed": 506
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-507",
+      "kind": "E",
+      "seed": 507
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-507",
+      "kind": "E",
+      "seed": 507
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-507",
+      "kind": "E",
+      "seed": 507
+    },
+    {
+      "group": "A",
+      "id": "E-A-507",
+      "kind": "E",
+      "seed": 507
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-508",
+      "kind": "E",
+      "seed": 508
+    },
+    {
+      "group": "A",
+      "id": "E-A-508",
+      "kind": "E",
+      "seed": 508
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-508",
+      "kind": "E",
+      "seed": 508
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-508",
+      "kind": "E",
+      "seed": 508
+    },
+    {
+      "group": "A",
+      "id": "E-A-509",
+      "kind": "E",
+      "seed": 509
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-509",
+      "kind": "E",
+      "seed": 509
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-509",
+      "kind": "E",
+      "seed": 509
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-509",
+      "kind": "E",
+      "seed": 509
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-510",
+      "kind": "E",
+      "seed": 510
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-510",
+      "kind": "E",
+      "seed": 510
+    },
+    {
+      "group": "A",
+      "id": "E-A-510",
+      "kind": "E",
+      "seed": 510
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-510",
+      "kind": "E",
+      "seed": 510
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-511",
+      "kind": "E",
+      "seed": 511
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-511",
+      "kind": "E",
+      "seed": 511
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-511",
+      "kind": "E",
+      "seed": 511
+    },
+    {
+      "group": "A",
+      "id": "E-A-511",
+      "kind": "E",
+      "seed": 511
+    },
+    {
+      "group": "M11-GPU",
+      "id": "E-M11-GPU-512",
+      "kind": "E",
+      "seed": 512
+    },
+    {
+      "group": "A",
+      "id": "E-A-512",
+      "kind": "E",
+      "seed": 512
+    },
+    {
+      "group": "M10-GPU",
+      "id": "E-M10-GPU-512",
+      "kind": "E",
+      "seed": 512
+    },
+    {
+      "group": "M00",
+      "id": "E-M00-512",
+      "kind": "E",
+      "seed": 512
+    }
+  ],
+  "test_sha256": "6027e649c1716ac9c1ef2f24672a416aa277aff3e14850ef915ac5a21df70417",
+  "training": {
+    "entity2id.txt": "2df2382d68595f17c638a13557265226d06beaac04b2f4b31c9646d8c3ffe16b",
+    "relation2id.txt": "ecdf2f828ce7ddfdfd4c24d0615638948c28f5f94c3589f33dbf35da762d32f5",
+    "train2id.txt": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2"
+  },
+  "validation": {
+    "entity2id.txt": "2df2382d68595f17c638a13557265226d06beaac04b2f4b31c9646d8c3ffe16b",
+    "relation2id.txt": "ecdf2f828ce7ddfdfd4c24d0615638948c28f5f94c3589f33dbf35da762d32f5",
+    "train2id.txt": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2",
+    "valid2id.txt": "7d21e778de4369d5348f5cff23a08dc847ab5fce4b5f07c80113297d2dc60a86"
+  }
+}

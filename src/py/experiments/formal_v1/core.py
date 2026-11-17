@@ -28,9 +28,10 @@ class CPUSampler:
     Last retry intentionally retains the historical unfiltered fallback.
     This is different from the GPU rejection policy, including duplicate rules.
     """
-    def __init__(self,entities,negatives,known,max_try=10):
+    def __init__(self,entities,negatives,known,max_try=10,observer=None):
         if not 0<negatives<=entities:raise ValueError('CPU random.sample requires 0<K<=entity count')
         self.entities=list(range(entities));self.k=negatives;self.known=set(known);self.max_try=max_try
+        self.observer=observer
     def generate(self,batch):
         output=[]
         for head,relation,tail in batch.tolist():
@@ -39,6 +40,9 @@ class CPUSampler:
                 corrupt=np.random.binomial(1,.5)
                 candidates=random.sample(self.entities,remaining)
                 triples={(e,relation,tail) for e in candidates} if corrupt else {(head,relation,e) for e in candidates}
+                if self.observer is not None:
+                    self.observer((head,relation,tail),i+1,bool(corrupt),triples,negatives,
+                                  i==self.max_try-1)
                 if i==self.max_try-1:
                     negatives+=list(triples);break
                 negatives+=list(triples-self.known)
@@ -49,7 +53,7 @@ class CPUSampler:
         return torch.tensor(output,dtype=torch.long).reshape(len(batch),self.k,3)
 
 class TensorSampler:
-    """Uniform-with-replacement GPU sampling, train-triple rejection only."""
+    """Uniform-with-replacement tensor sampling on CPU or GPU; train rejection."""
     def __init__(self,entities,relations,negatives,known,mode='balanced',device='cuda',max_rounds=64):
         if mode not in ('balanced','tail') or negatives<=0 or (mode=='balanced' and negatives%2):raise ValueError('Balanced sampling requires positive even K')
         if entities*entities*relations>=2**63:raise ValueError('Triple key exceeds int64')
@@ -72,7 +76,7 @@ class TensorSampler:
                 collision=(idx<self.keys.numel()) & (self.keys[idx.clamp_max(self.keys.numel()-1)]==keys)
             pending=collision | (out==pos[:,None,:]).all(dim=-1)
             if not pending.any().item():return out
-        raise RuntimeError('GPU sampler exhausted rejection rounds; no positive fallback allowed')
+        raise RuntimeError('Tensor sampler exhausted rejection rounds; no positive fallback allowed')
 
 @torch.no_grad()
 def evaluate(model,triples,known,entities,device='cuda',query_chunk=32,entity_chunk=2048):
