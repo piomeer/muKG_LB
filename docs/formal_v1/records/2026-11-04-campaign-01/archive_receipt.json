@@ -1,0 +1,9 @@
+{
+  "archive": "/home/hma/muKG_LB/.research-archive/2026-11-04-campaign-01-closed/campaign-and-source.tar.gz",
+  "sha256": "9a080dd7ac64d0a38babf67b5b0daf44e7e99ad928aaba58d6939413f9201283",
+  "bytes": 54993635,
+  "campaign_files_verified": 76,
+  "source_files_verified": 10,
+  "scope": "closed local copy, no off-machine disaster recovery claim",
+  "data_dependency": "official data preserved in 2026-11-04-pre-formal-v1 archive"
+}

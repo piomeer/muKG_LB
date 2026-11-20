@@ -1,0 +1,44 @@
+{
+  "command": [
+    "/home/hma/miniconda3/bin/python3",
+    "-B",
+    "-m",
+    "src.py.experiments.formal_v1",
+    "confirmation",
+    "run-task",
+    "--run",
+    "/home/hma/.codex/worktrees/formal-v1/muKG_LB/output/results/confirmation_v1/run-01",
+    "--task",
+    "Q-M11-GPU-504"
+  ],
+  "config": {
+    "adv": 2.0,
+    "batch_size": 5000,
+    "dim": 250,
+    "entity_chunk": 2048,
+    "learning_rate": 0.0005,
+    "margin": 7.0,
+    "max_epochs": 1000,
+    "max_rejection_rounds": 64,
+    "min_delta": 0.0001,
+    "min_epochs": 100,
+    "negatives": 150,
+    "patience": 5,
+    "protocol": "confirmation-v1",
+    "query_chunk": 32,
+    "validation_every": 10
+  },
+  "estimate": {
+    "basis": "seed 550 complete training epoch ×1000 and full validation ×100",
+    "scheduled_seconds": 8468.794061075974,
+    "seconds": 6514.456970058442
+  },
+  "group": "M11-GPU",
+  "id": "Q-M11-GPU-504",
+  "kind": "Q",
+  "prior_phases": [
+    "S",
+    "T"
+  ],
+  "seed": 504
+}

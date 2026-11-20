@@ -1,0 +1,50 @@
+{
+  "archive": "/home/hma/muKG_LB/.research-archive/2026-11-04-pre-formal-v1",
+  "snapshot_files": 1590,
+  "snapshot_bytes": 3963690935,
+  "metadata_hashes": {
+    "replay.json": "2796ce3c092e033e9011243d5ec14a472449bc3c4e419c6f960d1067e50a0bf7",
+    "manifest.json": "094c5592b86aab220c99e7be36f60a9ee99c663ada15a025ddc5b75308b58cb4",
+    "repository.json": "645a580134820d95bc42e2b6b4fe9ce31d034e8a0099e8d99acc9ba68f4ab702",
+    "history.bundle": "94bde16bcc1d0817e857706b146f6b8d011bcdc88d789578ea3fc8e5630c3cda",
+    "external/randint-DistributionTemplates.h": "94a598ff053a782adcfa831696cec654bc0cd03f7ba876323bc05ed5bd86cab9",
+    "external/randint-audit-probe.py": "59d1b2160c41f8733972d4acfba7b5ef33f777432e4534116f77992b0557a265",
+    "external/randint-audit-trace.json": "c11dc9ab89a48981be675ae92b3e8b9dd4119831269d1c4c37870c8cb851f628",
+    "external/randint-audit-e2d141d/TransformationHelper.h": "77ba7f2ca028c5258f8cf0cfb26354f71a2a93369e0b82c8f7c09ca1ca1c7b45",
+    "external/randint-audit-e2d141d/cuda-11.8-guide.html": "a4ff75dfaa71bbba5e26335c621d6bddf4ecebdcfa7342ff3c76d22be55ae15d",
+    "external/randint-audit-e2d141d/native_functions.yaml": "1469947e378adf90b50df4feb0f645f349c5ccbd6d0dfa88d00bca0047da9ff8",
+    "external/randint-audit-e2d141d/DistributionRandomKernel.cu": "8f10d73d487a137534c8a16e6ecfc30d301564e38397df5e3f4866d1bf6519d3",
+    "external/randint-audit-e2d141d/Distributions.cpp": "98e2c65578c4778a1ee0890b8a75ab4ad0a2126c9d414c7cf4bf951e2a19f6b3",
+    "external/randint-audit-e2d141d/TensorFactories.cpp": "2a6df4c4210338ab9f89cbee0964f278f1a06018c18f588ef84bcfb65e15123a",
+    "external/randint-audit-e2d141d/DistributionTemplates-host.h": "f888393b98c44a6ee614d185fb593a4623fc40f9b57e2134c0dddcacb77698f8",
+    "external/randint-audit-e2d141d/gen_python_functions.py": "45baa4a7edf914a4426244e6650f4d4bade48e6d74673e888d505bdc38237630",
+    "external/randint-audit-e2d141d/python_torch_functions_manual.cpp": "41d7c0fc32a61a77d446952a47a6511a12f16a23fe1c198488d0e52d782a0358"
+  },
+  "restore_test": "full snapshot restored to /tmp/mukg-formal-restore-20261104; replay recomputed",
+  "replay": {
+    "epoch_speedup": {
+      "estimate": 6.013389739959143,
+      "ci95": [
+        5.943567835146285,
+        6.084031875738807
+      ]
+    },
+    "sd_compression": {
+      "estimate": 87.8770568321814,
+      "ci95": [
+        72.91667680458913,
+        105.9068714579765
+      ]
+    },
+    "quality_seed42": {
+      "bl": {
+        "head": 0.05670723332054532,
+        "tail": 0.13539329286991034
+      },
+      "gpu": {
+        "head": 0.006077856197268422,
+        "tail": 0.12420390617786363
+      }
+    }
+  }
+}

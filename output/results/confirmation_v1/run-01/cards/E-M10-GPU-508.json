@@ -1,0 +1,45 @@
+{
+  "command": [
+    "/home/hma/miniconda3/bin/python3",
+    "-B",
+    "-m",
+    "src.py.experiments.formal_v1",
+    "confirmation",
+    "run-task",
+    "--run",
+    "/home/hma/.codex/worktrees/formal-v1/muKG_LB/output/results/confirmation_v1/run-01",
+    "--task",
+    "E-M10-GPU-508"
+  ],
+  "config": {
+    "adv": 2.0,
+    "batch_size": 5000,
+    "dim": 250,
+    "entity_chunk": 2048,
+    "learning_rate": 0.0005,
+    "margin": 7.0,
+    "max_epochs": 1000,
+    "max_rejection_rounds": 64,
+    "min_delta": 0.0001,
+    "min_epochs": 100,
+    "negatives": 150,
+    "patience": 5,
+    "protocol": "confirmation-v1",
+    "query_chunk": 32,
+    "validation_every": 10
+  },
+  "estimate": {
+    "basis": "seed 550 full validation scaled by official test/validation query count",
+    "scheduled_seconds": 41.675491548067995,
+    "seconds": 32.05807042159076
+  },
+  "group": "M10-GPU",
+  "id": "E-M10-GPU-508",
+  "kind": "E",
+  "prior_phases": [
+    "S",
+    "T",
+    "Q"
+  ],
+  "seed": 508
+}

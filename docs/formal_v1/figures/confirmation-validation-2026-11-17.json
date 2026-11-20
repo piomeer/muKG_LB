@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-17",
+  "input_sha256": "9f5d28ed4b398cad935fa5b6e138d7b9946f07509bc19f90a4ff9b12d2aa1fb8",
+  "input": "output/results/confirmation_v1/analysis-01/recomputed_tasks.json",
+  "groups": {
+    "A": {
+      "seeds": [
+        501,
+        502,
+        503,
+        504,
+        505,
+        506,
+        507,
+        508,
+        509,
+        510,
+        511,
+        512
+      ],
+      "validations": 1200
+    },
+    "M00": {
+      "seeds": [
+        501,
+        502,
+        503,
+        504,
+        505,
+        506,
+        507,
+        508,
+        509,
+        510,
+        511,
+        512
+      ],
+      "validations": 1200
+    },
+    "M10-GPU": {
+      "seeds": [
+        501,
+        502,
+        503,
+        504,
+        505,
+        506,
+        507,
+        508,
+        509,
+        510,
+        511,
+        512
+      ],
+      "validations": 1200
+    },
+    "M11-GPU": {
+      "seeds": [
+        501,
+        502,
+        503,
+        504,
+        505,
+        506,
+        507,
+        508,
+        509,
+        510,
+        511,
+        512
+      ],
+      "validations": 1200
+    }
+  },
+  "points_per_panel": 4800,
+  "axes": [
+    "epoch",
+    "training_seconds",
+    "wall_seconds"
+  ],
+  "aggregate": "coordinate-wise median at each epoch",
+  "wall_clock": "training loop, including validation; excludes process setup and finalization",
+  "selection": "all successful frozen Q tasks; no test or best-checkpoint selection",
+  "matplotlib": "3.11.1",
+  "output_sha256": "f8a54ddfac86384e511ead17544549a6768981bed036c4c552c91d04162f833c"
+}

@@ -44,3 +44,7 @@ node_modules/
 
 # Local Superpowers brainstorming companion (not project evidence)
 .superpowers/
+
+# Formal research artifacts remain local
+/output/results/formal_v1/
+/.research-archive/

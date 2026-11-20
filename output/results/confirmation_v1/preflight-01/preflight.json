@@ -1,0 +1,160 @@
+{
+  "batch_size": 5000,
+  "candidates": {
+    "5000": {
+      "A": {
+        "finished_unix": 1794197753.8153636,
+        "measured_seconds": 25.561320863,
+        "peak_reserved_bytes": 3061841920,
+        "started_unix": 1794197645.2642128,
+        "status": "complete",
+        "task": "P-5000-A-550",
+        "total_bytes": 8351318016,
+        "trace_seconds": 26.02757909,
+        "validation_seconds": 28.39677957072854,
+        "wall_seconds": 108.55114654451609,
+        "warmup_seconds": 25.968013841
+      },
+      "M00": {
+        "finished_unix": 1794197794.8436356,
+        "measured_seconds": 2.990268604,
+        "peak_reserved_bytes": 3089104896,
+        "started_unix": 1794197756.4233232,
+        "status": "complete",
+        "task": "P-5000-M00-550",
+        "total_bytes": 8351318016,
+        "trace_seconds": 3.027571807,
+        "validation_seconds": 27.43487103935331,
+        "wall_seconds": 38.42030915804207,
+        "warmup_seconds": 3.023604781
+      },
+      "M10-CPU": {
+        "finished_unix": 1794197916.5828702,
+        "measured_seconds": 10.458704586,
+        "peak_reserved_bytes": 3061841920,
+        "started_unix": 1794197882.7881844,
+        "status": "complete",
+        "task": "P-5000-M10-CPU-550",
+        "total_bytes": 8351318016,
+        "trace_seconds": 10.664691647,
+        "wall_seconds": 33.794682634063065,
+        "warmup_seconds": 10.72044617
+      },
+      "M10-GPU": {
+        "finished_unix": 1794197836.044337,
+        "measured_seconds": 2.988055177,
+        "peak_reserved_bytes": 3089104896,
+        "started_unix": 1794197797.5594723,
+        "status": "complete",
+        "task": "P-5000-M10-GPU-550",
+        "total_bytes": 8351318016,
+        "trace_seconds": 3.002767291,
+        "validation_seconds": 27.466933687217534,
+        "wall_seconds": 38.48486186936498,
+        "warmup_seconds": 3.006822991
+      },
+      "M11-CPU": {
+        "finished_unix": 1794197960.9952424,
+        "measured_seconds": 13.099171598,
+        "peak_reserved_bytes": 3061841920,
+        "started_unix": 1794197918.9479442,
+        "status": "complete",
+        "task": "P-5000-M11-CPU-550",
+        "total_bytes": 8351318016,
+        "trace_seconds": 13.529671148,
+        "wall_seconds": 42.04729457106441,
+        "warmup_seconds": 13.342831043
+      },
+      "M11-GPU": {
+        "finished_unix": 1794197880.6152785,
+        "measured_seconds": 3.639477426,
+        "peak_reserved_bytes": 3110076416,
+        "started_unix": 1794197838.7109365,
+        "status": "complete",
+        "task": "P-5000-M11-GPU-550",
+        "total_bytes": 8351318016,
+        "trace_seconds": 3.690880278,
+        "validation_seconds": 28.74979544058442,
+        "wall_seconds": 41.90433863084763,
+        "warmup_seconds": 3.644242834
+      }
+    }
+  },
+  "environment": {
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "cuda_available": true,
+    "cuda_runtime": "11.8",
+    "dependencies": {
+      "matplotlib": "3.11.1",
+      "numpy": "2.4.4",
+      "scipy": "1.17.1"
+    },
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "hardware": "GPU-0bd13d63-b466-1f0b-ce46-481d3e6ec720, 550.67, 8192",
+    "interop_threads": 1,
+    "platform": "Linux-5.15.0-139-generic-x86_64-with-glibc2.31",
+    "python": "3.13.12 | packaged by Anaconda, Inc. | (main, Feb 24 2026, 16:13:31) [GCC 14.3.0]",
+    "torch": "2.7.1+cu118",
+    "torch_threads": 10
+  },
+  "source": {
+    "__init__.py": "d052e6f17751db72ff0881d08d21f3ce71667e5974cc941e726ec78a55f85bcf",
+    "__main__.py": "64c2c8b070e1f65d50deb1be5de3322a03276218b48af48149af83fdc30f3648",
+    "confirmation.py": "795d9905648a9c10a088c84316a5a5482ef745110c41ed8ab8c5313de6a1fe26",
+    "confirmation_jobs.py": "aaeac63b0b9d6d7e259d9962883c8f99a2c81fc63bd4bbbdaad9854fae3e208d",
+    "confirmation_report.py": "edf24352e46f1bce07b076988d5b821e48ca4eb79b5636d0b43a31010fac8922",
+    "controller.py": "080c6851e0c1399625524e9529f84ed74408d56623ac42828917b0a028e37e8c",
+    "core.py": "aa78e0bbcc7759281d0bded6471453d8d460d8591a1da5b473627b9ac5afc314",
+    "data.py": "ea625cfee43b65aa70e6f89c3f4641e3eaf1503339dd8c61bf16702c949729e7",
+    "diagnostic_archive.py": "23b2d56776092440fc61c3fbc36d56a8f074bcd9b20fabfd8ebb41969e23cbd5",
+    "diagnostic_report.py": "72b47bb213bb5bc7103b722f453be639fb9f9dd973fd7d4868b47dc02e62f7c2",
+    "diagnostics.py": "1cae13acea8d47c9ac8fae40efe7819cb55b274b3985851aa26730c43f48cd52",
+    "formal.py": "a75041cfcb02093e9d03bf63dd27683797c4a23c1d7f1eaab1c4e149137955d5",
+    "formal_checks.py": "6a49f7d2a8719efdbdd94905a4f2830e70c99c05bf9c5b304007653b448c83c2",
+    "formal_report.py": "2347a4a3609c36d9bfb22bb60faae20c099eac5d334bd9012e1587c19048c0e6",
+    "mechanism.py": "6e6d34bf90608043d9967d172b1f215942076857072d20b83beeb8118d9528a3",
+    "mechanism_jobs.py": "7e791991223c2caadb3c6766089e22a8094756578b040b129b4d2d0937aa4b09",
+    "mechanism_observe.py": "9b85b6d66ac77955add3a93176d622b9967ca10e68d2c9ec003797bd860d902e",
+    "mechanism_observe_jobs.py": "4d9c576b97c58e310aae151ef5a2aa1d91b0dd5f11b4d9743d5f80126de816b5",
+    "mechanism_report.py": "0b03ab58263b523f2936295daa34baa849b79c73fd2f3cd56bd0d6bc7d5c2614",
+    "mechanism_sampling.py": "93453d78b071ee22f1e5cf8bd6a4a4360d5409507376e13ae9ed516d7a0adf16",
+    "protocol.py": "cbcb01c19cb757ccae879e3faf373e2996d7ee40cdad236fb41456f7e7aa8445",
+    "reference/dataloader.py": "91d748bf7eddebc28d6b9ba764b8fec467672322a1193789080b54d834153e67",
+    "reference/losses.py": "429e1c0d29026b6f65571d8dc1fc17fc9ae044e3db738027eea22e1453145cc6",
+    "reference/transe.py": "9d1e4feeda4eaa78313fa55f1798ccb565e94d7ca25d688fe3026052a3aed533",
+    "runtime.py": "3d3af2108425a8b75bea74dfe57cfcc6c7de7d521614576ac4de1ea818a1c4c1"
+  },
+  "status": "passed",
+  "training": {
+    "entity2id.txt": "2df2382d68595f17c638a13557265226d06beaac04b2f4b31c9646d8c3ffe16b",
+    "relation2id.txt": "ecdf2f828ce7ddfdfd4c24d0615638948c28f5f94c3589f33dbf35da762d32f5",
+    "train2id.txt": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2"
+  },
+  "validation": {
+    "entity2id.txt": "2df2382d68595f17c638a13557265226d06beaac04b2f4b31c9646d8c3ffe16b",
+    "relation2id.txt": "ecdf2f828ce7ddfdfd4c24d0615638948c28f5f94c3589f33dbf35da762d32f5",
+    "train2id.txt": "5f44223a02b39b8e398e77a787feb4f06e9ffccf1ae87047bbf38fcc8cc08bd2",
+    "valid2id.txt": "7d21e778de4369d5348f5cff23a08dc847ab5fce4b5f07c80113297d2dc60a86"
+  }
+}
