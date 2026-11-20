@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-20",
+  "operation": "byte-identical copies of archived figures; no new experiments or image edits",
+  "figures": [
+    {
+      "source": "output/results/formal_abc_v2/formal-20261106-01/analysis-FINAL-20261106-01/test_mrr_by_direction.png",
+      "copy": "docs/formal_v1/figures/abc-test-mrr-by-direction.png",
+      "sha256": "2c923198e7e5c3f0f315f8433e025e7984dc349bb44b680310691a0dd9ef62f6",
+      "bytes": 60222,
+      "scope": "formal-abc-v2; quality seeds 101-103; validation-selected official test"
+    },
+    {
+      "source": "output/results/mechanism_v1/mechanism-20261108-01/analysis-01/validation_by_direction.png",
+      "copy": "docs/formal_v1/figures/mechanism-validation-by-direction.png",
+      "sha256": "c8df7485768c675912fe9f88874285e30b90307b4a2966de2e830acbdb980f53",
+      "bytes": 32062,
+      "scope": "mechanism-v1; seeds 401-403; best-validation checkpoint head/tail MRR"
+    },
+    {
+      "source": "output/results/mechanism_v1/mechanism-20261108-01/analysis-01/mechanism_weight_mass.png",
+      "copy": "docs/formal_v1/figures/mechanism-weight-mass.png",
+      "sha256": "2678d3c66ead07a1258817168d74fbd2b4a8e64f68a70ad4977105f31f03d92d",
+      "bytes": 45490,
+      "scope": "mechanism-v1; three fixed parameter anchors, not longitudinal training"
+    }
+  ]
+}
